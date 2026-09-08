@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Bot, CheckCircle2, ExternalLink, Link2Off, LoaderCircle, Search, TriangleAlert } from "lucide-react";
 import type { AuditFinding, WebsiteAudit } from "@/lib/website-audit";
 import { CATEGORY_LABEL, SEVERITY_LABEL, SEVERITY_ORDER, type QualityFinding } from "@/lib/audit-findings";
+import { recordAuditRun } from "@/lib/audit-history";
 
 function FindingRow({ finding }: { finding: QualityFinding }) {
   return (
@@ -60,6 +61,7 @@ export function AuditForm() {
       const payload = await response.json() as { ok: boolean; report?: WebsiteAudit; error?: string };
       if (!response.ok || !payload.report) throw new Error(payload.error || "Audit failed");
       setReport(payload.report);
+      recordAuditRun(payload.report);
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Audit failed");
     } finally {

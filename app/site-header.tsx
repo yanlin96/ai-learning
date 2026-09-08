@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Menu, TrainFront, X } from "lucide-react";
+import { Menu, ScanSearch, X } from "lucide-react";
 import { PASSCODE, UNLOCK_KEY } from "@/app/secret-gate";
 
 export function SiteHeader() {
@@ -34,12 +34,13 @@ export function SiteHeader() {
   return (
     <header className="site-header">
       <nav className="nav shell">
-        <a className="brand" href="/" aria-label="Line Watch Melbourne home">
-          <span className="brand-mark"><TrainFront size={19} strokeWidth={2.4} /></span>
-          <span>Line Watch Melbourne</span>
+        <a className="brand" href="/" aria-label="PAS Website Quality Checker home">
+          <span className="brand-mark"><ScanSearch size={19} strokeWidth={2.4} /></span>
+          <span>PAS Website Quality Checker</span>
         </a>
         <div className="nav-actions">
           <a href="/">Website audit</a>
+          <a href="/history">History</a>
           <div className="menu-wrap">
             <button
               className="menu-button"
