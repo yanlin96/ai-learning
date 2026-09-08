@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import { Lock } from "lucide-react";
 
-const PASSCODE = "910906";
-const UNLOCK_KEY = "reminders-unlocked";
+export const PASSCODE = "910906";
+export const UNLOCK_KEY = "reminders-unlocked";
 
 /**
  * Hides the reminder tools behind a passcode. Client-side only, so it keeps the

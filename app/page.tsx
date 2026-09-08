@@ -1,76 +1,19 @@
-import { AlertTriangle, ArrowUpRight, CalendarDays, CheckCircle2, TrainFront } from "lucide-react";
-import { getWerribeeDisruptions, SOURCE_URL } from "@/lib/disruptions";
-import { SendAlertButton } from "@/app/send-alert-button";
+import { ScanSearch } from "lucide-react";
+import { AuditForm } from "@/app/audit-form";
 import { SiteHeader } from "@/app/site-header";
 import { SiteFooter } from "@/app/site-footer";
 
-export const dynamic = "force-dynamic";
-
-const melbourneTime = new Intl.DateTimeFormat("en-AU", {
-  timeZone: "Australia/Melbourne",
-  weekday: "long",
-  day: "numeric",
-  month: "long",
-  hour: "numeric",
-  minute: "2-digit",
-});
-
-export default async function Home() {
-  let disruptions = [] as Awaited<ReturnType<typeof getWerribeeDisruptions>>;
-  let unavailable = false;
-
-  try {
-    disruptions = await getWerribeeDisruptions();
-  } catch {
-    unavailable = true;
-  }
-
-  const hasWarnings = disruptions.length > 0;
-
+export default function WebsiteAuditPage() {
   return (
     <main>
       <SiteHeader />
-
-      <section className="hero shell" id="top">
-        <div className="eyebrow">MELBOURNE COMMUTES, WITHOUT THE SURPRISES</div>
-        <h1>Know before<br />you <em>go.</em></h1>
-        <p className="intro">Choose the train lines that matter to you, set one reminder time for each, and see useful service and station updates in one place.</p>
-
-        <div className={`status-card ${hasWarnings ? "warning" : "clear"}`}>
-          <div className="status-head">
-            <span className="status-icon">
-              {unavailable ? <AlertTriangle size={26} /> : hasWarnings ? <AlertTriangle size={26} /> : <CheckCircle2 size={26} />}
-            </span>
-            <div>
-              <p className="label">CURRENT STATUS</p>
-              <h2>{unavailable ? "Unable to check right now" : hasWarnings ? `${disruptions.length} service ${disruptions.length === 1 ? "change" : "changes"}` : "All clear on the line"}</h2>
-            </div>
-            <span className="updated">Checked {melbourneTime.format(new Date())}</span>
-          </div>
-
-          {hasWarnings ? (
-            <div className="disruption-list">
-              {disruptions.map((item) => (
-                <article className="disruption" key={item.id}>
-                  <span className={`severity ${item.severity}`}>{item.severity === "major" ? "SERVICE CHANGE" : "NOTICE"}</span>
-                  <h3>{item.detail}</h3>
-                  {item.description && <p className="disruption-description">{item.description}</p>}
-                  <p><CalendarDays size={16} /> {item.period}</p>
-                  <p><TrainFront size={16} /> {item.line}</p>
-                </article>
-              ))}
-            </div>
-          ) : (
-            <p className="status-copy">{unavailable ? "Open the official source below for the latest information." : "No planned disruptions are listed right now. Your usual journey should run as expected."}</p>
-          )}
-
-          <a className="source-link" href={SOURCE_URL} target="_blank" rel="noreferrer">
-            View official Transport Victoria updates <ArrowUpRight size={17} />
-          </a>
-          {hasWarnings && <SendAlertButton />}
-        </div>
+      <section className="shell audit-page">
+        <header className="page-intro">
+          <span className="page-icon"><ScanSearch size={23} /></span>
+          <div><p className="eyebrow">WEBSITE AUDIT</p><h1>Can people—and <em>AI</em>—read it?</h1><p>Inspect broken links, essential SEO signals, and whether AI crawlers can access meaningful content before and after JavaScript renders.</p></div>
+        </header>
+        <AuditForm />
       </section>
-
       <SiteFooter />
     </main>
   );
