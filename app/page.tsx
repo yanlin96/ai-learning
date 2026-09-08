@@ -1,7 +1,6 @@
-import { AlertTriangle, ArrowUpRight, BellRing, CalendarDays, CheckCircle2, Clock3, TrainFront } from "lucide-react";
+import { AlertTriangle, ArrowUpRight, CalendarDays, CheckCircle2, TrainFront } from "lucide-react";
 import { getWerribeeDisruptions, SOURCE_URL } from "@/lib/disruptions";
 import { SendAlertButton } from "@/app/send-alert-button";
-import { listSubscriptions } from "@/lib/subscriptions";
 import { SiteHeader } from "@/app/site-header";
 import { SiteFooter } from "@/app/site-footer";
 
@@ -17,7 +16,6 @@ const melbourneTime = new Intl.DateTimeFormat("en-AU", {
 });
 
 export default async function Home() {
-  const subscriptions = await listSubscriptions();
   let disruptions = [] as Awaited<ReturnType<typeof getWerribeeDisruptions>>;
   let unavailable = false;
 
@@ -31,9 +29,6 @@ export default async function Home() {
 
   return (
     <main>
-      <div className="ambient ambient-one" />
-      <div className="ambient ambient-two" />
-
       <SiteHeader />
 
       <section className="hero shell" id="top">
@@ -73,22 +68,6 @@ export default async function Home() {
             View official Transport Victoria updates <ArrowUpRight size={17} />
           </a>
           {hasWarnings && <SendAlertButton />}
-        </div>
-      </section>
-
-      <section className="schedule shell">
-        <div className="schedule-copy">
-          <span className="small-icon"><BellRing size={20} /></span>
-          <div>
-            <p className="label">YOUR CHECK-IN</p>
-            <h2>Your line, your time.</h2>
-            <p>Each enabled line has one daily reminder time. We only contact you when there&apos;s something worth knowing.</p>
-          </div>
-        </div>
-        <div className="days">
-          <div><span>LINES</span><strong>{subscriptions.filter((item) => item.enabled).length}</strong><small>ON</small></div>
-          <div><span>TIMEZONE</span><strong>AEDT</strong><small>AEST</small></div>
-          <p><Clock3 size={15} /> Melbourne time</p>
         </div>
       </section>
 

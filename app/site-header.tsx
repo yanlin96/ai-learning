@@ -9,10 +9,7 @@ export function SiteHeader() {
           <span>Line Watch Melbourne</span>
         </a>
         <div className="nav-actions">
-          <a href="/">Service updates</a>
-          <a href="/reminders">My reminders</a>
           <a href="/website-audit">Website audit</a>
-          <span className="live-pill"><i /> Live monitoring</span>
         </div>
       </nav>
     </header>

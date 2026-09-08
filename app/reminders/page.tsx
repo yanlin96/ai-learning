@@ -1,5 +1,6 @@
 import { BellRing } from "lucide-react";
 import { ReminderManager } from "@/app/reminder-manager";
+import { SecretGate } from "@/app/secret-gate";
 import { SiteFooter } from "@/app/site-footer";
 import { SiteHeader } from "@/app/site-header";
 import { listSubscriptions } from "@/lib/subscriptions";
@@ -15,19 +16,19 @@ export default async function RemindersPage() {
 
   return (
     <main>
-      <div className="ambient ambient-one" />
       <SiteHeader />
-      <section className="page-intro shell">
-        <span className="page-icon"><BellRing size={22} /></span>
-        <div>
-          <p className="eyebrow">REMINDER SETTINGS</p>
-          <h1>Make every line<br /><em>yours.</em></h1>
-          <p>Search Melbourne&apos;s official train catalog and choose one daily check-in time for every line you care about.</p>
-        </div>
-      </section>
-      <ReminderManager initialSubscriptions={subscriptions} lines={trainLines} />
+      <SecretGate>
+        <section className="page-intro shell">
+          <span className="page-icon"><BellRing size={22} /></span>
+          <div>
+            <p className="eyebrow">REMINDER SETTINGS</p>
+            <h1>Make every line<br /><em>yours.</em></h1>
+            <p>Search Melbourne&apos;s official train catalog and choose one daily check-in time for every line you care about.</p>
+          </div>
+        </section>
+        <ReminderManager initialSubscriptions={subscriptions} lines={trainLines} />
+      </SecretGate>
       <SiteFooter />
     </main>
   );
 }
-

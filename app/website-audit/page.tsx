@@ -13,7 +13,6 @@ export default function WebsiteAuditPage() {
   return (
     <main>
       <SiteHeader />
-      <div className="ambient ambient-one" />
       <section className="shell audit-page">
         <header className="page-intro">
           <span className="page-icon"><ScanSearch size={23} /></span>
