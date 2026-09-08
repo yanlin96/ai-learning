@@ -1,9 +1,8 @@
 import "server-only";
 
-import { lookup } from "node:dns/promises";
 import { existsSync } from "node:fs";
-import { isIP } from "node:net";
 import * as cheerio from "cheerio";
+import { assertPublicUrl, normalizePublicUrl, safePublicFetch } from "@/lib/public-web";
 import { isCrawlerAllowed } from "@/lib/robots";
 import { scoreAiVisibility, scoreSeo, type AuditScore } from "@/lib/audit-scoring";
 import { auditAccessibility } from "@/lib/accessibility-audit";
@@ -27,7 +26,6 @@ const MAX_LINKS = 80;
 const LINK_CONCURRENCY = 12;
 /** Link checking stops after this long so the whole audit stays inside a request timeout. */
 const LINK_BUDGET_MS = 25_000;
-const FETCH_TIMEOUT_MS = 12_000;
 const LINK_TIMEOUT_MS = 8_000;
 const MAX_HTML_LENGTH = 2_000_000;
 const MAX_CONTEXT_CHARS = 6_000;
@@ -116,57 +114,8 @@ const CRAWLERS = [
   { name: "PerplexityBot", purpose: "Perplexity search crawler" },
 ];
 
-function isPrivateIp(address: string) {
-  if (isIP(address) === 4) {
-    const [a, b] = address.split(".").map(Number);
-    return a === 0 || a === 10 || a === 127 || (a === 169 && b === 254) ||
-      (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168) || a >= 224;
-  }
-  const value = address.toLowerCase();
-  return value === "::1" || value === "::" || value.startsWith("fc") ||
-    value.startsWith("fd") || value.startsWith("fe8") || value.startsWith("fe9") ||
-    value.startsWith("fea") || value.startsWith("feb") || value.startsWith("::ffff:127.") ||
-    value.startsWith("::ffff:10.") || value.startsWith("::ffff:192.168.");
-}
-
 export function normalizeAuditUrl(input: string) {
-  const trimmed = input.trim();
-  if (!trimmed) throw new Error("Enter a website URL");
-  return new URL(/^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`);
-}
-
-async function assertPublicUrl(url: URL) {
-  if (!['http:', 'https:'].includes(url.protocol)) throw new Error("Only HTTP and HTTPS URLs are supported");
-  if (url.username || url.password) throw new Error("URLs containing credentials are not supported");
-  const host = url.hostname.toLowerCase();
-  if (host === "localhost" || host.endsWith(".localhost") || host.endsWith(".local")) {
-    throw new Error("Local and private network addresses are not allowed");
-  }
-  const addresses = await lookup(host, { all: true, verbatim: true });
-  if (!addresses.length || addresses.some(({ address }) => isPrivateIp(address))) {
-    throw new Error("Local and private network addresses are not allowed");
-  }
-}
-
-async function safeFetch(url: URL, init: RequestInit = {}, redirects = 0, timeoutMs = FETCH_TIMEOUT_MS): Promise<Response> {
-  if (redirects > 5) throw new Error("Too many redirects");
-  await assertPublicUrl(url);
-  const response = await fetch(url, {
-    ...init,
-    redirect: "manual",
-    signal: AbortSignal.timeout(timeoutMs),
-    headers: {
-      "user-agent": "LineWatchWebsiteAudit/1.0",
-      accept: "text/html,application/xhtml+xml,*/*;q=0.8",
-      ...init.headers,
-    },
-  });
-  if ([301, 302, 303, 307, 308].includes(response.status)) {
-    const location = response.headers.get("location");
-    if (!location) return response;
-    return safeFetch(new URL(location, url), init, redirects + 1, timeoutMs);
-  }
-  return response;
+  return normalizePublicUrl(input);
 }
 
 function visibleText(html: string) {
@@ -231,7 +180,7 @@ async function inspectCrawler(target: URL, robots: string, robotsAvailable: bool
     ? isCrawlerAllowed(new URL("/robots.txt", target).href, robots, target.href, crawler.name)
     : null;
   try {
-    const response = await safeFetch(target, { headers: { "user-agent": `${crawler.name}/1.0` } });
+    const response = await safePublicFetch(target, { headers: { "user-agent": `${crawler.name}/1.0` } });
     return {
       ...crawler,
       robotsAllowed,
@@ -252,8 +201,8 @@ async function inspectCrawler(target: URL, robots: string, robotsAvailable: bool
 async function inspectLink(candidate: LinkCandidate, pageOrigin: string): Promise<LinkResult> {
   const { url, text, source } = candidate;
   try {
-    let response = await safeFetch(url, { method: "HEAD" }, 0, LINK_TIMEOUT_MS);
-    if ([403, 405].includes(response.status)) response = await safeFetch(url, { method: "GET" }, 0, LINK_TIMEOUT_MS);
+    let response = await safePublicFetch(url, { method: "HEAD" }, 0, LINK_TIMEOUT_MS);
+    if ([403, 405].includes(response.status)) response = await safePublicFetch(url, { method: "GET" }, 0, LINK_TIMEOUT_MS);
     const finalUrl = response.url || url.href;
     return {
       url: url.href,
@@ -589,7 +538,7 @@ Crawler terminology is strict:
 
 export async function auditWebsite(input: string): Promise<WebsiteAudit> {
   const target = normalizeAuditUrl(input);
-  const response = await safeFetch(target);
+  const response = await safePublicFetch(target);
   if (!response.ok) throw new Error(`The page returned HTTP ${response.status}`);
   const contentType = response.headers.get("content-type") || "";
   if (!contentType.includes("text/html") && !contentType.includes("application/xhtml+xml")) {
@@ -639,7 +588,7 @@ export async function auditWebsite(input: string): Promise<WebsiteAudit> {
   let robots = "";
   let robotsAvailable = true;
   try {
-    const robotsResponse = await safeFetch(new URL("/robots.txt", finalUrl));
+    const robotsResponse = await safePublicFetch(new URL("/robots.txt", finalUrl));
     if (robotsResponse.ok) robots = await robotsResponse.text();
     else if (robotsResponse.status !== 404) robotsAvailable = false;
   } catch {

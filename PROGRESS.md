@@ -1,6 +1,6 @@
 # Progress
 
-Last updated: 2026-09-02
+Last updated: 2026-09-08
 
 ## Working now
 
@@ -24,6 +24,9 @@ Last updated: 2026-09-02
 - SEO and AI-visibility scores now use tested weighted rules, ratings, and evidence confidence rather than equal per-finding deductions.
 - Broken links are collected from initial and rendered DOMs and displayed with link text, scope, source, URL, and failure evidence.
 - Reports provide a direct SEO follow-up link to Google Search Console URL Inspection.
+- `/history` keeps summaries of the current browser tab's audit runs in session storage.
+- `/smoke-test` checks manually prioritised and sitemap-discovered pages with up to 100 HTTP checks and Playwright verification for up to 20 priority or suspicious pages.
+- Smoke-test reports show page-level HTTP, response time, metadata/error evidence, and an overall Pass, Pass with warnings, or Fail recommendation.
 
 ## Not configured yet
 
@@ -32,7 +35,8 @@ Last updated: 2026-09-02
 - Duplicate-notification prevention and day-of-week schedules are not implemented.
 - Automated tests for GTFS classification and Telegram formatting are not implemented.
 - Production authentication for the manual-send button is not implemented; the endpoint is intentionally development-only.
-- Website audits are synchronous, limited to one page and 30 links, and do not store report history or verify private AI indexes.
+- Website audits are synchronous, limited to one page and 80 links, and do not verify private AI indexes. Audit history is tab-local and disappears when the tab closes.
+- Smoke tests do not yet execute authenticated user journeys, submit forms, support custom assertions, or persist run history.
 
 ## Current focus
 

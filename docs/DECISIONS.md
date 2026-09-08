@@ -2,6 +2,12 @@
 
 This is a lightweight decision log. Add an entry when a choice would otherwise be easy to forget or accidentally reverse.
 
+## 2026-09-08 — Keep smoke testing broad, deterministic, and separate
+
+Release smoke testing lives at `/smoke-test` rather than expanding the single-page deep audit. It checks up to 100 same-origin URLs, prioritising manually supplied critical paths before sitemap entries. All selected pages receive HTTP and markup checks; up to 20 priority or suspicious pages receive Playwright verification using one shared browser. It never calls OpenAI and does not perform form submissions. A clear Pass, Pass with warnings, or Fail result is more actionable for release decisions than another numeric score.
+
+Smoke testing and deep auditing share `lib/public-web.ts` so redirects, browser documents, scripts, and stylesheets retain the same SSRF protections. Missing metadata, `noindex`, redirects, console errors, and failed critical resources are warnings; request failures, HTTP errors, visible application-error text, empty rendered bodies, and uncaught page errors fail the run.
+
 ## 2026-09-02 — Keep website audit evidence deterministic
 
 Broken-link status, robots rules, metadata, and raw-versus-rendered content measurements come from code and captured HTTP/browser evidence. OpenAI may summarize those findings, but it must not invent measurements or claim that a page is present in a provider's private index.

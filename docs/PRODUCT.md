@@ -36,6 +36,10 @@ It is:
 - Website audits compare initial HTML with a JavaScript-rendered DOM when Chromium is available; they never claim to verify a provider's private search index.
 - Audit scores use weighted technical signals and display evidence confidence; they are diagnostic summaries, not Google rankings.
 - Broken-link results include link text, internal/external scope, source DOM, URL, and response failure. Reports link to Google Search Console URL Inspection for authoritative SEO follow-up.
+- A separate `/smoke-test` workflow checks release breadth across priority and sitemap URLs without running costly deep analysis on every page. It performs HTTP checks broadly and uses Playwright on priority and suspicious pages.
+- Smoke-test scope is configurable from 1 to 100 pages. Manual priority URLs run before sitemap URLs.
+- Smoke tests are read-only and return an explicit Pass, Pass with warnings, or Fail recommendation.
+- Smoke testing never calls OpenAI; it must not consume model tokens.
 
 ## What counts as useful
 

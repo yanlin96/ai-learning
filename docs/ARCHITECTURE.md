@@ -44,6 +44,10 @@ Transport Victoria GTFS Schedule + GTFS-Realtime Alerts
 - `lib/audit-scoring.ts`: pure weighted scoring and confidence rules, separate from crawling and UI presentation.
 - `app/api/audits/route.ts`: accepts one public URL and returns a structured report; it must never become an unrestricted internal-network fetch proxy.
 - `app/website-audit/page.tsx`: website-audit UI, kept separate from commute reminder flows.
+- `lib/public-web.ts`: shared public-URL normalization, DNS/private-address rejection, redirect validation, and bounded fetch used by public-web inspection features.
+- `lib/smoke-test.ts`: breadth-first sitemap discovery and bounded multi-page smoke-test orchestration.
+- `lib/smoke-rules.ts`: pure Pass/Warning/Fail classification rules.
+- `app/smoke-test/page.tsx`: release smoke-test UI for up to 100 same-origin pages.
 
 ## Website audit data flow
 
@@ -82,6 +86,8 @@ Scoring separates SEO from AI-search readiness. Critical indexability and crawle
 All credentials must remain in server-only modules and environment variables. Client components may call project API routes but must never receive Transport Victoria or Telegram credentials.
 
 Website-audit targets must use HTTP(S), resolve only to public addresses, and be revalidated across redirects and browser subresources. Keep time, response-size, redirect, and link-count limits in place. Do not add localhost or private-network exceptions to the public endpoint.
+
+Smoke tests use the same public-network boundary. Manual URLs must share the base website origin. The base URL and manually supplied priority URLs run before same-origin sitemap entries. Runs are read-only, deterministic, capped at 100 HTTP checks, and bounded by request and overall time budgets. One shared Chromium instance verifies up to 20 priority or HTTP-anomalous pages with four-page concurrency. Images, fonts, and media are blocked; documents, scripts, and stylesheets remain available so runtime and critical-resource failures can be observed. Smoke tests do not call OpenAI.
 
 ## Read/write page boundary
 

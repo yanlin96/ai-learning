@@ -40,6 +40,7 @@ export function SiteHeader() {
         </a>
         <div className="nav-actions">
           <a href="/">Website audit</a>
+          <a href="/smoke-test">Smoke test</a>
           <a href="/history">History</a>
           <div className="menu-wrap">
             <button
