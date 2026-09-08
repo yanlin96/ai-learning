@@ -6,10 +6,31 @@ import { isIP } from "node:net";
 import * as cheerio from "cheerio";
 import { isCrawlerAllowed } from "@/lib/robots";
 import { scoreAiVisibility, scoreSeo, type AuditScore } from "@/lib/audit-scoring";
+import { auditAccessibility } from "@/lib/accessibility-audit";
+import { auditContentFreshness, readExclusionPatterns } from "@/lib/content-freshness";
+import {
+  capContextualFinding,
+  countBySeverity,
+  firstActions,
+  quickWins,
+  retestChecklist,
+  sortFindings,
+  type Confidence,
+  type FindingCategory,
+  type FindingOwner,
+  type QualityFinding,
+  type Severity,
+  type SeverityCounts,
+} from "@/lib/audit-findings";
 
-const MAX_LINKS = 30;
+const MAX_LINKS = 80;
+const LINK_CONCURRENCY = 12;
+/** Link checking stops after this long so the whole audit stays inside a request timeout. */
+const LINK_BUDGET_MS = 25_000;
 const FETCH_TIMEOUT_MS = 12_000;
+const LINK_TIMEOUT_MS = 8_000;
 const MAX_HTML_LENGTH = 2_000_000;
+const MAX_CONTEXT_CHARS = 6_000;
 
 export type AuditFinding = {
   level: "pass" | "warning" | "error" | "info";
@@ -38,6 +59,20 @@ export type CrawlerResult = {
   requestError?: string;
 };
 
+export type QualityReport = {
+  severityCounts: SeverityCounts;
+  findings: QualityFinding[];
+  quickWins: string[];
+  firstActions: string[];
+  retestChecklist: string[];
+  /** Checks that actually ran against this page. */
+  verified: string[];
+  /** Checks a member of the team still has to do by hand. */
+  notVerified: string[];
+  exclusionsApplied: string[];
+  contextualAnalysis: "complete" | "unavailable" | "failed";
+};
+
 export type WebsiteAudit = {
   url: string;
   finalUrl: string;
@@ -56,9 +91,12 @@ export type WebsiteAudit = {
   links: {
     discovered: number;
     checked: number;
+    /** Discovered links that the time budget did not allow us to test. */
+    unchecked: number;
     broken: LinkResult[];
     redirects: LinkResult[];
   };
+  qualityReport: QualityReport;
   seo: AuditScore & {
     findings: AuditFinding[];
   };
@@ -110,13 +148,13 @@ async function assertPublicUrl(url: URL) {
   }
 }
 
-async function safeFetch(url: URL, init: RequestInit = {}, redirects = 0): Promise<Response> {
+async function safeFetch(url: URL, init: RequestInit = {}, redirects = 0, timeoutMs = FETCH_TIMEOUT_MS): Promise<Response> {
   if (redirects > 5) throw new Error("Too many redirects");
   await assertPublicUrl(url);
   const response = await fetch(url, {
     ...init,
     redirect: "manual",
-    signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+    signal: AbortSignal.timeout(timeoutMs),
     headers: {
       "user-agent": "LineWatchWebsiteAudit/1.0",
       accept: "text/html,application/xhtml+xml,*/*;q=0.8",
@@ -126,15 +164,40 @@ async function safeFetch(url: URL, init: RequestInit = {}, redirects = 0): Promi
   if ([301, 302, 303, 307, 308].includes(response.status)) {
     const location = response.headers.get("location");
     if (!location) return response;
-    return safeFetch(new URL(location, url), init, redirects + 1);
+    return safeFetch(new URL(location, url), init, redirects + 1, timeoutMs);
   }
   return response;
 }
 
-function visibleTextLength(html: string) {
+function visibleText(html: string) {
   const $ = cheerio.load(html);
   $("script,style,noscript,template,svg").remove();
-  return $("body").text().replace(/\s+/g, " ").trim().length;
+  return $("body").text().replace(/\s+/g, " ").trim();
+}
+
+/** Bounded parallelism with a wall-clock budget; unstarted items are reported as unchecked. */
+async function mapWithBudget<T, R>(
+  items: T[],
+  limit: number,
+  deadline: number,
+  worker: (item: T) => Promise<R>,
+): Promise<{ results: R[]; skipped: number }> {
+  const results: R[] = [];
+  let cursor = 0;
+  let skipped = 0;
+  const runners = Array.from({ length: Math.min(limit, items.length) }, async () => {
+    while (cursor < items.length) {
+      const index = cursor;
+      cursor += 1;
+      if (Date.now() > deadline) {
+        skipped += 1;
+        continue;
+      }
+      results.push(await worker(items[index]));
+    }
+  });
+  await Promise.all(runners);
+  return { results, skipped };
 }
 
 type LinkCandidate = {
@@ -189,8 +252,8 @@ async function inspectCrawler(target: URL, robots: string, robotsAvailable: bool
 async function inspectLink(candidate: LinkCandidate, pageOrigin: string): Promise<LinkResult> {
   const { url, text, source } = candidate;
   try {
-    let response = await safeFetch(url, { method: "HEAD" });
-    if ([403, 405].includes(response.status)) response = await safeFetch(url, { method: "GET" });
+    let response = await safeFetch(url, { method: "HEAD" }, 0, LINK_TIMEOUT_MS);
+    if ([403, 405].includes(response.status)) response = await safeFetch(url, { method: "GET" }, 0, LINK_TIMEOUT_MS);
     const finalUrl = response.url || url.href;
     return {
       url: url.href,
@@ -260,6 +323,247 @@ async function renderPage(url: URL) {
   }
 }
 
+/**
+ * Broken-link severity separates "our page is wrong" from "their server blipped".
+ * The requirement calls out legitimate external outages as the main false-positive
+ * risk, so anything that could be transient or bot-blocking is emitted at low
+ * confidence with an explicit re-test instruction instead of a remediation task.
+ */
+function brokenLinkFinding(link: LinkResult): QualityFinding {
+  const label = link.text ? `"${link.text}"` : "an unlabelled link";
+  const scope = link.internal ? "Internal link" : "External link";
+  const owner: FindingOwner = link.internal ? "Web Publishing" : "Content";
+  const base = { category: "broken-link" as const, element: scope, location: link.url, owner };
+
+  if (link.status === 404 || link.status === 410) {
+    return {
+      ...base,
+      severity: link.internal ? "high" : "medium",
+      confidence: "high",
+      evidence: `${label} → ${link.url} returns HTTP ${link.status}.`,
+      impact: link.internal
+        ? "A member following this link inside our own site reaches a dead end."
+        : "The destination has been removed, so the reference is no longer usable.",
+      fix: link.internal
+        ? "Repoint the link to the current page, or remove it if the destination was retired."
+        : "Replace with the destination's current URL, or remove the reference if it no longer exists.",
+    };
+  }
+
+  if (link.status === 401 || link.status === 403 || link.status === 429) {
+    return {
+      ...base,
+      severity: "low",
+      confidence: "low",
+      evidence: `${label} → ${link.url} returned HTTP ${link.status} to our checker.`,
+      impact: "This is frequently bot protection or rate limiting rather than a genuine break; a human browser may load the page normally.",
+      fix: "Open the URL in a browser before raising a ticket. Only treat it as broken if it fails interactively too.",
+    };
+  }
+
+  if (link.status && link.status >= 500) {
+    return {
+      ...base,
+      severity: link.internal ? "high" : "low",
+      confidence: link.internal ? "medium" : "low",
+      evidence: `${label} → ${link.url} returned HTTP ${link.status}.`,
+      impact: link.internal
+        ? "Our own server errored for this URL, which may affect every visitor."
+        : "The external site is erroring, which is often temporary.",
+      fix: link.internal
+        ? "Investigate the server error for this route."
+        : "Re-test in the next scan; escalate only if it stays broken across runs.",
+    };
+  }
+
+  return {
+    ...base,
+    severity: link.internal ? "medium" : "low",
+    confidence: "low",
+    evidence: `${label} → ${link.url} could not be reached: ${link.error || "the request failed"}.`,
+    impact: "A DNS, TLS, or timeout failure can be transient or caused by the destination blocking automated requests.",
+    fix: "Confirm the URL in a browser. If it loads, no change is needed; if it does not, replace or remove the link.",
+  };
+}
+
+function pageHealthFindings(input: {
+  title: string;
+  description: string;
+  canonical: string | null;
+  noindex: boolean;
+  javascriptDependencyPercent: number | null;
+  blockedCrawlers: string[];
+}): QualityFinding[] {
+  const findings: QualityFinding[] = [];
+
+  if (input.noindex) {
+    findings.push({
+      category: "seo", severity: "critical", confidence: "high",
+      element: "Indexability directive",
+      evidence: "A robots directive on this page contains noindex.",
+      impact: "Search engines are instructed not to list this page at all, so organic traffic to it is zero.",
+      fix: "Remove the noindex directive if this page is meant to be publicly discoverable.",
+      owner: "Engineering", location: "meta[name=robots] / X-Robots-Tag",
+    });
+  }
+  if (!input.title) {
+    findings.push({
+      category: "seo", severity: "high", confidence: "high",
+      element: "Page title",
+      evidence: "The page has no <title> element.",
+      impact: "Search results and browser tabs have nothing to display, and screen readers cannot announce the page.",
+      fix: "Add a unique, descriptive title of roughly 50-60 characters.",
+      owner: "Engineering", location: "title",
+    });
+  }
+  if (!input.description) {
+    findings.push({
+      category: "seo", severity: "low", confidence: "high",
+      element: "Meta description",
+      evidence: "The page has no meta description.",
+      impact: "Search engines generate their own snippet, which is often less compelling than an authored one.",
+      fix: "Add a 120-160 character meta description summarising the page.",
+      owner: "Content", location: "meta[name=description]",
+    });
+  }
+  if (!input.canonical) {
+    findings.push({
+      category: "seo", severity: "low", confidence: "high",
+      element: "Canonical URL",
+      evidence: "No canonical link element is declared.",
+      impact: "Duplicate or parameterised versions of this URL may compete with each other in search.",
+      fix: "Declare the preferred URL with <link rel=\"canonical\">.",
+      owner: "Engineering", location: "link[rel=canonical]",
+    });
+  }
+  if (input.blockedCrawlers.length) {
+    findings.push({
+      category: "ai-visibility", severity: "medium", confidence: "high",
+      element: "AI crawler permissions",
+      evidence: `robots.txt disallows ${input.blockedCrawlers.join(", ")} for this URL.`,
+      impact: "AI assistants cannot retrieve this page, so it will not appear in answers they generate for members.",
+      fix: "Decide deliberately whether these crawlers should be blocked; if not, allow them in robots.txt.",
+      owner: "Engineering", location: "/robots.txt",
+    });
+  }
+  if (input.javascriptDependencyPercent !== null && input.javascriptDependencyPercent > 60) {
+    findings.push({
+      category: "ai-visibility", severity: "medium", confidence: "high",
+      element: "JavaScript-dependent content",
+      evidence: `${input.javascriptDependencyPercent}% of the rendered text is absent from the initial HTML.`,
+      impact: "Crawlers that do not execute JavaScript see a mostly empty page, weakening both search and AI visibility.",
+      fix: "Server-render the primary content, or provide it in the initial HTML response.",
+      owner: "Engineering", location: input.canonical || "page",
+    });
+  }
+  return findings;
+}
+
+const CONTEXTUAL_CATEGORIES: FindingCategory[] = ["content-quality", "expired-content", "accessibility", "seo"];
+const CONTEXTUAL_OWNERS: FindingOwner[] = ["Content", "Design/Accessibility", "Web Publishing", "Engineering"];
+const SEVERITIES: Severity[] = ["critical", "high", "medium", "low"];
+const CONFIDENCES: Confidence[] = ["high", "medium", "low"];
+
+function parseContextualFindings(raw: string): QualityFinding[] {
+  const start = raw.indexOf("[");
+  const end = raw.lastIndexOf("]");
+  if (start === -1 || end <= start) return [];
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw.slice(start, end + 1));
+  } catch {
+    return [];
+  }
+  if (!Array.isArray(parsed)) return [];
+
+  const findings: QualityFinding[] = [];
+  for (const item of parsed.slice(0, 6)) {
+    if (!item || typeof item !== "object") continue;
+    const record = item as Record<string, unknown>;
+    const text = (key: string) => (typeof record[key] === "string" ? (record[key] as string).trim() : "");
+    const element = text("element");
+    const evidence = text("evidence");
+    const impact = text("impact");
+    const fix = text("fix");
+    // A finding without evidence and a fix cannot be actioned, so it is not worth reporting.
+    if (!element || !evidence || !fix) continue;
+    const category = CONTEXTUAL_CATEGORIES.find((value) => value === record.category) || "content-quality";
+    const severity = SEVERITIES.find((value) => value === record.severity) || "low";
+    const confidence = CONFIDENCES.find((value) => value === record.confidence) || "low";
+    const owner = CONTEXTUAL_OWNERS.find((value) => value === record.owner) || "Content";
+    findings.push(capContextualFinding({
+      category, severity, confidence, element, evidence,
+      impact: impact || "Reduces clarity or trust for the reader.",
+      fix, owner,
+      note: "Contextual finding from language-model analysis; verify before assigning remediation.",
+    }));
+  }
+  return findings;
+}
+
+/** Rebuilds every derived field after the findings list changes. */
+function summariseFindings(report: QualityReport, findings: QualityFinding[]): QualityReport {
+  const sorted = sortFindings(findings);
+  return {
+    ...report,
+    findings: sorted,
+    severityCounts: countBySeverity(sorted),
+    quickWins: quickWins(sorted),
+    firstActions: firstActions(sorted),
+    retestChecklist: retestChecklist(sorted),
+  };
+}
+
+/**
+ * Contextual pass: the checks that need judgement rather than markup inspection.
+ * Findings are capped at medium severity/confidence by capContextualFinding, and
+ * the model is told explicitly not to flag legitimate historical content.
+ */
+async function addContextualFindings(report: WebsiteAudit, pageText: string): Promise<WebsiteAudit> {
+  if (!process.env.OPENAI_API_KEY) {
+    return { ...report, qualityReport: { ...report.qualityReport, contextualAnalysis: "unavailable" } };
+  }
+  try {
+    const OpenAI = (await import("openai")).default;
+    const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    const response = await client.responses.create({
+      model: process.env.OPENAI_MODEL || "gpt-5.4-mini",
+      instructions: `You review published web page copy for a professional membership body.
+Return ONLY a JSON array. Each element must be an object with these string fields:
+category (one of "content-quality", "expired-content", "accessibility", "seo"),
+severity (one of "medium", "low"), confidence (one of "medium", "low"),
+element, evidence, impact, fix, owner (one of "Content", "Design/Accessibility", "Web Publishing", "Engineering").
+
+Rules:
+- Quote the page's own wording in "evidence". Never invent text that is not in the supplied content.
+- Report at most 5 findings. If the copy reads well, return [].
+- Do NOT flag historical content, past events, prior-year reports, or superseded regulatory references as defects. A professional body publishes these deliberately.
+- Only flag a date as expired when the page presents it as a live deadline or offer.
+- Do not repeat findings already listed in "existingFindings".
+- Do not comment on anything you cannot see in the supplied text.
+- "fix" must be a specific edit an author can make, not general advice.`,
+      input: JSON.stringify({
+        url: report.finalUrl,
+        title: report.page.title,
+        todayIso: new Date().toISOString().slice(0, 10),
+        existingFindings: report.qualityReport.findings.map((finding) => finding.element),
+        pageText: pageText.slice(0, MAX_CONTEXT_CHARS),
+      }),
+      max_output_tokens: 1_200,
+    });
+    const contextual = parseContextualFindings(response.output_text || "");
+    return {
+      ...report,
+      qualityReport: summariseFindings(
+        { ...report.qualityReport, contextualAnalysis: "complete" },
+        [...report.qualityReport.findings, ...contextual],
+      ),
+    };
+  } catch {
+    return { ...report, qualityReport: { ...report.qualityReport, contextualAnalysis: "failed" } };
+  }
+}
+
 async function addAiSummary(report: WebsiteAudit) {
   if (!process.env.OPENAI_API_KEY) return report;
   try {
@@ -298,7 +602,8 @@ export async function auditWebsite(input: string): Promise<WebsiteAudit> {
   const description = $('meta[name="description"]').attr("content")?.trim() || "";
   const canonicalValue = $('link[rel="canonical"]').attr("href");
   const canonical = canonicalValue ? new URL(canonicalValue, finalUrl).href : null;
-  const rawTextLength = visibleTextLength(html);
+  const rawText = visibleText(html);
+  const rawTextLength = rawText.length;
 
   const discovered = collectLinks(html, finalUrl, "initial");
 
@@ -323,7 +628,13 @@ export async function auditWebsite(input: string): Promise<WebsiteAudit> {
     : null;
 
   const orderedLinks = [...discovered.values()].sort((a, b) => Number(b.url.origin === finalUrl.origin) - Number(a.url.origin === finalUrl.origin));
-  const checkedLinks = await Promise.all(orderedLinks.slice(0, MAX_LINKS).map((candidate) => inspectLink(candidate, finalUrl.origin)));
+  const { results: checkedLinks } = await mapWithBudget(
+    orderedLinks.slice(0, MAX_LINKS),
+    LINK_CONCURRENCY,
+    Date.now() + LINK_BUDGET_MS,
+    (candidate) => inspectLink(candidate, finalUrl.origin),
+  );
+  const uncheckedLinks = discovered.size - checkedLinks.length;
 
   let robots = "";
   let robotsAvailable = true;
@@ -410,10 +721,78 @@ export async function auditWebsite(input: string): Promise<WebsiteAudit> {
     linksChecked: checkedLinks.length,
   });
 
+  // Accessibility and freshness read the rendered DOM when a browser was available,
+  // because content injected by JavaScript is what a member actually sees.
+  const contentHtml = renderedHtml || html;
+  const contentText = renderedHtml ? visibleText(renderedHtml) : rawText;
+  const accessibilityFindings = auditAccessibility(renderedHtml ? cheerio.load(renderedHtml) : $);
+  const freshness = auditContentFreshness(
+    contentText,
+    finalUrl.href,
+    new Date(),
+    readExclusionPatterns(process.env.AUDIT_ARCHIVE_PATTERNS),
+  );
+
+  const deterministicFindings = sortFindings([
+    ...broken.map(brokenLinkFinding),
+    ...accessibilityFindings,
+    ...freshness.findings,
+    ...pageHealthFindings({
+      title,
+      description,
+      canonical,
+      noindex,
+      javascriptDependencyPercent,
+      blockedCrawlers: blocked.map((crawler) => crawler.name),
+    }),
+  ]);
+
+  const verified: string[] = [
+    `Page responded with HTTP ${response.status} and returned HTML.`,
+    `${checkedLinks.length} of ${discovered.size} discovered links tested for HTTP status.`,
+    `${cheerio.load(contentHtml)("img").length} images inspected for alt attributes.`,
+    "Heading hierarchy, form labels, link labels, and document language read from the DOM.",
+    "Title, meta description, canonical, and robots directives read from the response.",
+    `robots.txt permissions and live access tested for ${crawlers.length} AI crawlers.`,
+    renderedTextLength !== null
+      ? "Page rendered in a headless browser to capture JavaScript-injected content."
+      : "Initial HTML analysed (headless rendering was unavailable).",
+  ];
+
+  const notVerified: string[] = [
+    "Colour contrast, keyboard navigation, and focus order (require interactive testing).",
+    "Core Web Vitals and other performance metrics.",
+    "Mobile and responsive rendering behaviour.",
+    "Structured data validity beyond the presence of JSON-LD blocks.",
+    "Whether flagged historical content is intentional (needs a content owner's judgement).",
+  ];
+  if (uncheckedLinks > 0) {
+    notVerified.unshift(`HTTP status of ${uncheckedLinks} further discovered link${uncheckedLinks === 1 ? "" : "s"} (link-checking budget reached).`);
+  }
+  if (renderedTextLength === null) {
+    notVerified.unshift("Content injected by JavaScript: the headless browser was unavailable for this run.");
+  }
+
+  const qualityReport: QualityReport = summariseFindings(
+    {
+      severityCounts: { critical: 0, high: 0, medium: 0, low: 0 },
+      findings: [],
+      quickWins: [],
+      firstActions: [],
+      retestChecklist: [],
+      verified,
+      notVerified,
+      exclusionsApplied: freshness.exclusionsApplied,
+      contextualAnalysis: "unavailable",
+    },
+    deterministicFindings,
+  );
+
   const report: WebsiteAudit = {
     url: target.href,
     finalUrl: finalUrl.href,
     checkedAt: new Date().toISOString(),
+    qualityReport,
     page: {
       status: response.status,
       title,
@@ -428,11 +807,13 @@ export async function auditWebsite(input: string): Promise<WebsiteAudit> {
     links: {
       discovered: discovered.size,
       checked: checkedLinks.length,
+      unchecked: Math.max(0, uncheckedLinks),
       broken,
       redirects: checkedLinks.filter((item) => item.redirected),
     },
     seo: { ...seoScore, findings: seoFindings },
     aiVisibility: { ...aiScore, findings: aiFindings, crawlers, indexingVerified: false },
   };
-  return addAiSummary(report);
+  const withSummary = await addAiSummary(report);
+  return addContextualFindings(withSummary, contentText);
 }

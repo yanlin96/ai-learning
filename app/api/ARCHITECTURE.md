@@ -24,6 +24,6 @@ The current repository is local-first, so `data/subscriptions.json` is the persi
 
 ## Website audit
 
-`POST /api/audits` is a bounded public-web inspection endpoint. It accepts one URL and delegates all network and classification work to `lib/website-audit.ts`. Keep credentials, browser execution, DNS/public-address validation, redirects, limits, and optional OpenAI calls server-side. A successful crawl means the tested crawler can access the URL; it does not prove indexing or citation by an external AI product.
+`POST /api/audits` is a bounded public-web inspection endpoint. It returns a Quality & Fix Report alongside the raw signals: every finding carries severity, confidence, evidence, impact, fix, and owner. Deterministic checks (HTTP status, markup, dates) may reach high confidence; language-model findings are capped at medium severity and medium confidence by `capContextualFinding`, because the stated false-positive budget for contextual findings is under 10%. Archive URLs matched by `AUDIT_ARCHIVE_PATTERNS` downgrade date findings rather than hiding them. It accepts one URL and delegates all network and classification work to `lib/website-audit.ts`. Keep credentials, browser execution, DNS/public-address validation, redirects, limits, and optional OpenAI calls server-side. A successful crawl means the tested crawler can access the URL; it does not prove indexing or citation by an external AI product.
 
 The user-facing write surface is `/reminders`; the home dashboard should remain read-oriented even though both pages consume these APIs.
