@@ -318,3 +318,16 @@ h1 em { color: var(--brand); font-style: normal; }
   .finding-owner { color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: .08em; }
   .severity-row { grid-template-columns: repeat(2, 1fr); }
 }
+
+/* Broken links are the headline defect, so the panel is visually promoted. */
+.broken-panel h3 { display: flex; align-items: center; gap: 9px; }
+.broken-panel h3 > svg { color: var(--muted); }
+.broken-panel.has-issues { border-color: rgba(225,0,4,.35); border-left: 4px solid var(--danger); background: linear-gradient(var(--danger-bg), var(--paper) 120px); }
+.broken-panel.has-issues h3, .broken-panel.has-issues h3 > svg { color: var(--danger); }
+.broken-panel.has-issues .link-panel-head { padding-bottom: 4px; }
+.broken-list li { align-items: center; padding: 14px 0; }
+.broken-list li.internal > div > strong::after { content: "INTERNAL"; margin-left: 8px; padding: 2px 6px; border-radius: 999px; color: var(--danger); background: var(--danger-bg); font-size: 9px; font-weight: 800; letter-spacing: .06em; vertical-align: middle; }
+.broken-list li > b { padding: 6px 11px; border-radius: 999px; font-size: 11px; font-weight: 800; }
+.broken-list li > b.gone { color: var(--danger); background: var(--danger-bg); }
+.broken-list li > b.server { color: #8a4a00; background: var(--warn-bg); }
+.broken-list li > b.unreachable { color: var(--muted); background: var(--surface); }

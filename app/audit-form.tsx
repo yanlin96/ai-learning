@@ -94,6 +94,46 @@ export function AuditForm() {
           <p className="score-disclaimer">Scores are weighted diagnostics, not Google rankings. Confidence reflects browser rendering, robots availability, and checked-link coverage.</p>
           {report.summary && <article className="audit-summary"><p className="label">AI SUMMARY</p><p>{report.summary}</p></article>}
 
+          <article className={`audit-panel broken-panel${report.links.broken.length ? " has-issues" : ""}`}>
+            <div className="link-panel-head">
+              <div>
+                <h3><Link2Off size={19} /> Broken links</h3>
+                <p>
+                  {report.links.checked} of {report.links.discovered} discovered links checked; internal links are prioritised
+                  {report.links.unchecked > 0 ? `, ${report.links.unchecked} not reached within the time budget` : ""}.
+                </p>
+              </div>
+              <b className={report.links.broken.length ? "has-broken" : "all-clear"}>
+                {report.links.broken.length ? `${report.links.broken.length} found` : "None found"}
+              </b>
+            </div>
+            {report.links.broken.length > 0 ? (
+              <ul className="broken-list">
+                {report.links.broken.map((link) => (
+                  <li key={link.url} className={link.internal ? "internal" : "external"}>
+                    <div>
+                      <strong>{link.text || "Link without visible text"}</strong>
+                      <a href={link.url} target="_blank" rel="noreferrer">{link.url}</a>
+                      <small>{link.internal ? "Internal" : "External"} · {link.source === "both" ? "Initial + rendered DOM" : `${link.source} DOM`}</small>
+                    </div>
+                    <b className={link.status === 404 || link.status === 410 ? "gone" : link.status && link.status >= 500 ? "server" : "unreachable"}>
+                      {link.status || link.error || "Failed"}
+                    </b>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="audit-note">Every checked link resolved successfully.</p>
+            )}
+          </article>
+
+          <article className="audit-panel google-tools">
+            <div><p className="label">VERIFY WITH GOOGLE</p><h3>Google SEO check</h3><p>Use Search Console URL Inspection to verify how Google crawls and indexes the page. Site ownership is required.</p></div>
+            <div className="google-tool-links">
+              <a href="https://search.google.com/search-console" target="_blank" rel="noreferrer">Search Console URL Inspection <ExternalLink size={14} /></a>
+            </div>
+          </article>
+
           <article className="audit-panel">
             <div className="link-panel-head">
               <div>
@@ -189,19 +229,6 @@ export function AuditForm() {
               })}
             </div>
             <p className="audit-note"><strong>How to read this:</strong> “Robots denied” means robots.txt explicitly disallows the crawler. “HTTP rejected” means robots permits it, but the server or firewall returned an unsuccessful response. “Request failed” means no HTTP response was obtained. None of these results verifies actual indexing or citation.</p>
-          </article>
-          <article className="audit-panel google-tools">
-            <div><p className="label">VERIFY WITH GOOGLE</p><h3>Google SEO check</h3><p>Use Search Console URL Inspection to verify how Google crawls and indexes the page. Site ownership is required.</p></div>
-            <div className="google-tool-links">
-              <a href="https://search.google.com/search-console" target="_blank" rel="noreferrer">Search Console URL Inspection <ExternalLink size={14} /></a>
-            </div>
-          </article>
-          <article className="audit-panel">
-            <div className="link-panel-head"><div><h3>Broken links</h3><p>{report.links.checked} of {report.links.discovered} discovered links checked; internal links are prioritised.</p></div><b className={report.links.broken.length ? "has-broken" : "all-clear"}>{report.links.broken.length ? `${report.links.broken.length} found` : "None found"}</b></div>
-            {report.links.broken.length > 0 && <ul className="broken-list">{report.links.broken.map((link) => <li key={link.url}>
-              <div><strong>{link.text || "Link without visible text"}</strong><a href={link.url} target="_blank" rel="noreferrer">{link.url}</a><small>{link.internal ? "Internal" : "External"} · {link.source === "both" ? "Initial + rendered DOM" : `${link.source} DOM`}</small></div>
-              <b>{link.status || link.error || "Failed"}</b>
-            </li>)}</ul>}
           </article>
         </section>
       )}
