@@ -127,6 +127,41 @@ export function AuditForm() {
             ) : (
               <p className="audit-note">Every checked link resolved successfully.</p>
             )}
+            {report.links.inconclusive.length > 0 && (
+              <div className="inconclusive-links">
+                <h4>{report.links.inconclusive.length} inconclusive link check{report.links.inconclusive.length === 1 ? "" : "s"}</h4>
+                <p>These URLs blocked or did not answer the automated checker. They are not counted as broken and should be opened in a normal browser.</p>
+                <ul className="broken-list">
+                  {report.links.inconclusive.map((link) => (
+                    <li key={link.url}>
+                      <div><strong>{link.text || "Link without visible text"}</strong><a href={link.url} target="_blank" rel="noreferrer">{link.url}</a></div>
+                      <b className="unreachable">{link.status || link.error || "No response"}</b>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {report.links.successful.length > 0 && (
+              <details className="healthy-links" open>
+                <summary>{report.links.successful.length} successful link check{report.links.successful.length === 1 ? "" : "s"}</summary>
+                <p>HTTP 2xx responses and successful 3xx redirects are shown for evidence only. They are not errors and do not reduce the score.</p>
+                <ul className="broken-list">
+                  {report.links.successful.map((link) => (
+                    <li key={link.url}>
+                      <div>
+                        <strong>{link.text || "Link without visible text"}</strong>
+                        <a href={link.url} target="_blank" rel="noreferrer">{link.url}</a>
+                        <small>
+                          {link.internal ? "Internal" : "External"} · {link.source === "both" ? "Initial + rendered DOM" : `${link.source} DOM`}
+                          {link.redirected && link.finalUrl ? ` · Final URL: ${link.finalUrl}` : ""}
+                        </small>
+                      </div>
+                      <b className="healthy-status">{[...link.redirectStatuses, link.status].filter((status): status is number => status !== null).join(" → ")}</b>
+                    </li>
+                  ))}
+                </ul>
+              </details>
+            )}
           </article>
 
           <article className="audit-panel google-tools">

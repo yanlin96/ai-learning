@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { CheckCircle2, CircleAlert, ExternalLink, Gauge, LoaderCircle, XCircle } from "lucide-react";
 import type { SmokeTestReport } from "@/lib/smoke-test";
+import { recordSmokeRun } from "@/lib/smoke-history";
 
 const RESULT_COPY = {
   pass: { label: "PASS", detail: "All checked pages passed the smoke checks.", Icon: CheckCircle2 },
@@ -33,6 +34,7 @@ export function SmokeTestForm() {
       const payload = await response.json() as { ok: boolean; report?: SmokeTestReport; error?: string };
       if (!response.ok || !payload.report) throw new Error(payload.error || "Smoke test failed");
       setReport(payload.report);
+      recordSmokeRun(payload.report);
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Smoke test failed");
     } finally {

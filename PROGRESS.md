@@ -23,10 +23,13 @@ Last updated: 2026-09-08
 - Robots wildcard and User-Agent precedence behavior is covered by focused regression tests, including the `/*.mvc` false-positive case.
 - SEO and AI-visibility scores now use tested weighted rules, ratings, and evidence confidence rather than equal per-finding deductions.
 - Broken links are collected from initial and rendered DOMs and displayed with link text, scope, source, URL, and failure evidence.
+- Bot-blocked, rate-limited, timed-out, and unanswered link checks are reported as inconclusive instead of broken.
+- Successful 2xx links and followed 3xx redirect chains are available in the audit report as non-error evidence.
 - Reports provide a direct SEO follow-up link to Google Search Console URL Inspection.
 - `/history` keeps summaries of the current browser tab's audit runs in session storage.
 - `/smoke-test` checks manually prioritised and sitemap-discovered pages with up to 100 HTTP checks and Playwright verification for up to 20 priority or suspicious pages.
 - Smoke-test reports show page-level HTTP, response time, metadata/error evidence, and an overall Pass, Pass with warnings, or Fail recommendation.
+- `/smoke-test/history` stores compact run summaries in local storage, grouped into at most 10 domains with 10 recent runs per domain.
 
 ## Not configured yet
 
@@ -36,7 +39,7 @@ Last updated: 2026-09-08
 - Automated tests for GTFS classification and Telegram formatting are not implemented.
 - Production authentication for the manual-send button is not implemented; the endpoint is intentionally development-only.
 - Website audits are synchronous, limited to one page and 80 links, and do not verify private AI indexes. Audit history is tab-local and disappears when the tab closes.
-- Smoke tests do not yet execute authenticated user journeys, submit forms, support custom assertions, or persist run history.
+- Smoke tests do not yet execute authenticated user journeys, submit forms, support custom assertions, or share history across browsers/users. History is browser-local only.
 
 ## Current focus
 

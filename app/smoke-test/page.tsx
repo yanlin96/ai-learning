@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Gauge } from "lucide-react";
+import { Gauge, History } from "lucide-react";
 import { SiteFooter } from "@/app/site-footer";
 import { SiteHeader } from "@/app/site-header";
 import { SmokeTestForm } from "@/app/smoke-test-form";
@@ -20,6 +20,7 @@ export default function SmokeTestPage() {
             <p className="eyebrow">RELEASE CONFIDENCE</p>
             <h1>Check the essentials, <em>site-wide.</em></h1>
             <p>Run fast HTTP checks across priority URLs and sitemap pages, then verify priority and suspicious pages in a real browser. Built for breadth before a release, without changing anything on the target website.</p>
+            <a className="page-intro-link" href="/smoke-test/history"><History size={15} /> View smoke-test history</a>
           </div>
         </header>
         <SmokeTestForm />

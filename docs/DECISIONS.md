@@ -8,6 +8,8 @@ Release smoke testing lives at `/smoke-test` rather than expanding the single-pa
 
 Smoke testing and deep auditing share `lib/public-web.ts` so redirects, browser documents, scripts, and stylesheets retain the same SSRF protections. Missing metadata, `noindex`, redirects, console errors, and failed critical resources are warnings; request failures, HTTP errors, visible application-error text, empty rendered bodies, and uncaught page errors fail the run.
 
+Smoke-test history uses browser `localStorage` and groups runs by normalized hostname. To keep storage bounded, retain the 10 most recently used domains and 10 compact run summaries per domain; adding an eleventh domain evicts the least recently tested domain. This history is a local comparison aid, not shared production evidence.
+
 ## 2026-09-02 — Keep website audit evidence deterministic
 
 Broken-link status, robots rules, metadata, and raw-versus-rendered content measurements come from code and captured HTTP/browser evidence. OpenAI may summarize those findings, but it must not invent measurements or claim that a page is present in a provider's private index.
@@ -19,6 +21,8 @@ Robots wildcard and precedence rules are delegated to `robots-parser` and protec
 The first audit is deliberately limited to one public page and 30 links. Public-target validation and request bounds are product requirements because the audit endpoint performs server-side network access.
 
 Scores are weighted diagnostics rather than equal deductions per finding. Every score is paired with a rating, confidence, and short methodology. Confidence reflects evidence coverage and must fall when rendering, robots retrieval, or link coverage is incomplete. Google follow-up is intentionally limited to Search Console URL Inspection; performance and rich-result tools are outside this focused SEO handoff.
+
+Link checks distinguish confirmed HTTP failures from inconclusive automation responses. HTTP 401, 403, 405, 408, 425, 429, timeouts, and request errors do not prove a human-facing link is broken, so they remain visible for manual verification but do not affect the broken-link count or SEO score.
 
 ## 2026-08-28 — Separate dashboard reading from reminder management
 

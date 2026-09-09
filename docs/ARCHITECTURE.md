@@ -48,6 +48,8 @@ Transport Victoria GTFS Schedule + GTFS-Realtime Alerts
 - `lib/smoke-test.ts`: breadth-first sitemap discovery and bounded multi-page smoke-test orchestration.
 - `lib/smoke-rules.ts`: pure Pass/Warning/Fail classification rules.
 - `app/smoke-test/page.tsx`: release smoke-test UI for up to 100 same-origin pages.
+- `lib/smoke-history.ts`: browser-local smoke-run summaries grouped and bounded by domain.
+- `app/smoke-test/history/page.tsx`: domain-grouped smoke-test history UI.
 
 ## Website audit data flow
 
@@ -88,6 +90,8 @@ All credentials must remain in server-only modules and environment variables. Cl
 Website-audit targets must use HTTP(S), resolve only to public addresses, and be revalidated across redirects and browser subresources. Keep time, response-size, redirect, and link-count limits in place. Do not add localhost or private-network exceptions to the public endpoint.
 
 Smoke tests use the same public-network boundary. Manual URLs must share the base website origin. The base URL and manually supplied priority URLs run before same-origin sitemap entries. Runs are read-only, deterministic, capped at 100 HTTP checks, and bounded by request and overall time budgets. One shared Chromium instance verifies up to 20 priority or HTTP-anomalous pages with four-page concurrency. Images, fonts, and media are blocked; documents, scripts, and stylesheets remain available so runtime and critical-resource failures can be observed. Smoke tests do not call OpenAI.
+
+Smoke history is client-side only. `localStorage` retains compact summaries across tabs and browser restarts, capped at 10 recently used domains and 10 runs per domain. Full reports and response bodies are not persisted, and server APIs never depend on this history.
 
 ## Read/write page boundary
 

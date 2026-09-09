@@ -42,6 +42,7 @@ export async function safePublicFetch(
   init: RequestInit = {},
   redirects = 0,
   timeoutMs = DEFAULT_TIMEOUT_MS,
+  redirectTrace: number[] = [],
 ): Promise<Response> {
   if (redirects > 5) throw new Error("Too many redirects");
   await assertPublicUrl(url);
@@ -56,9 +57,10 @@ export async function safePublicFetch(
     },
   });
   if ([301, 302, 303, 307, 308].includes(response.status)) {
+    redirectTrace.push(response.status);
     const location = response.headers.get("location");
     if (!location) return response;
-    return safePublicFetch(new URL(location, url), init, redirects + 1, timeoutMs);
+    return safePublicFetch(new URL(location, url), init, redirects + 1, timeoutMs, redirectTrace);
   }
   return response;
 }

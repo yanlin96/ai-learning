@@ -3,6 +3,7 @@ import "server-only";
 import { existsSync } from "node:fs";
 import * as cheerio from "cheerio";
 import { assertPublicUrl, normalizePublicUrl, safePublicFetch } from "@/lib/public-web";
+import { classifyLinkStatus } from "@/lib/link-status";
 import { isCrawlerAllowed } from "@/lib/robots";
 import { scoreAiVisibility, scoreSeo, type AuditScore } from "@/lib/audit-scoring";
 import { auditAccessibility } from "@/lib/accessibility-audit";
@@ -45,6 +46,7 @@ export type LinkResult = {
   status: number | null;
   ok: boolean;
   redirected: boolean;
+  redirectStatuses: number[];
   error?: string;
 };
 
@@ -92,6 +94,9 @@ export type WebsiteAudit = {
     /** Discovered links that the time budget did not allow us to test. */
     unchecked: number;
     broken: LinkResult[];
+    successful: LinkResult[];
+    /** Bot rejections, rate limits, and request failures that need browser confirmation. */
+    inconclusive: LinkResult[];
     redirects: LinkResult[];
   };
   qualityReport: QualityReport;
@@ -201,8 +206,12 @@ async function inspectCrawler(target: URL, robots: string, robotsAvailable: bool
 async function inspectLink(candidate: LinkCandidate, pageOrigin: string): Promise<LinkResult> {
   const { url, text, source } = candidate;
   try {
-    let response = await safePublicFetch(url, { method: "HEAD" }, 0, LINK_TIMEOUT_MS);
-    if ([403, 405].includes(response.status)) response = await safePublicFetch(url, { method: "GET" }, 0, LINK_TIMEOUT_MS);
+    let redirectStatuses: number[] = [];
+    let response = await safePublicFetch(url, { method: "HEAD" }, 0, LINK_TIMEOUT_MS, redirectStatuses);
+    if ([403, 405].includes(response.status)) {
+      redirectStatuses = [];
+      response = await safePublicFetch(url, { method: "GET" }, 0, LINK_TIMEOUT_MS, redirectStatuses);
+    }
     const finalUrl = response.url || url.href;
     return {
       url: url.href,
@@ -213,6 +222,7 @@ async function inspectLink(candidate: LinkCandidate, pageOrigin: string): Promis
       status: response.status,
       ok: response.status >= 200 && response.status < 400,
       redirected: finalUrl !== url.href,
+      redirectStatuses,
     };
   } catch (error) {
     return {
@@ -223,6 +233,7 @@ async function inspectLink(candidate: LinkCandidate, pageOrigin: string): Promis
       status: null,
       ok: false,
       redirected: false,
+      redirectStatuses: [],
       error: error instanceof Error ? error.message : "Request failed",
     };
   }
@@ -616,8 +627,11 @@ export async function auditWebsite(input: string): Promise<WebsiteAudit> {
   seoFindings.push(missingAlt
     ? { level: "warning", title: "Image alternative text", detail: `${missingAlt} of ${imageCount} images have no alt attribute.` }
     : { level: "pass", title: "Image alternative text", detail: `${imageCount} images checked.` });
-  const broken = checkedLinks.filter((item) => !item.ok);
-  if (broken.length) seoFindings.push({ level: "error", title: "Broken links", detail: `${broken.length} checked links could not be reached successfully.` });
+  const broken = checkedLinks.filter((item) => classifyLinkStatus(item.status, item.ok) === "broken");
+  const inconclusive = checkedLinks.filter((item) => classifyLinkStatus(item.status, item.ok) === "inconclusive");
+  const successful = checkedLinks.filter((item) => classifyLinkStatus(item.status, item.ok) === "ok");
+  if (broken.length) seoFindings.push({ level: "error", title: "Broken links", detail: `${broken.length} checked links returned a confirmed HTTP failure.` });
+  if (inconclusive.length) seoFindings.push({ level: "info", title: "Links needing verification", detail: `${inconclusive.length} checked link${inconclusive.length === 1 ? " was" : "s were"} blocked, rate-limited, or unreachable to the checker; this does not prove they are broken.` });
 
   const aiFindings: AuditFinding[] = [];
   const blocked = crawlers.filter((crawler) => crawler.robotsAllowed === false);
@@ -718,6 +732,9 @@ export async function auditWebsite(input: string): Promise<WebsiteAudit> {
   if (uncheckedLinks > 0) {
     notVerified.unshift(`HTTP status of ${uncheckedLinks} further discovered link${uncheckedLinks === 1 ? "" : "s"} (link-checking budget reached).`);
   }
+  if (inconclusive.length > 0) {
+    notVerified.unshift(`${inconclusive.length} link${inconclusive.length === 1 ? " needs" : "s need"} manual browser confirmation because the checker was blocked or received no conclusive response.`);
+  }
   if (renderedTextLength === null) {
     notVerified.unshift("Content injected by JavaScript: the headless browser was unavailable for this run.");
   }
@@ -758,6 +775,8 @@ export async function auditWebsite(input: string): Promise<WebsiteAudit> {
       checked: checkedLinks.length,
       unchecked: Math.max(0, uncheckedLinks),
       broken,
+      successful,
+      inconclusive,
       redirects: checkedLinks.filter((item) => item.redirected),
     },
     seo: { ...seoScore, findings: seoFindings },

@@ -35,11 +35,12 @@ It is:
 - A separate `/website-audit` tool checks one public webpage for broken links, baseline SEO, and AI-crawler accessibility.
 - Website audits compare initial HTML with a JavaScript-rendered DOM when Chromium is available; they never claim to verify a provider's private search index.
 - Audit scores use weighted technical signals and display evidence confidence; they are diagnostic summaries, not Google rankings.
-- Broken-link results include link text, internal/external scope, source DOM, URL, and response failure. Reports link to Google Search Console URL Inspection for authoritative SEO follow-up.
+- Link-check results include successful 2xx responses and 3xx redirect chains as evidence, without treating them as errors. Broken-link results include link text, internal/external scope, source DOM, URL, and response failure. Bot rejections, rate limits, and missing responses are shown as inconclusive rather than counted as broken. Reports link to Google Search Console URL Inspection for authoritative SEO follow-up.
 - A separate `/smoke-test` workflow checks release breadth across priority and sitemap URLs without running costly deep analysis on every page. It performs HTTP checks broadly and uses Playwright on priority and suspicious pages.
 - Smoke-test scope is configurable from 1 to 100 pages. Manual priority URLs run before sitemap URLs.
 - Smoke tests are read-only and return an explicit Pass, Pass with warnings, or Fail recommendation.
 - Smoke testing never calls OpenAI; it must not consume model tokens.
+- Smoke-test history is grouped by domain in browser local storage. It keeps the 10 most recently used domains and the 10 most recent summary runs for each domain.
 
 ## What counts as useful
 
