@@ -18,6 +18,7 @@ export default function SmokeHistoryPage() {
           <span className="page-icon"><History size={23} /></span>
           <div><p className="eyebrow">SMOKE TEST HISTORY</p><h1>Recent runs, grouped by <em>domain.</em></h1><p>Compare the latest release checks for up to 10 websites. History stays in this browser and is never sent to a database.</p></div>
         </header>
+        <nav className="report-tabs" aria-label="Report type"><a href="/history">Website audits</a><a className="active" href="/smoke-test/history">Smoke tests</a></nav>
         <SmokeHistoryList />
       </section>
       <SiteFooter />

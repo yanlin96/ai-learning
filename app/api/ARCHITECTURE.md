@@ -6,6 +6,7 @@
 - `/api/subscriptions` lists and creates reminder subscriptions.
 - `/api/subscriptions/[id]` updates and deletes one subscription.
 - `/api/disruptions?lineId=...` returns alerts for a selected line.
+- `/api/daily-brief` combines cached Melbourne weather with Werribee Line status. It returns partial data when either provider is unavailable and never exposes the Transport Victoria credential.
 - Telegram endpoints send current subscribed-line alerts or perform a protected test.
 - The cron endpoint checks which enabled subscriptions are due in Melbourne time.
 

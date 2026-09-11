@@ -34,7 +34,9 @@ Transport Victoria GTFS Schedule + GTFS-Realtime Alerts
 - `app/page.tsx`: server-rendered dashboard.
 - `app/reminders/page.tsx`: dedicated reminder-management page; all normal CRUD UI lives here.
 - `app/send-alert-button.tsx`: client-side manual-send interaction.
-- `app/site-header.tsx` and `app/site-footer.tsx`: shared navigation and page chrome.
+- `app/site-header.tsx` and `app/site-footer.tsx`: shared page chrome. The header owns persistent desktop workspace navigation, the responsive toolbox drawer, and protected reminder entry.
+- `app/daily-brief.tsx` and `/api/daily-brief`: a non-blocking client-loaded weather and Werribee status strip for the audit landing page.
+- `lib/melbourne-weather.ts`: cached Melbourne forecast adapter backed by Open-Meteo; weather-code wording stays pure in `lib/weather-codes.ts`.
 - `lib/notification-message.ts`: Telegram presentation, separate from data retrieval.
 - `lib/telegram.ts`: server-only Telegram API client.
 - `app/api/telegram/send-current/route.ts`: local manual-send endpoint.
@@ -82,6 +84,12 @@ Scoring separates SEO from AI-search readiness. Critical indexability and crawle
 - API: Telegram Bot API `sendMessage`.
 - Environment variables: `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID`.
 - Scheduled endpoint protection: `CRON_SECRET` bearer token.
+
+### Weather
+
+- Provider: Open-Meteo Forecast API for fixed Melbourne coordinates.
+- Current temperature and today’s minimum/maximum are cached for 15 minutes.
+- The landing-page brief loads after the main page and degrades independently when weather is unavailable.
 
 ## Security boundary
 

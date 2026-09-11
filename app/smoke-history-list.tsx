@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ExternalLink, Trash2 } from "lucide-react";
+import { ExternalLink, Play, Trash2 } from "lucide-react";
 import {
   clearSmokeHistory,
   readSmokeHistory,
@@ -39,6 +39,7 @@ export function SmokeHistoryList() {
             <header>
               <div><p className="label">DOMAIN</p><h2>{group.domain}</h2><small>{group.runs.length} recent run{group.runs.length === 1 ? "" : "s"}</small></div>
               <div className="domain-actions">
+                <a className="run-again" href={`/smoke-test?url=${encodeURIComponent(`https://${group.domain}`)}&limit=${group.runs[0]?.requestedLimit || 20}`}><Play size={12} /> Run again</a>
                 <a href={`https://${group.domain}`} target="_blank" rel="noreferrer">Open site <ExternalLink size={13} /></a>
                 <button aria-label={`Delete history for ${group.domain}`} onClick={() => setGroups(removeSmokeDomain(group.domain))}><Trash2 size={15} /></button>
               </div>

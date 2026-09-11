@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CheckCircle2, CircleAlert, ExternalLink, Gauge, LoaderCircle, XCircle } from "lucide-react";
 import type { SmokeTestReport } from "@/lib/smoke-test";
 import { recordSmokeRun } from "@/lib/smoke-history";
@@ -14,10 +14,18 @@ const RESULT_COPY = {
 export function SmokeTestForm() {
   const [baseUrl, setBaseUrl] = useState("");
   const [manualText, setManualText] = useState("");
-  const [limit, setLimit] = useState(20);
+  const [limit, setLimit] = useState(30);
   const [report, setReport] = useState<SmokeTestReport | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const requestedUrl = params.get("url");
+    const requestedLimit = Number(params.get("limit"));
+    if (requestedUrl) setBaseUrl(requestedUrl);
+    if (requestedLimit >= 1 && requestedLimit <= 100) setLimit(requestedLimit);
+  }, []);
 
   async function submit(event: React.FormEvent) {
     event.preventDefault();
@@ -60,9 +68,15 @@ export function SmokeTestForm() {
             <p>Priority URLs run first. Remaining capacity is filled from the site’s sitemap.xml.</p>
           </div>
           <div>
-            <label htmlFor="smoke-limit">Maximum pages</label>
-            <input id="smoke-limit" type="number" min={1} max={100} value={limit} onChange={(event) => setLimit(Math.max(1, Math.min(100, Number(event.target.value) || 1)))} />
-            <p>Choose between 1 and 100 pages. Larger runs may stop at the server time budget.</p>
+            <label>Maximum pages</label>
+            <div className="scope-presets">
+              {[{ label: "Quick", value: 10 }, { label: "Standard", value: 30 }, { label: "Full", value: 100 }].map((preset) => (
+                <button type="button" key={preset.value} aria-pressed={limit === preset.value} className={limit === preset.value ? "active" : ""} onClick={() => setLimit(preset.value)}><strong>{preset.label}</strong><small>{preset.value} pages</small></button>
+              ))}
+            </div>
+            <label className="custom-limit" htmlFor="smoke-limit-number">Or enter a custom limit</label>
+            <input id="smoke-limit-number" type="number" min={1} max={100} value={limit} onChange={(event) => setLimit(Math.max(1, Math.min(100, Number(event.target.value) || 1)))} />
+            <p>Larger runs may stop at the server time budget.</p>
             <button type="submit" disabled={loading}>
               {loading ? <LoaderCircle className="spin" size={17} /> : <Gauge size={17} />}
               {loading ? "Running smoke test…" : "Run smoke test"}

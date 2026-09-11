@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Bot, CheckCircle2, ExternalLink, Link2Off, LoaderCircle, Search, TriangleAlert } from "lucide-react";
+import { ArrowRight, Check, CheckCircle2, ExternalLink, Link2Off, LoaderCircle, Search, TriangleAlert } from "lucide-react";
 import type { AuditFinding, WebsiteAudit } from "@/lib/website-audit";
 import { CATEGORY_LABEL, SEVERITY_LABEL, SEVERITY_ORDER, type QualityFinding } from "@/lib/audit-findings";
 import { recordAuditRun } from "@/lib/audit-history";
@@ -46,12 +46,15 @@ export function AuditForm() {
   const [report, setReport] = useState<WebsiteAudit | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [stage, setStage] = useState(0);
 
   async function submit(event: React.FormEvent) {
     event.preventDefault();
     setLoading(true);
     setError("");
     setReport(null);
+    setStage(0);
+    const progress = window.setInterval(() => setStage((current) => Math.min(current + 1, 3)), 1500);
     try {
       const response = await fetch("/api/audits", {
         method: "POST",
@@ -65,6 +68,7 @@ export function AuditForm() {
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Audit failed");
     } finally {
+      window.clearInterval(progress);
       setLoading(false);
     }
   }
@@ -72,14 +76,27 @@ export function AuditForm() {
   return (
     <>
       <form className="audit-form" onSubmit={submit}>
-        <label htmlFor="audit-url">Public website URL</label>
-        <div>
+        <div className="audit-form-title"><span>Start a free website check</span><small>Usually takes about a minute</small></div>
+        <label htmlFor="audit-url">Website URL</label>
+        <div className="audit-url-row">
           <Search size={19} />
           <input id="audit-url" type="text" inputMode="url" placeholder="https://example.com" value={url} onChange={(event) => setUrl(event.target.value)} required />
-          <button type="submit" disabled={loading}>{loading ? <LoaderCircle className="spin" size={17} /> : <Bot size={17} />}{loading ? "Auditing…" : "Run audit"}</button>
+          <button type="submit" disabled={loading}>{loading ? <LoaderCircle className="spin" size={17} /> : null}{loading ? "Checking website…" : "Check my website"}{!loading ? <ArrowRight size={17} /> : null}</button>
         </div>
-        <p>Checks one public page and up to 80 links for broken destinations, accessibility defects, expired content, and crawler access. Private network addresses are blocked.</p>
+        <div className="audit-form-meta">
+          <p>Not sure what to try?</p>
+          <button type="button" onClick={() => setUrl("https://example.com")}>Use example.com</button>
+          <span>Checks one page and up to 80 links. Nothing is changed on the website.</span>
+        </div>
       </form>
+      {loading && (
+        <div className="audit-progress" role="status" aria-live="polite">
+          <div className="progress-copy"><span><LoaderCircle className="spin" size={18} /></span><div><strong>{["Fetching the page", "Checking links and metadata", "Rendering JavaScript", "Preparing your report"][stage]}</strong><small>Keep this tab open while the checks finish.</small></div></div>
+          <div className="progress-steps">
+            {["Fetch", "Links", "Render", "Report"].map((label, index) => <span key={label} className={index < stage ? "complete" : index === stage ? "active" : ""}><i>{index < stage ? <Check size={11} /> : index + 1}</i>{label}</span>)}
+          </div>
+        </div>
+      )}
       {error && <p className="audit-error" role="alert">{error}</p>}
       {report && (
         <section className="audit-report" aria-live="polite">
@@ -87,6 +104,10 @@ export function AuditForm() {
             <div><p className="eyebrow">AUDIT COMPLETE</p><h2>{report.page.title || new URL(report.finalUrl).hostname}</h2></div>
             <a href={report.finalUrl} target="_blank" rel="noreferrer">Open page <ExternalLink size={14} /></a>
           </div>
+          <article className={`audit-verdict ${report.qualityReport.findings.length ? "attention" : "clear"}`}>
+            <span>{report.qualityReport.findings.length}</span>
+            <div><p className="label">WHAT TO DO NEXT</p><h3>{report.qualityReport.findings.length ? "Your website is working, but a few issues deserve attention." : "The checks that ran found a healthy foundation."}</h3><p>{report.qualityReport.firstActions[0] || "Review the evidence coverage below, then keep monitoring after future releases."}</p></div>
+          </article>
           <div className="audit-score-grid">
             <article title={report.seo.methodology}><span>Technical SEO</span><strong>{report.seo.score}</strong><small>/ 100 · {report.seo.rating}</small><em>{report.seo.confidence} confidence</em></article>
             <article title={report.aiVisibility.methodology}><span>AI visibility</span><strong>{report.aiVisibility.score}</strong><small>/ 100 · {report.aiVisibility.rating}</small><em>{report.aiVisibility.confidence} confidence</em></article>
@@ -101,8 +122,7 @@ export function AuditForm() {
               <div>
                 <h3><Link2Off size={19} /> Broken links</h3>
                 <p>
-                  {report.links.checked} of {report.links.discovered} discovered links checked; internal links are prioritised
-                  {report.links.unchecked > 0 ? `, ${report.links.unchecked} not reached within the time budget` : ""}.
+                  {report.links.checked} of {report.links.discovered} discovered links checked; internal links are prioritised.
                 </p>
               </div>
               <b className={report.links.broken.length ? "has-broken" : "all-clear"}>
@@ -127,6 +147,9 @@ export function AuditForm() {
             ) : (
               <p className="audit-note">Every checked link resolved successfully.</p>
             )}
+            {report.links.unchecked > 0 && (
+              <p className="link-coverage-note"><strong>{report.links.unchecked} links were not checked.</strong> {report.links.checked >= 80 ? "This audit reached its 80-link coverage limit; they are not failed or broken links." : "The run ended at its time budget; they are not counted as failed or broken links."}</p>
+            )}
             {report.links.inconclusive.length > 0 && (
               <div className="inconclusive-links">
                 <h4>{report.links.inconclusive.length} inconclusive link check{report.links.inconclusive.length === 1 ? "" : "s"}</h4>
@@ -142,8 +165,8 @@ export function AuditForm() {
               </div>
             )}
             {report.links.successful.length > 0 && (
-              <details className="healthy-links" open>
-                <summary>{report.links.successful.length} successful link check{report.links.successful.length === 1 ? "" : "s"}</summary>
+              <details className="healthy-links">
+                <summary>View {report.links.successful.length} successful link check{report.links.successful.length === 1 ? "" : "s"}</summary>
                 <p>HTTP 2xx responses and successful 3xx redirects are shown for evidence only. They are not errors and do not reduce the score.</p>
                 <ul className="broken-list">
                   {report.links.successful.map((link) => (
@@ -164,10 +187,12 @@ export function AuditForm() {
             )}
           </article>
 
-          <article className="audit-panel google-tools">
-            <div><p className="label">VERIFY WITH GOOGLE</p><h3>Google SEO check</h3><p>Use Search Console URL Inspection to verify how Google crawls and indexes the page. Site ownership is required.</p></div>
+          <article className="audit-panel google-tools google-toolkit">
+            <div><p className="label">VERIFY WITH GOOGLE</p><h3>Continue with Google’s specialist tools</h3><p>Our audit finds broad technical issues. Use these focused tools for performance, rich results, and authoritative indexing evidence.</p></div>
             <div className="google-tool-links">
-              <a href="https://search.google.com/search-console" target="_blank" rel="noreferrer">Search Console URL Inspection <ExternalLink size={14} /></a>
+              <a href="https://pagespeed.web.dev/" target="_blank" rel="noreferrer"><span><strong>PageSpeed Insights</strong><small>Performance + Core Web Vitals</small></span><ExternalLink size={14} /></a>
+              <a href="https://search.google.com/test/rich-results" target="_blank" rel="noreferrer"><span><strong>Rich Results Test</strong><small>Structured data</small></span><ExternalLink size={14} /></a>
+              <a href="https://search.google.com/search-console" target="_blank" rel="noreferrer"><span><strong>Search Console</strong><small>Indexing · ownership required</small></span><ExternalLink size={14} /></a>
             </div>
           </article>
 

@@ -22,6 +22,7 @@ export default function HistoryPage() {
             <p>Every audit run from this browser tab, newest first. Kept in session storage only &mdash; nothing is sent to a server, and closing the tab discards it.</p>
           </div>
         </header>
+        <nav className="report-tabs" aria-label="Report type"><a className="active" href="/history">Website audits</a><a href="/smoke-test/history">Smoke tests</a></nav>
         <HistoryList />
       </section>
       <SiteFooter />

@@ -2,6 +2,12 @@
 
 This is a lightweight decision log. Add an entry when a choice would otherwise be easy to forget or accidentally reverse.
 
+## 2026-09-11 — Make the checker a focused company toolbox
+
+Website Audit remains the product’s primary identity and must retain more visual weight than navigation. Supporting Google SEO tools, release checks, reports, and train status use collapsible groups in a low-emphasis left rail on desktop and a Tools drawer on smaller screens. PageSpeed Insights covers performance and Core Web Vitals, Rich Results Test covers Google-supported structured data, and Search Console remains the authoritative owner-only indexing follow-up. External tools complement rather than inflate the scope of the deterministic in-app audit; Lighthouse is not exposed as a separate navigation item.
+
+Successful-link responses remain available as evidence but are collapsed by default. Coverage copy must distinguish links skipped at the hard 80-link cap from links not reached before the time budget; neither is a broken-link result.
+
 ## 2026-09-08 — Keep smoke testing broad, deterministic, and separate
 
 Release smoke testing lives at `/smoke-test` rather than expanding the single-page deep audit. It checks up to 100 same-origin URLs, prioritising manually supplied critical paths before sitemap entries. All selected pages receive HTTP and markup checks; up to 20 priority or suspicious pages receive Playwright verification using one shared browser. It never calls OpenAI and does not perform form submissions. A clear Pass, Pass with warnings, or Fail result is more actionable for release decisions than another numeric score.
@@ -18,9 +24,9 @@ Crawler reporting keeps three facts separate: robots permission, HTTP response, 
 
 Robots wildcard and precedence rules are delegated to `robots-parser` and protected by regression tests. A prior prefix-only implementation turned `/*.mvc` into `/` and falsely blocked every page; do not reintroduce hand-written wildcard truncation.
 
-The first audit is deliberately limited to one public page and 30 links. Public-target validation and request bounds are product requirements because the audit endpoint performs server-side network access.
+The audit is deliberately limited to one public page and 80 links. Public-target validation and request bounds are product requirements because the audit endpoint performs server-side network access.
 
-Scores are weighted diagnostics rather than equal deductions per finding. Every score is paired with a rating, confidence, and short methodology. Confidence reflects evidence coverage and must fall when rendering, robots retrieval, or link coverage is incomplete. Google follow-up is intentionally limited to Search Console URL Inspection; performance and rich-result tools are outside this focused SEO handoff.
+Scores are weighted diagnostics rather than equal deductions per finding. Every score is paired with a rating, confidence, and short methodology. Confidence reflects evidence coverage and must fall when rendering, robots retrieval, or link coverage is incomplete. Google follow-up was initially limited to Search Console URL Inspection; the later company-toolbox decision expands the handoff without adding those external checks to the audit engine itself.
 
 Link checks distinguish confirmed HTTP failures from inconclusive automation responses. HTTP 401, 403, 405, 408, 425, 429, timeouts, and request errors do not prove a human-facing link is broken, so they remain visible for manual verification but do not affect the broken-link count or SEO score.
 

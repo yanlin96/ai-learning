@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "node --experimental-strip-types --test tests/robots.test.mjs tests/audit-scoring.test.mjs tests/audit-findings.test.mjs tests/content-freshness.test.mjs tests/smoke-rules.test.mjs tests/link-status.test.mjs tests/smoke-history.test.mjs",
+    "test": "node --experimental-strip-types --test tests/robots.test.mjs tests/audit-scoring.test.mjs tests/audit-findings.test.mjs tests/content-freshness.test.mjs tests/smoke-rules.test.mjs tests/link-status.test.mjs tests/smoke-history.test.mjs tests/weather-codes.test.mjs",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
