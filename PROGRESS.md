@@ -13,6 +13,7 @@ Last updated: 2026-09-14
 - The production site is available at `https://cpatools.gylxxgroup.com`; Vercel serves the custom domain over HTTPS and exposes the Okta callback at `/api/auth/callback/okta`.
 - Reminder entry and manual Telegram actions are hidden from the shared navigation and public train-status UI; the underlying reminder routes and APIs remain intact.
 - Header and footer components are shared across both pages.
+- The shared header, account control, desktop sidebar, and mobile toolbox drawer now use Tailwind CSS v4 utilities with larger navigation labels and touch targets. Tailwind Preflight remains disabled while feature-page styles are migrated incrementally.
 - Reminder deletion uses a custom confirmation dialog rather than the browser prompt.
 - Selected reminders persist in `data/subscriptions.json` through an isolated storage adapter.
 - Alerts are filtered for a selected line and expired alerts are excluded.
