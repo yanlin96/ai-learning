@@ -173,11 +173,11 @@ export function TrainStatusSearch({
               <article className="disruption" key={item.id}>
                 <span className={`severity ${item.severity}`}>{item.severity === "major" ? "SERVICE CHANGE" : "NOTICE"}</span>
                 <h3>{item.detail}</h3>
-                {item.description ? <p className="disruption-description">{item.description}</p> : null}
                 <div className="disruption-meta">
                   <div><CalendarDays size={17} /><span><small>WHEN</small><strong>{item.period}</strong></span></div>
                   <div><TrainFront size={17} /><span><small>AFFECTS</small><strong>{item.line}</strong></span></div>
                 </div>
+                {item.description ? <p className="disruption-description">{item.description}</p> : null}
               </article>
             ))}
           </div>
