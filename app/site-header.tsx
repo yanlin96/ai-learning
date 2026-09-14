@@ -2,10 +2,45 @@
 
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import { BarChart3, ChevronDown, ExternalLink, Gauge, Menu, ScanSearch, SearchCheck, TrainFront, X } from "lucide-react";
+import { BarChart3, ChevronDown, ExternalLink, Gauge, LogIn, LogOut, Menu, ScanSearch, SearchCheck, TrainFront, X } from "lucide-react";
+import { signOut } from "next-auth/react";
 import { DailyBrief } from "@/app/daily-brief";
 
 type ToolboxLinksProps = { pathname: string; close?: () => void };
+type HeaderSession = { user?: { name?: string | null; email?: string | null; image?: string | null } };
+
+function HeaderAccount() {
+  const [session, setSession] = useState<HeaderSession | null | undefined>(undefined);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch("/api/auth/session", { credentials: "same-origin", signal: controller.signal })
+      .then((response) => response.ok ? response.json() as Promise<HeaderSession> : Promise.reject())
+      .then((value) => setSession(value?.user ? value : null))
+      .catch(() => setSession(null));
+    return () => controller.abort();
+  }, []);
+
+  if (session === undefined) return <span className="header-account-loading" aria-label="Loading account" />;
+  if (!session?.user) return <a className="header-sign-in" href="/train-login"><LogIn size={16} /> Sign in</a>;
+
+  const label = session.user.name || session.user.email || "Signed-in user";
+  const initials = label.split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part[0]).join("").toUpperCase();
+
+  return (
+    <details className="header-account">
+      <summary aria-label={`Account menu for ${label}`}>
+        <span className="header-avatar" aria-hidden="true">{initials || "U"}</span>
+        <span className="header-account-name"><small>SIGNED IN</small><strong>{label}</strong></span>
+        <ChevronDown size={15} />
+      </summary>
+      <div className="header-account-menu">
+        <div><span className="header-avatar" aria-hidden="true">{initials || "U"}</span><p><strong>{session.user.name || "CPA Tools user"}</strong><small>{session.user.email}</small></p></div>
+        <button type="button" onClick={() => void signOut({ callbackUrl: "/" })}><LogOut size={16} /> Sign out</button>
+      </div>
+    </details>
+  );
+}
 
 function ToolboxLinks({ pathname, close }: ToolboxLinksProps) {
   const active = (href: string) => href === "/" ? pathname === "/" || pathname === "/website-audit" : pathname.startsWith(href);
@@ -76,6 +111,7 @@ export function SiteHeader() {
           <a href="/">Website audit</a>
           <a href="/smoke-test">Smoke test</a>
           <a href="/history">Reports</a>
+          <div className="header-account-slot"><HeaderAccount /></div>
           <div className="menu-wrap">
             <button className="menu-button" onClick={() => (open ? close() : setOpen(true))} aria-label="Open company toolbox" aria-expanded={open}>
               {open ? <X size={19} /> : <Menu size={19} />}<span>Tools</span>

@@ -39,6 +39,29 @@ main { min-height: 100vh; position: relative; }
 .nav-actions { display: flex; align-items: center; gap: 24px; }
 .nav-actions > a { color: var(--brand); font-size: 14px; font-weight: 700; text-decoration: none; padding-bottom: 2px; border-bottom: 2px solid transparent; }
 .nav-actions > a:hover { color: var(--brand-dark); border-bottom-color: var(--brand-dark); }
+.header-account-slot { position: relative; display: flex; align-items: center; }
+.header-account-loading { width: 88px; height: 38px; display: block; border-radius: 999px; background: linear-gradient(90deg, #eef2f7 25%, #f8fafc 45%, #eef2f7 65%); background-size: 300% 100%; animation: brief-shimmer 1.4s infinite linear; }
+.header-sign-in { min-height: 40px; display: inline-flex; align-items: center; gap: 7px; padding: 0 14px; border: 1px solid #cbd8e7; border-radius: 999px; color: var(--brand); background: white; font-size: 12px; font-weight: 800; text-decoration: none; }
+.header-sign-in:hover { border-color: var(--brand); background: var(--tint); }
+.header-account { position: relative; }
+.header-account > summary { min-height: 44px; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 9px; padding: 5px 9px 5px 6px; border: 1px solid #d9e1eb; border-radius: 999px; background: white; cursor: pointer; list-style: none; transition: border-color .15s, box-shadow .15s; }
+.header-account > summary::-webkit-details-marker { display: none; }
+.header-account > summary:hover, .header-account[open] > summary { border-color: #adc4dc; box-shadow: 0 5px 16px rgba(9,13,70,.07); }
+.header-account > summary > svg { color: var(--muted); transition: transform .15s; }
+.header-account[open] > summary > svg { transform: rotate(180deg); }
+.header-avatar { flex: 0 0 auto; width: 32px; height: 32px; display: grid; place-items: center; border-radius: 50%; color: white; background: linear-gradient(145deg, var(--brand), #1688bd); font-size: 11px; font-weight: 800; letter-spacing: .02em; }
+.header-account-name { min-width: 0; max-width: 170px; }
+.header-account-name small, .header-account-name strong { display: block; }
+.header-account-name small { color: var(--muted); font-size: 7px; font-weight: 800; letter-spacing: .1em; }
+.header-account-name strong { overflow: hidden; color: var(--navy); font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+.header-account-menu { position: absolute; z-index: 50; top: calc(100% + 9px); right: 0; width: 270px; overflow: hidden; padding: 10px; border: 1px solid #dce3ec; border-radius: 13px; background: white; box-shadow: 0 18px 46px rgba(9,13,70,.16); }
+.header-account-menu > div { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 10px; padding: 7px 7px 12px; }
+.header-account-menu p { min-width: 0; margin: 0; }
+.header-account-menu p strong, .header-account-menu p small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.header-account-menu p strong { color: var(--navy); font-size: 12px; }
+.header-account-menu p small { margin-top: 2px; color: var(--muted); font-size: 10px; }
+.header-account-menu button { width: 100%; min-height: 40px; display: flex; align-items: center; gap: 8px; padding: 0 11px; border: 0; border-radius: 8px; color: #8b2023; background: var(--danger-bg); font: 800 11px var(--sans); cursor: pointer; }
+.header-account-menu button:hover { background: #ffe1e1; }
 .page-intro { display: grid; grid-template-columns: auto 1fr; align-items: start; gap: 22px; padding: 64px 0 44px; }
 .page-icon { width: 48px; height: 48px; display: grid; place-items: center; border-radius: var(--r); color: white; background: var(--brand); }
 .page-intro .eyebrow { margin: 2px 0 12px; }
@@ -846,4 +869,12 @@ h1 em { color: var(--brand); font-style: normal; }
   .train-login-visual .train-login-intro { margin: 15px 0 0; font-size: 13px; line-height: 1.55; }
   .train-login-benefits { display: none; }
   .train-login-card { min-height: 0; margin: 0; padding: 36px 28px 32px; border-radius: 0 0 14px 14px; box-shadow: none; }
+}
+
+@media (max-width: 700px) {
+  .header-account-name, .header-account > summary > svg { display: none; }
+  .header-account > summary { min-height: 40px; grid-template-columns: 1fr; padding: 3px; }
+  .header-avatar { width: 32px; height: 32px; }
+  .header-account-menu { position: fixed; top: 64px; right: 16px; width: min(270px, calc(100vw - 32px)); }
+  .header-sign-in { width: 40px; min-height: 40px; justify-content: center; padding: 0; font-size: 0; }
 }
