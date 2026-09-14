@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { BarChart3, ChevronDown, ExternalLink, Gauge, Menu, ScanSearch, SearchCheck, TrainFront, X } from "lucide-react";
+import { DailyBrief } from "@/app/daily-brief";
 
 type ToolboxLinksProps = { pathname: string; close?: () => void };
 
@@ -89,6 +90,9 @@ export function SiteHeader() {
           </div>
         </div>
       </nav>
+      <div className="global-daily-brief shell">
+        <DailyBrief />
+      </div>
     </header>
   );
 }

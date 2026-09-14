@@ -37,7 +37,7 @@ Transport Victoria GTFS Schedule + GTFS-Realtime Alerts
 - `app/site-header.tsx` and `app/site-footer.tsx`: shared page chrome. The header owns persistent desktop workspace navigation and the responsive toolbox drawer; reminder entry is intentionally absent from shared navigation.
 - `app/disruptions/page.tsx` and `app/train-status-search.tsx`: server-seeded, client-interactive search and live-status flow for all metropolitan train lines.
 - `lib/auth.ts`, `app/api/auth/[...nextauth]/route.ts`, and `app/train-login/page.tsx`: Auth.js integration with an Okta OIDC web application. Both the train page and its data APIs check the server-side session.
-- `app/daily-brief.tsx` and `/api/daily-brief`: a non-blocking client-loaded weather and Werribee status strip for the audit landing page.
+- `app/daily-brief.tsx` and `/api/daily-brief`: a non-blocking client-loaded weather and Werribee status strip mounted by the shared site header.
 - `lib/melbourne-weather.ts`: cached Melbourne forecast adapter backed by Open-Meteo; weather-code wording stays pure in `lib/weather-codes.ts`.
 - `lib/notification-message.ts`: Telegram presentation, separate from data retrieval.
 - `lib/telegram.ts`: server-only Telegram API client.
@@ -91,7 +91,7 @@ Scoring separates SEO from AI-search readiness. Critical indexability and crawle
 
 - Provider: Open-Meteo Forecast API for fixed Melbourne coordinates.
 - Current temperature and today’s minimum/maximum are cached for 15 minutes.
-- The landing-page brief loads after the main page and degrades independently when weather is unavailable.
+- The shared-header brief loads after the main page and degrades independently when weather is unavailable.
 
 ### Okta
 

@@ -34,7 +34,7 @@ It is:
 - A scheduled endpoint can send the same useful updates automatically.
 - A separate `/website-audit` tool checks one public webpage for broken links, baseline SEO, and AI-crawler accessibility.
 - The website-audit landing experience previews the report outcome before input, offers a safe example URL, and shows staged feedback while a check is running.
-- The landing page includes a compact Melbourne daily brief with current weather and Werribee Line status. Either source may fail independently without blocking the website checker.
+- The shared page header includes a compact Melbourne daily brief with current weather and Werribee Line status. Either source may fail independently without blocking the active tool.
 - Before login, the daily brief keeps weather public but replaces the Werribee status with a sign-in prompt.
 - Website audits compare initial HTML with a JavaScript-rendered DOM when Chromium is available; they never claim to verify a provider's private search index.
 - Audit scores use weighted technical signals and display evidence confidence; they are diagnostic summaries, not Google rankings.

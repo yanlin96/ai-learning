@@ -608,6 +608,8 @@ h1 em { color: var(--brand); font-style: normal; }
 
 /* Product-led audit launch experience. */
 .site-header { position: relative; z-index: 20; background: rgba(255,255,255,.9); backdrop-filter: blur(14px); }
+.global-daily-brief { padding-bottom: 18px; }
+.global-daily-brief .daily-brief { margin-top: 14px; }
 .audit-home::before { content: ""; position: absolute; z-index: -1; top: 84px; left: 50%; width: 100vw; height: 650px; transform: translateX(-50%); background: radial-gradient(circle at 78% 25%, rgba(0,186,181,.14), transparent 31%), radial-gradient(circle at 15% 5%, rgba(0,83,157,.1), transparent 34%), linear-gradient(180deg, #f7faff 0%, #fff 86%); }
 .audit-launch { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(360px, .9fr); column-gap: clamp(42px, 6vw, 82px); row-gap: 28px; padding: 34px 0 86px; align-items: center; }
 .daily-brief { min-height: 58px; display: grid; grid-template-columns: minmax(270px, .75fr) 1px minmax(330px, 1fr) auto; align-items: center; gap: 18px; margin-top: 22px; padding: 9px 15px; border: 1px solid rgba(0,83,157,.14); border-radius: 12px; background: rgba(255,255,255,.9); box-shadow: 0 10px 30px rgba(9,13,70,.06); }

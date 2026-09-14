@@ -2,14 +2,12 @@ import { Bot, CheckCircle2, Link2Off, ScanSearch, ShieldCheck, Sparkles } from "
 import { AuditForm } from "@/app/audit-form";
 import { SiteHeader } from "@/app/site-header";
 import { SiteFooter } from "@/app/site-footer";
-import { DailyBrief } from "@/app/daily-brief";
 
 export default function WebsiteAuditPage() {
   return (
     <main>
       <SiteHeader />
       <section className="shell audit-page audit-home">
-        <DailyBrief />
         <div className="audit-launch">
           <header className="audit-hero-copy">
             <div className="hero-kicker"><ScanSearch size={16} /> Website quality, made clear</div>
