@@ -97,6 +97,7 @@ Scoring separates SEO from AI-search readiness. Critical indexability and crawle
 
 - Auth.js uses the Okta OIDC provider with an Authorization Code redirect flow and a server-side client secret.
 - Local callback: `http://localhost:3000/api/auth/callback/okta`.
+- Production origin: `https://cpatools.gylxxgroup.com`; production callback: `https://cpatools.gylxxgroup.com/api/auth/callback/okta`.
 - Required environment variables: `AUTH_OKTA_ID`, `AUTH_OKTA_SECRET`, `AUTH_OKTA_ISSUER`, and `AUTH_SECRET`; `NEXTAUTH_URL` identifies the application origin.
 - Okta authenticates users and Auth.js stores a signed session cookie. No application passwords are collected or stored.
 

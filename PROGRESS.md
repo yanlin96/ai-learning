@@ -1,6 +1,6 @@
 # Progress
 
-Last updated: 2026-09-12
+Last updated: 2026-09-14
 
 ## Working now
 
@@ -10,6 +10,7 @@ Last updated: 2026-09-12
 - `/disruptions` combines searchable selection of every metropolitan train line with its live service and station notices in one workflow.
 - `/disruptions`, `/api/disruptions`, and `/api/lines` now require an Okta-backed Auth.js session. The landing-page brief keeps weather public but hides train evidence before login.
 - `/train-login` provides an Okta sign-in action when configured and a safe setup state while credentials are absent.
+- The production site is available at `https://cpatools.gylxxgroup.com`; Vercel serves the custom domain over HTTPS and exposes the Okta callback at `/api/auth/callback/okta`.
 - Reminder entry and manual Telegram actions are hidden from the shared navigation and public train-status UI; the underlying reminder routes and APIs remain intact.
 - Header and footer components are shared across both pages.
 - Reminder deletion uses a custom confirmation dialog rather than the browser prompt.
@@ -42,8 +43,7 @@ Last updated: 2026-09-12
 
 ## Not configured yet
 
-- Okta application credentials and production callback/logout URLs are not configured yet, so the train login page currently shows setup guidance.
-- No production deployment, database, or scheduler is configured.
+- No production database or scheduler is configured.
 - Tuesday and Thursday 6:00 am Melbourne reminders are therefore not running automatically.
 - Duplicate-notification prevention and day-of-week schedules are not implemented.
 - Automated tests for GTFS classification and Telegram formatting are not implemented.
