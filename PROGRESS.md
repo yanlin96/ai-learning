@@ -17,6 +17,7 @@ Last updated: 2026-09-14
 - Selected reminders persist in `data/subscriptions.json` through an isolated storage adapter.
 - Alerts are filtered for a selected line and expired alerts are excluded.
 - The UI shows useful event titles, Melbourne active periods, and supplemental descriptions.
+- Disruption cards present year-inclusive active periods and affected lines as distinct, labelled metadata so long-running notices are easy to interpret.
 - Replacement buses and relevant parking/access notices are both treated as commute-decision information for subscribed lines.
 - Telegram Bot credentials and Transport Victoria credentials remain server-side.
 - A protected Telegram test endpoint can verify Bot connectivity.

@@ -28,7 +28,7 @@ It is:
 - Stores one reminder time for each selected line.
 - Shows current and upcoming alerts for selected lines.
 - Includes replacement buses, planned works, delays, closures, and relevant station parking/access notices.
-- Separates the event title, active period, and supporting detail.
+- Separates the event title, active period, and supporting detail; active periods always include the year to keep long-running and cross-year notices unambiguous.
 - Shows a manual Telegram button whenever useful updates exist.
 - The manual button is intended for local testing.
 - A scheduled endpoint can send the same useful updates automatically.
