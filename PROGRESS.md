@@ -25,6 +25,7 @@ Last updated: 2026-09-14
 - Type checking and production build pass.
 - `/website-audit` accepts one public URL and reports broken links, baseline SEO, AI crawler access, and raw-versus-rendered text differences.
 - The website-audit landing page now pairs its primary URL action with an example report, low-friction example input, trust cues, staged run feedback, and a next-action verdict at the top of completed reports.
+- The audit landing page uses a tighter weather-to-hero rhythm without the redundant quality tagline, and a consistent monitor-check brand mark across the site chrome and browser icon.
 - The shared header carries a responsive Melbourne daily brief across the workspace: cached Open-Meteo conditions and live Werribee Line status load without blocking the active workflow.
 - Website audits support an optional OpenAI-written evidence summary while remaining useful without an OpenAI API key.
 - Robots wildcard and User-Agent precedence behavior is covered by focused regression tests, including the `/*.mvc` false-positive case.

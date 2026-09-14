@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import { BarChart3, ChevronDown, ExternalLink, Gauge, LogIn, LogOut, Menu, ScanSearch, SearchCheck, TrainFront, X } from "lucide-react";
+import { BarChart3, ChevronDown, ExternalLink, Gauge, LogIn, LogOut, Menu, MonitorCheck, SearchCheck, TrainFront, X } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { DailyBrief } from "@/app/daily-brief";
 
@@ -98,12 +98,12 @@ export function SiteHeader() {
   return (
     <header className="site-header">
       <aside className="desktop-sidebar" aria-label="Company tools">
-        <a className="sidebar-brand" href="/" aria-label="PAS Website Quality Checker home"><span><ScanSearch size={19} /></span><strong>PAS Website<br />Audit</strong></a>
+        <a className="sidebar-brand" href="/" aria-label="PAS Website Quality Checker home"><span><MonitorCheck size={20} strokeWidth={2.2} /></span><strong>PAS Website<br />Audit</strong></a>
         <ToolboxLinks pathname={pathname} />
       </aside>
       <nav className="nav shell">
         <a className="brand" href="/" aria-label="PAS Website Quality Checker home">
-          <span className="brand-mark"><ScanSearch size={19} strokeWidth={2.4} /></span>
+          <span className="brand-mark"><MonitorCheck size={20} strokeWidth={2.2} /></span>
           <span>PAS Website Quality Checker</span>
         </a>
         <div className="workspace-title"><span>COMPANY WORKSPACE</span><strong>Website audit &amp; supporting tools</strong></div>

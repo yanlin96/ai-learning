@@ -1,4 +1,4 @@
-import { Bot, CheckCircle2, Link2Off, ScanSearch, ShieldCheck, Sparkles } from "lucide-react";
+import { Bot, CheckCircle2, Link2Off, ShieldCheck, Sparkles } from "lucide-react";
 import { AuditForm } from "@/app/audit-form";
 import { SiteHeader } from "@/app/site-header";
 import { SiteFooter } from "@/app/site-footer";
@@ -10,7 +10,6 @@ export default function WebsiteAuditPage() {
       <section className="shell audit-page audit-home">
         <div className="audit-launch">
           <header className="audit-hero-copy">
-            <div className="hero-kicker"><ScanSearch size={16} /> Website quality, made clear</div>
             <h1>Find what is quietly <em>hurting your website.</em></h1>
             <p>Paste a URL and get a practical check of broken links, technical SEO, and AI crawler access—with the fixes prioritised for you.</p>
             <div className="hero-benefits">
