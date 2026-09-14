@@ -14,14 +14,14 @@ It is:
 
 ## Current user
 
-- Travels in metropolitan Melbourne and depends on one or more train lines.
+- Staff using the shared website-quality workspace.
+- Signed-in staff checking any metropolitan train line without needing a saved reminder.
 - Wants a quick answer without repeatedly checking transport websites.
-- Wants a different daily reminder time for each selected line.
-- Uses Telegram for personal notifications.
 
 ## Current product behaviour
 
 - Loads the current metropolitan train-line catalog from official GTFS data.
+- Combines line search and live status in one Okta-protected workflow on `/disruptions`; signed-in users can search and switch between every metropolitan train line in place.
 - Allows reminders to be created, viewed, edited, paused, and deleted.
 - Keeps service information on the read-only home dashboard and reminder mutations on `/reminders`.
 - Uses an in-app confirmation dialog before deleting a reminder.
@@ -35,11 +35,13 @@ It is:
 - A separate `/website-audit` tool checks one public webpage for broken links, baseline SEO, and AI-crawler accessibility.
 - The website-audit landing experience previews the report outcome before input, offers a safe example URL, and shows staged feedback while a check is running.
 - The landing page includes a compact Melbourne daily brief with current weather and Werribee Line status. Either source may fail independently without blocking the website checker.
+- Before login, the daily brief keeps weather public but replaces the Werribee status with a sign-in prompt.
 - Website audits compare initial HTML with a JavaScript-rendered DOM when Chromium is available; they never claim to verify a provider's private search index.
 - Audit scores use weighted technical signals and display evidence confidence; they are diagnostic summaries, not Google rankings.
 - Link-check results include successful 2xx responses and 3xx redirect chains as evidence, without treating them as errors. Broken-link results include link text, internal/external scope, source DOM, URL, and response failure. Bot rejections, rate limits, and missing responses are shown as inconclusive rather than counted as broken. Reports link to Google Search Console URL Inspection for authoritative SEO follow-up.
 - Successful-link evidence is collapsed by default. Unchecked links are explicitly described as coverage gaps caused by the 80-link cap or time budget, never as failures.
 - The shared company workspace keeps Website Audit as the primary product. A low-emphasis desktop sidebar, or toolbox drawer on smaller screens, places Google SEO, release, report, and train utilities in collapsible supporting groups.
+- Reminder and manual Telegram controls are retained in the codebase but hidden from the shared navigation and public train-status experience while the product shifts toward multiple users.
 - A separate `/smoke-test` workflow checks release breadth across priority and sitemap URLs without running costly deep analysis on every page. It performs HTTP checks broadly and uses Playwright on priority and suspicious pages.
 - Smoke-test scope is configurable from 1 to 100 pages. Manual priority URLs run before sitemap URLs.
 - Smoke-test scope offers Quick (10), Standard (30), and Full (100) page presets alongside a custom limit.
@@ -62,7 +64,7 @@ Do not assume that only severe rail incidents matter. A parking notice may be de
 
 ## Current scope
 
-The commute assistant currently supports metropolitan train lines, one local installation, one dashboard, and Telegram notifications. The repository also contains an intentionally separate single-page website-audit utility. It does not yet have user accounts or production database storage.
+The commute assistant supports Okta-authenticated, read-only lookup across metropolitan train lines. Reminder storage and Telegram notification code remain local-first and are not currently promoted in the multi-user interface. The repository also contains the primary website-audit utility. Okta provides identity and session access only; the project does not yet have production database storage for per-user records.
 
 ## Success criteria
 

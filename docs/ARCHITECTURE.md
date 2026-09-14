@@ -34,7 +34,9 @@ Transport Victoria GTFS Schedule + GTFS-Realtime Alerts
 - `app/page.tsx`: server-rendered dashboard.
 - `app/reminders/page.tsx`: dedicated reminder-management page; all normal CRUD UI lives here.
 - `app/send-alert-button.tsx`: client-side manual-send interaction.
-- `app/site-header.tsx` and `app/site-footer.tsx`: shared page chrome. The header owns persistent desktop workspace navigation, the responsive toolbox drawer, and protected reminder entry.
+- `app/site-header.tsx` and `app/site-footer.tsx`: shared page chrome. The header owns persistent desktop workspace navigation and the responsive toolbox drawer; reminder entry is intentionally absent from shared navigation.
+- `app/disruptions/page.tsx` and `app/train-status-search.tsx`: server-seeded, client-interactive search and live-status flow for all metropolitan train lines.
+- `lib/auth.ts`, `app/api/auth/[...nextauth]/route.ts`, and `app/train-login/page.tsx`: Auth.js integration with an Okta OIDC web application. Both the train page and its data APIs check the server-side session.
 - `app/daily-brief.tsx` and `/api/daily-brief`: a non-blocking client-loaded weather and Werribee status strip for the audit landing page.
 - `lib/melbourne-weather.ts`: cached Melbourne forecast adapter backed by Open-Meteo; weather-code wording stays pure in `lib/weather-codes.ts`.
 - `lib/notification-message.ts`: Telegram presentation, separate from data retrieval.
@@ -91,9 +93,18 @@ Scoring separates SEO from AI-search readiness. Critical indexability and crawle
 - Current temperature and today’s minimum/maximum are cached for 15 minutes.
 - The landing-page brief loads after the main page and degrades independently when weather is unavailable.
 
+### Okta
+
+- Auth.js uses the Okta OIDC provider with an Authorization Code redirect flow and a server-side client secret.
+- Local callback: `http://localhost:3000/api/auth/callback/okta`.
+- Required environment variables: `AUTH_OKTA_ID`, `AUTH_OKTA_SECRET`, `AUTH_OKTA_ISSUER`, and `AUTH_SECRET`; `NEXTAUTH_URL` identifies the application origin.
+- Okta authenticates users and Auth.js stores a signed session cookie. No application passwords are collected or stored.
+
 ## Security boundary
 
 All credentials must remain in server-only modules and environment variables. Client components may call project API routes but must never receive Transport Victoria or Telegram credentials.
+
+`/disruptions`, `/api/disruptions`, and `/api/lines` require an authenticated Okta session. `/api/daily-brief` may return public weather before login but must not return train-status evidence to an unauthenticated request. UI visibility alone is never an authorization boundary.
 
 Website-audit targets must use HTTP(S), resolve only to public addresses, and be revalidated across redirects and browser subresources. Keep time, response-size, redirect, and link-count limits in place. Do not add localhost or private-network exceptions to the public endpoint.
 
@@ -103,7 +114,7 @@ Smoke history is client-side only. `localStorage` retains compact summaries acro
 
 ## Read/write page boundary
 
-The home page is the read-oriented commute dashboard. `/reminders` owns create, update, pause, and delete interactions. Both may read subscription counts, but mutation forms must not drift back into the dashboard.
+`/disruptions` is the Okta-protected, read-oriented train lookup. It searches the official line catalog and requests one line's current alerts through the equally protected `/api/disruptions?lineId=...`. `/reminders` still owns create, update, pause, and delete interactions, but is deliberately unlinked while reminders are hidden from the multi-user interface. Mutation forms must not drift into the lookup.
 
 ## Time handling
 

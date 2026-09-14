@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { AlertTriangle, CheckCircle2, ChevronRight, Cloud, CloudFog, CloudLightning, CloudRain, Snowflake, Sun, TrainFront } from "lucide-react";
+import { AlertTriangle, CheckCircle2, ChevronRight, Cloud, CloudFog, CloudLightning, CloudRain, Lock, Snowflake, Sun, TrainFront } from "lucide-react";
 import type { MelbourneWeather } from "@/lib/melbourne-weather";
 
 type DailyBriefData = {
   weather: MelbourneWeather | null;
-  train: { unavailable: boolean; count: number; majorCount: number; preview: string | null };
+  train: { requiresAuth: boolean; unavailable: boolean; count: number; majorCount: number; preview: string | null };
   checkedAt: string;
   sources: { weather: string; transport: string };
 };
@@ -21,16 +21,18 @@ export function DailyBrief() {
     fetch("/api/daily-brief", { signal: controller.signal })
       .then((response) => response.ok ? response.json() as Promise<DailyBriefData> : Promise.reject())
       .then(setData)
-      .catch(() => setData({ weather: null, train: { unavailable: true, count: 0, majorCount: 0, preview: null }, checkedAt: new Date().toISOString(), sources: { weather: "https://open-meteo.com/", transport: "/disruptions" } }));
+      .catch(() => setData({ weather: null, train: { requiresAuth: true, unavailable: false, count: 0, majorCount: 0, preview: null }, checkedAt: new Date().toISOString(), sources: { weather: "https://open-meteo.com/", transport: "/disruptions" } }));
     return () => controller.abort();
   }, []);
 
   if (!data) return <div className="daily-brief loading" aria-label="Loading Melbourne daily brief"><span /><span /></div>;
 
   const WeatherIcon = data.weather ? WEATHER_ICONS[data.weather.tone] : Cloud;
-  const trainTone = data.train.unavailable ? "unknown" : data.train.count ? "warning" : "clear";
-  const TrainIcon = data.train.unavailable || data.train.count ? AlertTriangle : CheckCircle2;
-  const trainText = data.train.unavailable
+  const trainTone = data.train.requiresAuth ? "unknown" : data.train.unavailable ? "unknown" : data.train.count ? "warning" : "clear";
+  const TrainIcon = data.train.requiresAuth ? Lock : data.train.unavailable || data.train.count ? AlertTriangle : CheckCircle2;
+  const trainText = data.train.requiresAuth
+    ? "Sign in to view status"
+    : data.train.unavailable
     ? "Live train status unavailable"
     : data.train.majorCount
       ? `${data.train.majorCount} travel change${data.train.majorCount === 1 ? "" : "s"}`

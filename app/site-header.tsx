@@ -1,9 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { BarChart3, ChevronDown, ExternalLink, Gauge, Menu, ScanSearch, SearchCheck, TrainFront, X } from "lucide-react";
-import { PASSCODE, UNLOCK_KEY } from "@/app/secret-gate";
 
 type ToolboxLinksProps = { pathname: string; close?: () => void };
 
@@ -38,19 +37,16 @@ function ToolboxLinks({ pathname, close }: ToolboxLinksProps) {
         </div>
       </details>
       <details className="tool-group" open={groups.operations} onToggle={(event) => setGroup("operations", event.currentTarget.open)}>
-        <summary>Daily operations <ChevronDown size={14} /></summary>
-        <div><a className={active("/disruptions") ? "active" : ""} href="/disruptions" onClick={close}><span><TrainFront size={18} /></span><div><strong>Train line status</strong><small>Werribee changes and notices</small></div></a></div>
+        <summary>Commuter tools <ChevronDown size={14} /></summary>
+        <div><a className={active("/disruptions") ? "active" : ""} href="/disruptions" onClick={close}><span><TrainFront size={18} /></span><div><strong>Train line status</strong><small>All Metro lines · Okta sign-in</small></div></a></div>
       </details>
     </nav>
   );
 }
 
 export function SiteHeader() {
-  const router = useRouter();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
-  const [value, setValue] = useState("");
-  const [error, setError] = useState(false);
 
   useEffect(() => {
     if (!open) return;
@@ -61,39 +57,13 @@ export function SiteHeader() {
 
   function close() {
     setOpen(false);
-    setValue("");
-    setError(false);
   }
-
-  function submit(event: React.FormEvent) {
-    event.preventDefault();
-    if (value !== PASSCODE) {
-      setError(true);
-      setValue("");
-      return;
-    }
-    try { sessionStorage.setItem(UNLOCK_KEY, "1"); } catch {}
-    close();
-    router.push("/reminders");
-  }
-
-  const StaffUnlock = ({ compact = false }: { compact?: boolean }) => (
-    <div className={compact ? "staff-unlock compact" : "staff-unlock"}>
-      <p className="label">STAFF REMINDER ACCESS</p>
-      <form onSubmit={submit}>
-        <input type="password" inputMode="numeric" value={value} onChange={(event) => { setValue(event.target.value); setError(false); }} placeholder="Passcode" aria-label={compact ? "Sidebar passcode" : "Passcode"} />
-        <button type="submit">{compact ? "Go" : "Unlock"}</button>
-      </form>
-      {error ? <p className="menu-error">Incorrect passcode.</p> : null}
-    </div>
-  );
 
   return (
     <header className="site-header">
       <aside className="desktop-sidebar" aria-label="Company tools">
         <a className="sidebar-brand" href="/" aria-label="PAS Website Quality Checker home"><span><ScanSearch size={19} /></span><strong>PAS Website<br />Audit</strong></a>
         <ToolboxLinks pathname={pathname} />
-        <StaffUnlock compact />
       </aside>
       <nav className="nav shell">
         <a className="brand" href="/" aria-label="PAS Website Quality Checker home">
@@ -114,7 +84,6 @@ export function SiteHeader() {
               <aside className="menu-panel" onKeyDown={(event) => event.key === "Escape" && close()} aria-label="Company toolbox">
                 <div className="toolbox-head"><div><p className="label">COMPANY TOOLBOX</p><h2>Everything in one place.</h2></div><button type="button" onClick={close} aria-label="Close toolbox"><X size={19} /></button></div>
                 <ToolboxLinks pathname={pathname} close={close} />
-                <StaffUnlock />
               </aside>
             </> : null}
           </div>

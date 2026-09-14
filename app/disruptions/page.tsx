@@ -1,74 +1,64 @@
-import { AlertTriangle, ArrowUpRight, CalendarDays, CheckCircle2, TrainFront } from "lucide-react";
-import { getWerribeeDisruptions, SOURCE_URL } from "@/lib/disruptions";
-import { SendAlertButton } from "@/app/send-alert-button";
+import { getLineDisruptions, SOURCE_URL } from "@/lib/disruptions";
+import { getTrainLines } from "@/lib/train-lines";
 import { SiteHeader } from "@/app/site-header";
 import { SiteFooter } from "@/app/site-footer";
+import { TrainStatusSearch } from "@/app/train-status-search";
+import { TrainAccount } from "@/app/train-auth-controls";
+import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
+import { authOptions, isOktaConfigured } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
-const melbourneTime = new Intl.DateTimeFormat("en-AU", {
-  timeZone: "Australia/Melbourne",
-  weekday: "long",
-  day: "numeric",
-  month: "long",
-  hour: "numeric",
-  minute: "2-digit",
-});
+export default async function DisruptionsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ lineId?: string }>;
+}) {
+  if (!isOktaConfigured) redirect("/train-login");
+  const session = await getServerSession(authOptions);
+  if (!session) redirect("/train-login");
 
-export default async function DisruptionsPage() {
-  let disruptions = [] as Awaited<ReturnType<typeof getWerribeeDisruptions>>;
+  let lines = [] as Awaited<ReturnType<typeof getTrainLines>>;
+  try {
+    lines = await getTrainLines();
+  } catch {
+    // The status card below explains that live train data is unavailable.
+  }
+
+  const requestedLineId = (await searchParams).lineId;
+  const selectedLine = lines.find((line) => line.id === requestedLineId)
+    ?? lines.find((line) => line.id === "werribee")
+    ?? lines[0]
+    ?? null;
+  let disruptions = [] as Awaited<ReturnType<typeof getLineDisruptions>>;
   let unavailable = false;
 
   try {
-    disruptions = await getWerribeeDisruptions();
+    if (selectedLine) disruptions = await getLineDisruptions(selectedLine);
+    else unavailable = true;
   } catch {
     unavailable = true;
   }
-
-  const hasWarnings = disruptions.length > 0;
 
   return (
     <main>
       <SiteHeader />
 
       <section className="hero shell" id="top">
-        <div className="eyebrow">MELBOURNE COMMUTES, WITHOUT THE SURPRISES</div>
-        <h1>Know before<br />you <em>go.</em></h1>
-        <p className="intro">Choose the train lines that matter to you, set one reminder time for each, and see useful service and station updates in one place.</p>
+        <TrainAccount name={session.user?.name} email={session.user?.email} />
+        <div className="eyebrow">MELBOURNE TRAIN STATUS</div>
+        <h1>Find your line.<br />Know before you <em>go.</em></h1>
+        <p className="intro">Search any metropolitan train line and check the service changes, planned works, and station notices that could affect your trip.</p>
 
-        <div className={`status-card ${hasWarnings ? "warning" : "clear"}`}>
-          <div className="status-head">
-            <span className="status-icon">
-              {unavailable ? <AlertTriangle size={26} /> : hasWarnings ? <AlertTriangle size={26} /> : <CheckCircle2 size={26} />}
-            </span>
-            <div>
-              <p className="label">CURRENT STATUS</p>
-              <h2>{unavailable ? "Unable to check right now" : hasWarnings ? `${disruptions.length} service ${disruptions.length === 1 ? "change" : "changes"}` : "All clear on the line"}</h2>
-            </div>
-            <span className="updated">Checked {melbourneTime.format(new Date())}</span>
-          </div>
-
-          {hasWarnings ? (
-            <div className="disruption-list">
-              {disruptions.map((item) => (
-                <article className="disruption" key={item.id}>
-                  <span className={`severity ${item.severity}`}>{item.severity === "major" ? "SERVICE CHANGE" : "NOTICE"}</span>
-                  <h3>{item.detail}</h3>
-                  {item.description && <p className="disruption-description">{item.description}</p>}
-                  <p><CalendarDays size={16} /> {item.period}</p>
-                  <p><TrainFront size={16} /> {item.line}</p>
-                </article>
-              ))}
-            </div>
-          ) : (
-            <p className="status-copy">{unavailable ? "Open the official source below for the latest information." : "No planned disruptions are listed right now. Your usual journey should run as expected."}</p>
-          )}
-
-          <a className="source-link" href={SOURCE_URL} target="_blank" rel="noreferrer">
-            View official Transport Victoria updates <ArrowUpRight size={17} />
-          </a>
-          {hasWarnings && <SendAlertButton />}
-        </div>
+        <TrainStatusSearch
+          lines={lines}
+          initialLine={selectedLine}
+          initialDisruptions={disruptions}
+          initialUnavailable={unavailable}
+          checkedAt={new Date().toISOString()}
+          sourceUrl={SOURCE_URL}
+        />
       </section>
 
       <SiteFooter />

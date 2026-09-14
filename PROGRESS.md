@@ -1,12 +1,16 @@
 # Progress
 
-Last updated: 2026-09-11
+Last updated: 2026-09-12
 
 ## Working now
 
-- Next.js dashboard dynamically reads 17 metropolitan train lines from the official GTFS Schedule without downloading the entire ZIP.
+- Next.js dynamically reads the current metropolitan train-line catalog from the official GTFS Schedule without downloading the entire ZIP.
 - Reminder CRUD supports create, read, edit, pause, and delete with one daily time per line.
 - The read-only dashboard is separate from the `/reminders` CRUD page.
+- `/disruptions` combines searchable selection of every metropolitan train line with its live service and station notices in one workflow.
+- `/disruptions`, `/api/disruptions`, and `/api/lines` now require an Okta-backed Auth.js session. The landing-page brief keeps weather public but hides train evidence before login.
+- `/train-login` provides an Okta sign-in action when configured and a safe setup state while credentials are absent.
+- Reminder entry and manual Telegram actions are hidden from the shared navigation and public train-status UI; the underlying reminder routes and APIs remain intact.
 - Header and footer components are shared across both pages.
 - Reminder deletion uses a custom confirmation dialog rather than the browser prompt.
 - Selected reminders persist in `data/subscriptions.json` through an isolated storage adapter.
@@ -38,6 +42,7 @@ Last updated: 2026-09-11
 
 ## Not configured yet
 
+- Okta application credentials and production callback/logout URLs are not configured yet, so the train login page currently shows setup guidance.
 - No production deployment, database, or scheduler is configured.
 - Tuesday and Thursday 6:00 am Melbourne reminders are therefore not running automatically.
 - Duplicate-notification prevention and day-of-week schedules are not implemented.

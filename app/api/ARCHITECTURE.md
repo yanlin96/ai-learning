@@ -2,11 +2,11 @@
 
 ## Responsibilities
 
-- `/api/lines` exposes the current official metropolitan train catalog.
+- `/api/lines` exposes the current official metropolitan train catalog to authenticated users.
 - `/api/subscriptions` lists and creates reminder subscriptions.
 - `/api/subscriptions/[id]` updates and deletes one subscription.
-- `/api/disruptions?lineId=...` returns alerts for a selected line.
-- `/api/daily-brief` combines cached Melbourne weather with Werribee Line status. It returns partial data when either provider is unavailable and never exposes the Transport Victoria credential.
+- `/api/disruptions?lineId=...` returns alerts for a selected line after checking an Okta-backed Auth.js session.
+- `/api/daily-brief` always attempts cached Melbourne weather, but includes Werribee Line status only for an authenticated session. It never exposes the Transport Victoria credential.
 - Telegram endpoints send current subscribed-line alerts or perform a protected test.
 - The cron endpoint checks which enabled subscriptions are due in Melbourne time.
 
@@ -18,6 +18,7 @@
 - CRUD handlers depend on `lib/subscriptions.ts`; do not write storage files directly here.
 - Keep manual Telegram sending development-only until production authentication exists.
 - API errors must be JSON with a useful `error` string.
+- Protect train data in route handlers; a hidden link or page redirect is not sufficient authorization.
 
 ## Storage boundary
 

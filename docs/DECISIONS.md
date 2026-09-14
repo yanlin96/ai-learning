@@ -2,6 +2,18 @@
 
 This is a lightweight decision log. Add an entry when a choice would otherwise be easy to forget or accidentally reverse.
 
+## 2026-09-12 — Introduce Okta at the train boundary first
+
+Authentication starts with the smallest useful protected area: `/disruptions` and its `/api/disruptions` and `/api/lines` data endpoints. Website Audit, Google tools, Smoke Test, and Reports remain unchanged. The public daily brief may show weather but not live train evidence before login.
+
+Use an Okta-hosted OIDC redirect through Auth.js instead of collecting passwords in this application. Protect data on the server as well as redirecting the page. Until real Okta credentials are configured, `/train-login` shows setup guidance rather than weakening the boundary or failing with a client exception.
+
+## 2026-09-12 — Make train status line-neutral
+
+The train utility serves multiple users through one combined search-and-status workflow. `/disruptions` loads the official metropolitan line catalog, defaults sensibly, and lets a signed-in visitor search and switch lines without navigating to another screen. Product copy and navigation must not imply that the feature only serves the Werribee Line.
+
+Reminder management, staff passcode entry, and manual Telegram sending are hidden from the shared navigation and public status page. Their routes, storage, and server capabilities remain in place for now; hiding them is reversible and is not authorization to delete reminder data or APIs.
+
 ## 2026-09-11 — Make the checker a focused company toolbox
 
 Website Audit remains the product’s primary identity and must retain more visual weight than navigation. Supporting Google SEO tools, release checks, reports, and train status use collapsible groups in a low-emphasis left rail on desktop and a Tools drawer on smaller screens. PageSpeed Insights covers performance and Core Web Vitals, Rich Results Test covers Google-supported structured data, and Search Console remains the authoritative owner-only indexing follow-up. External tools complement rather than inflate the scope of the deterministic in-app audit; Lighthouse is not exposed as a separate navigation item.
