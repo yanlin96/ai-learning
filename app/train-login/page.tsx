@@ -1,4 +1,4 @@
-import { ShieldCheck, TrainFront } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Clock3, Route, ShieldCheck, TrainFront } from "lucide-react";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { SiteFooter } from "@/app/site-footer";
@@ -22,14 +22,21 @@ export default async function TrainLoginPage({
       <SiteHeader />
       <section className="train-login shell">
         <div className="train-login-visual">
-          <span><TrainFront size={32} /></span>
-          <p>Melbourne train status</p>
+          <span className="train-login-mark"><TrainFront size={30} /></span>
+          <p className="eyebrow">MELBOURNE COMMUTER TOOL</p>
+          <h1>Know what changes before you leave.</h1>
+          <p className="train-login-intro">A quick, read-only view of current disruptions and station notices across the metropolitan network.</p>
+          <ul className="train-login-benefits">
+            <li><Route size={18} /><span><strong>Every Metro line</strong><small>Search and switch lines in one place</small></span></li>
+            <li><Clock3 size={18} /><span><strong>Current travel impact</strong><small>See useful changes without scanning long feeds</small></span></li>
+            <li><CheckCircle2 size={18} /><span><strong>Read-only access</strong><small>Nothing is changed in Transport Victoria systems</small></span></li>
+          </ul>
         </div>
         <div className="train-login-card">
           <span className="login-shield"><ShieldCheck size={24} /></span>
-          <p className="eyebrow">SECURE ACCESS</p>
-          <h1>Sign in to check<br />your train line.</h1>
-          <p>Train status is available to signed-in users. Authentication is handled securely by Okta; this website never receives your password.</p>
+          <p className="eyebrow">CPA TOOLS ACCOUNT</p>
+          <h2>Continue to train status</h2>
+          <p className="train-login-card-copy">Sign in or create an account to view live train information. Authentication is handled securely by Okta.</p>
           {error ? <p className="auth-login-error" role="alert">Okta sign-in did not finish. Please try again or contact your Okta administrator.</p> : null}
           {isOktaConfigured ? (
             <TrainSignInButton />
@@ -39,7 +46,8 @@ export default async function TrainLoginPage({
               <span>Add the required authentication environment variables listed in <code>.env.example</code>, then restart the app.</span>
             </div>
           )}
-          <a href="/">Back to Website Audit</a>
+          <div className="login-trust"><ShieldCheck size={17} /><span><strong>Protected by Okta</strong><small>CPA Tools never receives or stores your password.</small></span></div>
+          <a className="login-back" href="/"><ArrowLeft size={15} /> Back to Website Audit</a>
         </div>
       </section>
       <SiteFooter />

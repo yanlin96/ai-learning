@@ -1,6 +1,6 @@
 "use client";
 
-import { LogIn, LogOut } from "lucide-react";
+import { ArrowRight, LogOut } from "lucide-react";
 import { signIn, signOut } from "next-auth/react";
 
 export function TrainSignInButton() {
@@ -10,7 +10,7 @@ export function TrainSignInButton() {
       type="button"
       onClick={() => void signIn("okta", { callbackUrl: "/disruptions" })}
     >
-      <LogIn size={17} /> Continue with Okta
+      <span>Sign in or create an account</span><ArrowRight size={17} />
     </button>
   );
 }
