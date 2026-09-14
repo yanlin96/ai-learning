@@ -35,8 +35,9 @@ Last updated: 2026-09-14
 - Successful-link evidence is collapsed by default, and unchecked-link copy distinguishes the 80-link cap from the time budget.
 - Reports and the shared company toolbox link to PageSpeed Insights, Rich Results Test, and Search Console.
 - A low-emphasis persistent desktop rail keeps Website Audit primary while Google SEO tools, release checks, reports, and train status live in collapsible supporting groups; smaller screens use the same hierarchy in a Tools drawer.
-- Workspace navigation now uses readable desktop typography and larger interaction targets, and the train sign-in route presents a compact CPA Tools access gateway without changing the Okta-hosted authentication flow.
+- Workspace navigation now uses readable desktop typography, higher-contrast supporting copy, and larger interaction targets; the train sign-in route presents a compact CPA Tools access gateway without changing the Okta-hosted authentication flow.
 - The shared header displays a compact signed-in identity menu with initials, account details, and sign-out; anonymous visitors receive a direct sign-in action.
+- Supporting navigation follows the working sequence: Release Workflow precedes Google Search Tools, whose links run Search Console, PageSpeed Insights, then Rich Results Test.
 - `/history` keeps summaries of the current browser tab's audit runs in session storage.
 - `/smoke-test` checks manually prioritised and sitemap-discovered pages with up to 100 HTTP checks and Playwright verification for up to 20 priority or suspicious pages.
 - Smoke-test setup includes Quick, Standard, and Full scope presets; smoke history provides a pre-filled Run again action.

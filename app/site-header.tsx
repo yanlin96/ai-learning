@@ -57,19 +57,19 @@ function ToolboxLinks({ pathname, close }: ToolboxLinksProps) {
       <section className="primary-audit"><p>PRIMARY TOOL</p>
         <a className={active("/") ? "active" : ""} href="/" onClick={close}><span><SearchCheck size={18} /></span><div><strong>Website audit</strong><small>SEO, GEO, links and accessibility</small></div></a>
       </section>
-      <details className="tool-group" open={groups.google} onToggle={(event) => setGroup("google", event.currentTarget.open)}>
-        <summary>Google SEO tools <ChevronDown size={14} /></summary>
-        <div>
-          <a href="https://pagespeed.web.dev/" target="_blank" rel="noreferrer"><div><strong>PageSpeed Insights</strong><small>Performance and Core Web Vitals</small></div><ExternalLink size={14} /></a>
-          <a href="https://search.google.com/test/rich-results" target="_blank" rel="noreferrer"><div><strong>Rich Results Test</strong><small>Structured-data eligibility</small></div><ExternalLink size={14} /></a>
-          <a href="https://search.google.com/search-console" target="_blank" rel="noreferrer"><div><strong>Search Console</strong><small>Indexing and URL inspection</small></div><ExternalLink size={14} /></a>
-        </div>
-      </details>
       <details className="tool-group" open={groups.release} onToggle={(event) => setGroup("release", event.currentTarget.open)}>
         <summary>Release workflow <ChevronDown size={14} /></summary>
         <div>
           <a className={active("/smoke-test") ? "active" : ""} href="/smoke-test" onClick={close}><span><Gauge size={18} /></span><div><strong>Smoke testing</strong><small>Check up to 100 pages</small></div></a>
           <a className={active("/history") ? "active" : ""} href="/history" onClick={close}><span><BarChart3 size={18} /></span><div><strong>Reports</strong><small>Recent audit and smoke runs</small></div></a>
+        </div>
+      </details>
+      <details className="tool-group" open={groups.google} onToggle={(event) => setGroup("google", event.currentTarget.open)}>
+        <summary>Google search tools <ChevronDown size={14} /></summary>
+        <div>
+          <a href="https://search.google.com/search-console" target="_blank" rel="noreferrer"><div><strong>Search Console</strong><small>Indexing and URL inspection</small></div><ExternalLink size={14} /></a>
+          <a href="https://pagespeed.web.dev/" target="_blank" rel="noreferrer"><div><strong>PageSpeed Insights</strong><small>Performance and Core Web Vitals</small></div><ExternalLink size={14} /></a>
+          <a href="https://search.google.com/test/rich-results" target="_blank" rel="noreferrer"><div><strong>Rich Results Test</strong><small>Structured-data eligibility</small></div><ExternalLink size={14} /></a>
         </div>
       </details>
       <details className="tool-group" open={groups.operations} onToggle={(event) => setGroup("operations", event.currentTarget.open)}>

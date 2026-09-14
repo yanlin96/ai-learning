@@ -40,7 +40,7 @@ It is:
 - Audit scores use weighted technical signals and display evidence confidence; they are diagnostic summaries, not Google rankings.
 - Link-check results include successful 2xx responses and 3xx redirect chains as evidence, without treating them as errors. Broken-link results include link text, internal/external scope, source DOM, URL, and response failure. Bot rejections, rate limits, and missing responses are shown as inconclusive rather than counted as broken. Reports link to Google Search Console URL Inspection for authoritative SEO follow-up.
 - Successful-link evidence is collapsed by default. Unchecked links are explicitly described as coverage gaps caused by the 80-link cap or time budget, never as failures.
-- The shared company workspace keeps Website Audit as the primary product. A low-emphasis desktop sidebar, or toolbox drawer on smaller screens, places Google SEO, release, report, and train utilities in collapsible supporting groups.
+- The shared company workspace keeps Website Audit as the primary product. A low-emphasis desktop sidebar, or toolbox drawer on smaller screens, orders collapsible supporting groups by workflow: release and reports first, Google search tools second, and train utilities last.
 - Reminder and manual Telegram controls are retained in the codebase but hidden from the shared navigation and public train-status experience while the product shifts toward multiple users.
 - A separate `/smoke-test` workflow checks release breadth across priority and sitemap URLs without running costly deep analysis on every page. It performs HTTP checks broadly and uses Playwright on priority and suspicious pages.
 - Smoke-test scope is configurable from 1 to 100 pages. Manual priority URLs run before sitemap URLs.
