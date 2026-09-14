@@ -46,7 +46,7 @@ function ToolboxLinks({ pathname, close }: ToolboxLinksProps) {
   const active = (href: string) => href === "/" ? pathname === "/" || pathname === "/website-audit" : pathname.startsWith(href);
   const [groups, setGroups] = useState({
     google: pathname === "/" || pathname === "/website-audit",
-    release: pathname.startsWith("/smoke-test") || pathname.startsWith("/history"),
+    release: true,
     operations: pathname.startsWith("/disruptions"),
   });
   function setGroup(group: keyof typeof groups, open: boolean) {

@@ -38,6 +38,7 @@ Last updated: 2026-09-14
 - Workspace navigation now uses readable desktop typography, higher-contrast supporting copy, and larger interaction targets; the train sign-in route presents a compact CPA Tools access gateway without changing the Okta-hosted authentication flow.
 - The shared header displays a compact signed-in identity menu with initials, account details, and sign-out; anonymous visitors receive a direct sign-in action.
 - Supporting navigation follows the working sequence: Release Workflow precedes Google Search Tools, whose links run Search Console, PageSpeed Insights, then Rich Results Test.
+- Release Workflow is expanded by default so Smoke Testing and Reports remain immediately discoverable, while users can still collapse the group when they want a quieter sidebar.
 - `/history` keeps summaries of the current browser tab's audit runs in session storage.
 - `/smoke-test` checks manually prioritised and sitemap-discovered pages with up to 100 HTTP checks and Playwright verification for up to 20 priority or suspicious pages.
 - Smoke-test setup includes Quick, Standard, and Full scope presets; smoke history provides a pre-filled Run again action.
