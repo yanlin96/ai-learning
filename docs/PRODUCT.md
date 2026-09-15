@@ -20,6 +20,8 @@ It is:
 
 ## Current product behaviour
 
+- Audit, Smoke and train lookup share a consistent tool-page layout; Audit and Smoke histories share a compact records-page heading. Content width, responsive gutters, top spacing, description style and action placement are aligned. Account/sign-out controls appear only in the top header.
+
 - The shared footer sits at the bottom on short pages and follows content on long pages without covering results or leaving an empty block below it. The weather/train brief row and its outer gutters are white; only the top navigation, sidebar and footer are navy.
 
 - Loads the current metropolitan train-line catalog from official GTFS data.

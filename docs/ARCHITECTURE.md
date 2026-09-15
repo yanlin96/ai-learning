@@ -24,6 +24,8 @@ Transport Victoria GTFS Schedule + GTFS-Realtime Alerts
 
 ## Main components
 
+`app/page-template.tsx` owns the Tailwind content container (1080px max width, responsive gutters/top spacing) and page heading rhythm. Audit, Smoke and train lookup use the tool heading; both histories use its compact icon variant. Keep result/filter/storage logic in their existing components. Shared account actions live only in the header, not duplicated inside the train page.
+
 The workspace shell owns one shared footer after page content in a min-viewport-height flex column. Page mains grow without the legacy `min-height: 100vh`, so short pages place the footer at the viewport bottom and long pages keep it in normal flow; never fix the footer over tool results. The header's account/navigation row remains navy, while the daily-brief row (including outer gutters) and its card are white.
 
 - `lib/disruptions.ts`: server-only Transport Victoria client and domain mapping.

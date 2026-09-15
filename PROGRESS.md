@@ -4,6 +4,8 @@ Last updated: 2026-09-15
 
 ## Working now
 
+- The three visible tools (Audit, Smoke, train lookup) and two histories use shared Tailwind page templates with aligned width/gutters/title/description/spacing. Train lookup no longer duplicates header account/sign-out actions; its protected data workflow is unchanged.
+
 - The daily brief now has a white full-width row and white card. A single shell-owned footer sits below the growing main: at the viewport bottom for short pages and after long content, without a trailing empty block.
 
 - Workspace header is mounted once in the shared authenticated layout. Internal links use Next.js Link; account/daily brief and desktop sidebar choices survive route changes. All tools retain sidebar navigation and mobile navigation releases its drawer scroll lock.
@@ -67,6 +69,8 @@ Last updated: 2026-09-15
 Develop in small user-requested increments. The next likely product milestone is scheduling, but `docs/BACKLOG.md` is not authorization to start it.
 
 ## Verification baseline
+
+2026-09-15 page templates: 38 tests, isolated production build and type checking pass. Fixture-session browser checks cover all five visible routes with matching 1080px content width and top/left origin, one heading/footer, no duplicate train account and no mobile overflow/client exceptions. Smoke desktop screenshot inspected; train source credentials were unset for unavailable-data checks, without an external crawl or data mutation.
 
 2026-09-15 footer/brief correction: type checking and isolated production build pass. Fixture-session browser checks confirm one shared footer reaches the document bottom on short pages, follows injected long content without fixed positioning, and keeps brief card/gutters white on desktop/mobile. Desktop screenshot inspected; no client exceptions.
 

@@ -1,7 +1,7 @@
 import { getLineDisruptions, SOURCE_URL } from "@/lib/disruptions";
 import { getTrainLines } from "@/lib/train-lines";
 import { TrainStatusSearch } from "@/app/train-status-search";
-import { TrainAccount } from "@/app/train-auth-controls";
+import { PageContent, PageHeading } from "@/app/page-template";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions, isOktaConfigured } from "@/lib/auth";
@@ -43,11 +43,9 @@ export default async function DisruptionsPage({
     <main>
 
 
-      <section className="hero shell" id="top">
-        <TrainAccount name={session.user?.name} email={session.user?.email} />
-        <div className="eyebrow">MELBOURNE TRAIN STATUS</div>
-        <h1>Find your line.<br />Know before you <em>go.</em></h1>
-        <p className="intro">Search any metropolitan train line and check the service changes, planned works, and station notices that could affect your trip.</p>
+      <PageContent>
+        <PageHeading eyebrow="Melbourne train status" title={<>Find your line.<br/>Know before you <em>go.</em></>}
+          description="Search any metropolitan train line and check the service changes, planned works, and station notices that could affect your trip."/>
 
         <TrainStatusSearch
           lines={lines}
@@ -57,7 +55,7 @@ export default async function DisruptionsPage({
           checkedAt={new Date().toISOString()}
           sourceUrl={SOURCE_URL}
         />
-      </section>
+      </PageContent>
 
     </main>
   );

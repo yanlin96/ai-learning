@@ -1,5 +1,9 @@
 # Decisions
 
+## 2026-09-15 — Reuse page templates by workflow
+
+Use a shared Tailwind content container and heading for the three visible tools and two history pages. Tools use a prominent heading, histories its compact icon variant; keep domain-specific forms/results and browser storage untouched. Remove the train page's duplicate identity/sign-out capsule; header account actions remain the single entry. Hidden reminder CRUD is outside this visible-page template increment.
+
 ## 2026-09-15 — Separate the white brief row and correct footer flow
 
 The daily brief's entire row, including its outer gutters, is white rather than inheriting navy header fill. Keep navy account/navigation/sidebar/footer. Mount the footer once in the shared shell outside page mains, using a min-height flex column with growing main and normal-flow footer; override legacy full-viewport main height locally. This prevents blank space below the footer without fixing it over long reports.

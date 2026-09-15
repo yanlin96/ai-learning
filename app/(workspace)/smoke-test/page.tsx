@@ -1,7 +1,8 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { Gauge, History } from "lucide-react";
+import { History } from "lucide-react";
 import { SmokeTestForm } from "@/app/smoke-test-form";
+import { PageContent, PageHeading } from "@/app/page-template";
 
 export const metadata: Metadata = {
   title: "Smoke test | PAS Website Quality Checker",
@@ -12,18 +13,12 @@ export default function SmokeTestPage() {
   return (
     <main>
 
-      <section className="shell audit-page smoke-page">
-        <header className="page-intro">
-          <span className="page-icon"><Gauge size={23} /></span>
-          <div>
-            <p className="eyebrow">RELEASE CONFIDENCE</p>
-            <h1>Check the essentials, <em>site-wide.</em></h1>
-            <p>Run fast HTTP checks across priority URLs and sitemap pages, then verify priority and suspicious pages in a real browser. Built for breadth before a release, without changing anything on the target website.</p>
-            <Link className="page-intro-link" href="/smoke-test/history"><History size={15} /> View smoke-test history</Link>
-          </div>
-        </header>
+      <PageContent>
+        <PageHeading eyebrow="Release confidence" title={<>Check the essentials,<br/><em>site-wide.</em></>}
+          description="Run fast HTTP checks across priority URLs and sitemap pages, then verify priority and suspicious pages in a real browser. Built for breadth before a release, without changing anything on the target website."
+          actions={<Link className="inline-flex items-center gap-1.5 text-[#00539d] underline-offset-4 hover:underline" href="/smoke-test/history"><History size={15}/> Smoke-test history</Link>}/>
         <SmokeTestForm />
-      </section>
+      </PageContent>
     </main>
   );
 }
