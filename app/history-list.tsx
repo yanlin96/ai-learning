@@ -14,7 +14,7 @@ export function HistoryList() {
   const [query, setQuery] = useState("");
   useEffect(() => setEntries(readAuditHistory()), []);
   if (entries === null) return <p className="text-sm text-slate-500" role="status">Loading audit history…</p>;
-  if (!entries.length) return <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center"><p className="mt-0 font-bold text-[#090d46]">No audits saved in this tab yet.</p><a className="inline-flex rounded-lg bg-[#00539d] px-4 py-3 text-sm font-bold text-white no-underline" href="/">Run your first website audit</a></div>;
+  if (!entries.length) return <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center"><p className="mt-0 font-bold text-[#090d46]">No audits saved in this tab yet.</p><a className="inline-flex rounded-lg bg-[#00539d] px-4 py-3 text-sm font-bold text-white no-underline" href="/website-audit">Run your first website audit</a></div>;
   const filtered = entries.filter((entry) => (entry.url + " " + entry.title).toLowerCase().includes(query.toLowerCase().trim()));
   return (
     <div className="space-y-4">
@@ -32,7 +32,7 @@ export function HistoryList() {
                 <a className="mt-2 inline-flex items-start gap-2 text-xs break-all text-[#00539d] no-underline hover:underline" href={entry.url} target="_blank" rel="noreferrer">{entry.url}<ExternalLink className="shrink-0" size={13} /></a>
                 <p className="mt-2 mb-0 text-xs text-slate-500">{timeFormat.format(new Date(entry.ranAt))} · Melbourne time</p>
               </div>
-              <a className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-xs font-bold text-[#00539d] no-underline" href={"/?url=" + encodeURIComponent(entry.url)}><Play size={12} /> Run again</a>
+              <a className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-xs font-bold text-[#00539d] no-underline" href={"/website-audit?url=" + encodeURIComponent(entry.url)}><Play size={12} /> Run again</a>
             </div>
             <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
               {[["SEO", entry.seoScore + "/100"], ["GEO / AI visibility", entry.aiScore + "/100"], ["Broken links", entry.brokenLinks], ["Link coverage", entry.linksChecked + "/" + entry.linksDiscovered]].map(([label, value]) => <div className="rounded-lg bg-slate-50 px-3 py-2" key={label}><small className="block text-[11px] text-slate-500">{label}</small><strong className="mt-1 block text-lg text-[#090d46]">{value}</strong></div>)}

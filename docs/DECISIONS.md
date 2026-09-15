@@ -1,5 +1,21 @@
 # Decisions
 
+## 2026-09-15 — Use the branded Okta-hosted login directly
+
+Remove the duplicate application login promotion now that the custom-domain Okta sign-in page has been branded. Keep `/login` as an automatic Auth.js handoff, not a bare redirect to the identity-provider login URL: the application must initiate its OIDC transaction to create and validate state/nonce and preserve the requested local return path. Start once per mount; OAuth errors require explicit retry to prevent redirect loops. Setup failures remain locked and visible. Keep the existing server-side session boundaries and callback route.
+
+## 2026-09-15 — Reserve the sidebar for feature pages
+
+The authenticated homepage is a standalone launchpad without desktop sidebar, mobile toolbox button or reserved sidebar space. Keep branding, account actions and daily brief in its top header; its existing tool cards provide entry navigation. Feature pages retain the full workspace sidebar/mobile drawer and a home link. This is a presentation change only, not an exemption from site-wide login.
+
+## 2026-09-15 — Authenticate the whole workspace and separate its homepage
+
+The whole site workspace now requires Okta login, superseding the earlier train-only boundary and public-weather brief. `/` is a visually distinctive Tailwind launchpad; `/website-audit` remains the input-first audit tool and primary action. `/login` is the site-wide gateway, with `/train-login` retained as an alias. Use middleware plus independent server workspace/API checks; return 401 JSON for unauthenticated business API calls. Keep OAuth callbacks/assets reachable and preserve bearer-secret cron automation, not a blanket `/api/cron/*` exemption. Authentication does not redesign reminder permissions/storage or isolate browser histories by account. No fake metrics or raster hero assets.
+
+## 2026-09-15 — Keep page performance as a Google handoff
+
+Retain the existing PageSpeed Insights navigation link instead of duplicating Google's reports in an in-app performance tool. The initial performance wrapper and its local history were withdrawn at the user's request. A future in-app feature needs distinct value such as release comparisons, batch checks or company performance thresholds; this is not authorization to implement those features or run load/stress tests.
+
 This is a lightweight decision log. Add an entry when a choice would otherwise be easy to forget or accidentally reverse.
 
 ## 2026-09-15 — Prioritise audit interaction and separate evidence histories

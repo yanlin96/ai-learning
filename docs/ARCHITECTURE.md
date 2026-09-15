@@ -14,7 +14,7 @@ Transport Victoria GTFS Schedule + GTFS-Realtime Alerts
           |                    |
           v                    v
   Next.js dashboard     Telegram message formatter
-     app/page.tsx       lib/notification-message.ts
+  app/(workspace)/disruptions/page.tsx   lib/notification-message.ts
           |                    |
           v                    v
  Manual send button       Telegram Bot API
@@ -31,12 +31,13 @@ Transport Victoria GTFS Schedule + GTFS-Realtime Alerts
 - `app/reminder-manager.tsx`: searchable create/edit/pause/delete interface.
 - `app/api/ARCHITECTURE.md`: API-local responsibilities and constraints.
 - `app/api/disruptions/route.ts`: JSON representation used for inspection and integrations.
-- `app/page.tsx`: server-rendered dashboard.
-- `app/reminders/page.tsx`: dedicated reminder-management page; all normal CRUD UI lives here.
+- `app/(workspace)/page.tsx`: authenticated sidebar-free workspace launchpad at `/`; old `/?url=...` links redirect to `/website-audit?url=...`. It uses `SiteHeader variant="home"` and removes the global desktop main offset. The home header retains brand/account/daily brief but mounts neither sidebar nor mobile toolbox; feature-page headers default to the full workspace variant.
+- `app/(workspace)/layout.tsx`: server-side session boundary for every workspace page. Route groups do not change public URLs.
+- `app/(workspace)/reminders/page.tsx`: dedicated reminder-management page; all normal CRUD UI lives here.
 - `app/send-alert-button.tsx`: client-side manual-send interaction.
 - `app/site-header.tsx` and `app/site-footer.tsx`: shared page chrome. The header owns persistent desktop workspace navigation, the responsive toolbox drawer, and a session-backed account menu; reminder entry is intentionally absent from shared navigation. Header and sidebar styling use Tailwind CSS v4 utilities. Tailwind Preflight is intentionally disabled during the staged migration so existing feature-page CSS keeps its current rendering.
-- `app/disruptions/page.tsx` and `app/train-status-search.tsx`: server-seeded, client-interactive search and live-status flow for all metropolitan train lines.
-- `lib/auth.ts`, `app/api/auth/[...nextauth]/route.ts`, and `app/train-login/page.tsx`: Auth.js integration with an Okta OIDC web application. Both the train page and its data APIs check the server-side session.
+- `app/(workspace)/disruptions/page.tsx` and `app/train-status-search.tsx`: server-seeded, client-interactive search and live-status flow for all metropolitan train lines.
+- `lib/auth.ts`, `app/api/auth/[...nextauth]/route.ts`, and `app/login/page.tsx`: Auth.js integration with an Okta OIDC web application. `/train-login` forwards old links to the new workspace login.
 - `app/daily-brief.tsx` and `/api/daily-brief`: a non-blocking client-loaded weather and Werribee status strip mounted by the shared site header.
 - `lib/melbourne-weather.ts`: cached Melbourne forecast adapter backed by Open-Meteo; weather-code wording stays pure in `lib/weather-codes.ts`.
 - `lib/notification-message.ts`: Telegram presentation, separate from data retrieval.
@@ -47,13 +48,13 @@ Transport Victoria GTFS Schedule + GTFS-Realtime Alerts
 - `lib/robots.ts`: standards-aware robots adapter. Use the dependency-backed parser rather than reimplementing wildcard and rule-precedence semantics.
 - `lib/audit-scoring.ts`: pure weighted scoring and confidence rules, separate from crawling and UI presentation.
 - `app/api/audits/route.ts`: accepts one public URL and returns a structured report; it must never become an unrestricted internal-network fetch proxy.
-- `app/website-audit/page.tsx`: website-audit UI, kept separate from commute reminder flows.
+- `app/(workspace)/website-audit/page.tsx`: website-audit UI, kept separate from the workspace home and commute reminder flows.
 - `lib/public-web.ts`: shared public-URL normalization, DNS/private-address rejection, redirect validation, and bounded fetch used by public-web inspection features.
 - `lib/smoke-test.ts`: breadth-first sitemap discovery and bounded multi-page smoke-test orchestration.
 - `lib/smoke-rules.ts`: pure Pass/Warning/Fail classification rules.
-- `app/smoke-test/page.tsx`: release smoke-test UI for up to 100 same-origin pages.
+- `app/(workspace)/smoke-test/page.tsx`: release smoke-test UI for up to 100 same-origin pages.
 - `lib/smoke-history.ts`: browser-local smoke-run summaries grouped and bounded by domain.
-- `app/smoke-test/history/page.tsx`: domain-grouped smoke-test history UI.
+- `app/(workspace)/smoke-test/history/page.tsx`: domain-grouped smoke-test history UI.
 - `lib/audit-history.ts` and `app/history-list.tsx`: tab-local audit snapshots with findings, fixes and coverage; optional detail fields preserve older score-only records.
 - `app/smoke-url-results.tsx`: shared Tailwind result explorer for live smoke reports and saved run details, with search, status filters and pagination.
 
@@ -98,6 +99,7 @@ Scoring separates SEO from AI-search readiness. Critical indexability and crawle
 ### Okta
 
 - Auth.js uses the Okta OIDC provider with an Authorization Code redirect flow and a server-side client secret.
+- `/login` automatically calls Auth.js `signIn("okta")` once after hydration, preserving its CSRF/state/nonce handling and the sanitized callback path. It does not redirect directly to a bare Okta login URL. OAuth errors disable automatic start and require manual retry; missing configuration fails closed. The branded login form lives on the Okta-hosted custom domain, outside this repository.
 - Local callback: `http://localhost:3000/api/auth/callback/okta`.
 - Production origin: `https://cpatools.gylxxgroup.com`; production callback: `https://cpatools.gylxxgroup.com/api/auth/callback/okta`.
 - Required environment variables: `AUTH_OKTA_ID`, `AUTH_OKTA_SECRET`, `AUTH_OKTA_ISSUER`, and `AUTH_SECRET`; `NEXTAUTH_URL` identifies the application origin.
@@ -107,7 +109,7 @@ Scoring separates SEO from AI-search readiness. Critical indexability and crawle
 
 All credentials must remain in server-only modules and environment variables. Client components may call project API routes but must never receive Transport Victoria or Telegram credentials.
 
-`/disruptions`, `/api/disruptions`, and `/api/lines` require an authenticated Okta session. `/api/daily-brief` may return public weather before login but must not return train-status evidence to an unauthenticated request. UI visibility alone is never an authorization boundary.
+`middleware.ts` checks Auth.js JWTs using the same configured secret as `lib/auth.ts`. It redirects unauthenticated page requests to `/login` with the requested local path/query and returns JSON 401 for business APIs. Auth endpoints and login are exempt, as are framework assets and exact icon paths. Only `/api/cron/check-disruptions` bypasses session middleware, retaining its bearer-secret handler. New workspace pages belong inside `app/(workspace)` for independent server session checks; new business handlers must call `workspaceApiGuard` before fetching or mutating data. Existing train API handlers already check server sessions. Missing configuration and malformed/expired sessions fail closed. `lib/auth-routing.ts` rejects external callback destinations and login/API loops. UI visibility alone is never an authorization boundary.
 
 Website-audit targets must use HTTP(S), resolve only to public addresses, and be revalidated across redirects and browser subresources. Keep time, response-size, redirect, and link-count limits in place. Do not add localhost or private-network exceptions to the public endpoint.
 
@@ -124,6 +126,8 @@ Smoke history is client-side only. `localStorage` retains compact per-URL eviden
 Source timestamps are Unix timestamps. Display and commute scheduling use `Australia/Melbourne`, including daylight-saving changes.
 
 ## Known limitations
+
+When a development server is already using `.next`, set `CPA_TOOLS_BUILD_DIR=.next-workspace-check` for both `npm run build` and the corresponding `npm start` verification process. `next.config.ts` otherwise uses the default `.next` directory. The separate ignored verification directory prevents concurrent dev/build manifests from mixing; it does not change production configuration by default.
 
 - Classification currently uses official fields plus text and route heuristics.
 - Local JSON persistence is not suitable for multi-instance or serverless production deployment.

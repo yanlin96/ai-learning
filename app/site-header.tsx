@@ -7,6 +7,7 @@ import {
   ChevronDown,
   ExternalLink,
   Gauge,
+  Home,
   LogIn,
   LogOut,
   Menu,
@@ -50,7 +51,7 @@ function HeaderAccount() {
     return (
       <a
         className="inline-flex min-h-10 items-center gap-2 rounded-full border border-[#cbd8e7] bg-white px-4 text-xs font-extrabold text-[#00539d] no-underline transition-colors hover:border-[#00539d] hover:bg-[#f0f5fe] max-[520px]:size-10 max-[520px]:justify-center max-[520px]:px-0"
-        href="/train-login"
+        href="/login"
       >
         <LogIn size={16} /> <span className="max-[520px]:sr-only">Sign in</span>
       </a>
@@ -130,7 +131,11 @@ function ToolboxLinks({ pathname, close }: ToolboxLinksProps) {
     <nav className="grid content-start gap-4 py-5" aria-label="Workspace tools">
       <section className="grid gap-1.5">
         <p className="m-0 px-3 pb-1 text-[10px] font-extrabold tracking-[.11em] text-[#00539d] uppercase">Primary tool</p>
-        <a className={toolLinkClass(active("/"))} href="/" onClick={close}>
+        <a className={toolLinkClass(pathname === "/")} href="/" onClick={close}>
+          <span className={toolIcon}><Home size={19} /></span>
+          <ToolCopy title="Workspace home" detail="Your tools and next steps" />
+        </a>
+        <a className={toolLinkClass(pathname === "/website-audit")} href="/website-audit" onClick={close}>
           <span className={toolIcon}><SearchCheck size={19} /></span>
           <ToolCopy title="Website audit" detail="SEO, GEO, links and accessibility" />
         </a>
@@ -182,20 +187,21 @@ function ToolboxLinks({ pathname, close }: ToolboxLinksProps) {
   );
 }
 
-export function SiteHeader() {
+export function SiteHeader({ variant = "workspace" }: { variant?: "home" | "workspace" }) {
+  const isHome = variant === "home";
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    if (!open) return;
+    if (!open || isHome) return;
     const previous = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     return () => { document.body.style.overflow = previous; };
-  }, [open]);
+  }, [open, isHome]);
 
   useEffect(() => {
     setOpen(false);
-  }, [pathname]);
+  }, [pathname, variant]);
 
   function close() {
     setOpen(false);
@@ -203,37 +209,37 @@ export function SiteHeader() {
 
   return (
     <header className="relative z-20 bg-white/95 xl:sticky xl:top-0 xl:bg-white">
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-[252px] flex-col overflow-y-auto border-r border-[#e2e7ef] bg-[#f8fafc] px-4 py-5 xl:flex" aria-label="Company tools">
+      {!isHome && <aside className="fixed inset-y-0 left-0 z-40 hidden w-[252px] flex-col overflow-y-auto border-r border-[#e2e7ef] bg-[#f8fafc] px-4 py-5 xl:flex" aria-label="Company tools">
         <a className="flex items-center gap-3 border-b border-[#dfe4ec] px-2 pb-5 text-[#090d46] no-underline" href="/" aria-label="PAS Website Quality Checker home">
           <span className="grid size-11 place-items-center rounded-xl bg-gradient-to-br from-[#00539d] to-[#0878bd] text-white shadow-sm"><MonitorCheck size={22} strokeWidth={2.2} /></span>
           <strong className="text-[15px] leading-[1.25] font-extrabold tracking-[-.01em]">PAS Website<br />Audit</strong>
         </a>
         <ToolboxLinks pathname={pathname} />
-      </aside>
+      </aside>}
 
-      <nav className="shell flex h-[76px] items-center justify-between gap-5 border-b border-[#dddddd] xl:h-[70px] xl:w-full xl:max-w-none xl:px-8" aria-label="Top navigation">
-        <a className="flex items-center gap-3 text-[17px] font-extrabold tracking-[-.2px] text-[#090d46] no-underline xl:hidden" href="/" aria-label="PAS Website Quality Checker home">
+      <nav className={`${isHome ? "mx-auto w-full max-w-[1280px] px-5 sm:px-8" : "shell xl:w-full xl:max-w-none xl:px-8"} flex h-[76px] items-center justify-between gap-5 border-b border-[#dddddd] xl:h-[70px]`} aria-label="Top navigation">
+        <a className={`flex items-center gap-3 text-[17px] font-extrabold tracking-[-.2px] text-[#090d46] no-underline ${isHome ? "" : "xl:hidden"}`} href="/" aria-label="PAS Website Quality Checker home">
           <span className="grid size-10 place-items-center rounded-[11px] bg-gradient-to-br from-[#00539d] to-[#0878bd] text-white"><MonitorCheck size={20} strokeWidth={2.2} /></span>
-          <span className="max-[600px]:hidden">PAS Website Quality Checker</span>
+          <span className={isHome ? "" : "max-[600px]:hidden"}>{isHome ? "CPA Tools" : "PAS Website Quality Checker"}</span>
         </a>
-        <div className="hidden gap-0.5 xl:grid">
+        {!isHome && <div className="hidden gap-0.5 xl:grid">
           <span className="text-[9px] font-extrabold tracking-[.13em] text-[#00539d]">COMPANY WORKSPACE</span>
           <strong className="text-[15px] text-[#090d46]">Website audit &amp; supporting tools</strong>
-        </div>
+        </div>}
         <div className="ml-auto flex items-center gap-3">
           <div className="flex items-center"><HeaderAccount /></div>
-          <button
+          {!isHome && <button
             className="inline-flex h-10 min-w-10 cursor-pointer items-center justify-center gap-2 rounded-lg border border-[#d7dee8] bg-white px-3 text-xs font-extrabold text-[#090d46] transition-colors hover:border-[#00539d] hover:text-[#00539d] xl:hidden max-[520px]:px-0"
             onClick={() => (open ? close() : setOpen(true))}
             aria-label={open ? "Close company toolbox" : "Open company toolbox"}
             aria-expanded={open}
           >
             {open ? <X size={19} /> : <Menu size={19} />}<span className="max-[520px]:hidden">Tools</span>
-          </button>
+          </button>}
         </div>
       </nav>
 
-      {open ? (
+      {!isHome && open ? (
         <>
           <button className="fixed inset-0 z-30 cursor-default border-0 bg-[#090d46]/30 backdrop-blur-[2px] xl:hidden" onClick={close} aria-label="Close company toolbox" />
           <aside className="fixed inset-y-0 right-0 z-[31] w-[min(410px,100vw)] overflow-y-auto border-l border-[#dddddd] bg-[#f8fafc] p-6 shadow-[-22px_0_60px_rgba(9,13,70,.16)] xl:hidden" onKeyDown={(event) => event.key === "Escape" && close()} aria-label="Company toolbox" role="dialog" aria-modal="true">
@@ -246,7 +252,7 @@ export function SiteHeader() {
         </>
       ) : null}
 
-      <div className="shell pb-2 [&_.daily-brief]:mt-3">
+      <div className={`${isHome ? "mx-auto w-full max-w-[1280px] px-5 sm:px-8" : "shell"} pb-2 [&_.daily-brief]:mt-3`}>
         <DailyBrief />
       </div>
     </header>

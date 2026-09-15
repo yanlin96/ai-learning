@@ -6,11 +6,13 @@
 - `/api/subscriptions` lists and creates reminder subscriptions.
 - `/api/subscriptions/[id]` updates and deletes one subscription.
 - `/api/disruptions?lineId=...` returns alerts for a selected line after checking an Okta-backed Auth.js session.
-- `/api/daily-brief` always attempts cached Melbourne weather, but includes Werribee Line status only for an authenticated session. It never exposes the Transport Victoria credential.
+- `/api/daily-brief` returns cached Melbourne weather and Werribee Line status only after authentication. It never exposes the Transport Victoria credential.
 - Telegram endpoints send current subscribed-line alerts or perform a protected test.
 - The cron endpoint checks which enabled subscriptions are due in Melbourne time.
 
 ## Constraints
+
+- All business APIs require an Okta session before any network work or mutation. Call `workspaceApiGuard` inside new handlers as well as relying on global middleware; existing train handlers retain their server-side checks. `/api/auth/*` supports login/session operations without requiring prior login. Only the exact cron check route uses bearer-secret automation instead of a session. Daily brief/weather is no longer public. Manual Telegram routes retain their existing additional restrictions.
 
 - Never expose upstream or Telegram credentials.
 - Validate line IDs against the official catalog and reminder times as `HH:mm`.

@@ -8,7 +8,8 @@ export const UNLOCK_KEY = "reminders-unlocked";
 
 /**
  * Hides the reminder tools behind a passcode. Client-side only, so it keeps the
- * feature out of sight rather than actually securing it — the API routes are still open.
+ * feature out of sight rather than securing it. Workspace sessions now protect
+ * the page and reminder APIs; this legacy gate is only an extra UI concealment.
  */
 export function SecretGate({ children }: { children: React.ReactNode }) {
   const [unlocked, setUnlocked] = useState(false);

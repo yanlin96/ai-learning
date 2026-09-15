@@ -1,9 +1,12 @@
+import { workspaceApiGuard } from "@/lib/workspace-auth";
 import { isAuthorizedCronRequest } from "@/lib/cron-auth";
 import { sendTelegramMessage } from "@/lib/telegram";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
+  const denied = await workspaceApiGuard();
+  if (denied) return denied;
   if (!isAuthorizedCronRequest(request)) {
     return Response.json({ ok: false, error: "Unauthorized" }, { status: 401 });
   }

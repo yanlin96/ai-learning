@@ -1,3 +1,4 @@
+import { workspaceApiGuard } from "@/lib/workspace-auth";
 import { deleteSubscription, updateSubscription } from "@/lib/subscriptions";
 
 export const dynamic = "force-dynamic";
@@ -5,6 +6,8 @@ export const dynamic = "force-dynamic";
 type Context = { params: Promise<{ id: string }> };
 
 export async function PUT(request: Request, context: Context) {
+  const denied = await workspaceApiGuard();
+  if (denied) return denied;
   try {
     const { id } = await context.params;
     const item = await updateSubscription(id, await request.json());
@@ -17,6 +20,8 @@ export async function PUT(request: Request, context: Context) {
 }
 
 export async function DELETE(_request: Request, context: Context) {
+  const denied = await workspaceApiGuard();
+  if (denied) return denied;
   try {
     const { id } = await context.params;
     await deleteSubscription(id);

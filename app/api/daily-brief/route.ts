@@ -1,3 +1,4 @@
+import { workspaceApiGuard } from "@/lib/workspace-auth";
 import { NextResponse } from "next/server";
 import { getWerribeeDisruptions, SOURCE_URL } from "@/lib/disruptions";
 import { getMelbourneWeather } from "@/lib/melbourne-weather";
@@ -7,6 +8,8 @@ import { authOptions, isOktaConfigured } from "@/lib/auth";
 export const dynamic = "force-dynamic";
 
 export async function GET() {
+  const denied = await workspaceApiGuard();
+  if (denied) return denied;
   const session = isOktaConfigured ? await getServerSession(authOptions) : null;
   const canViewTrainStatus = Boolean(session);
   const [weatherResult, disruptionResult] = await Promise.allSettled([

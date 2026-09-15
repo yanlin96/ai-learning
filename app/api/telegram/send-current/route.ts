@@ -1,3 +1,4 @@
+import { workspaceApiGuard } from "@/lib/workspace-auth";
 import { getLineDisruptions } from "@/lib/disruptions";
 import { telegramAlertText } from "@/lib/notification-message";
 import { sendTelegramMessage } from "@/lib/telegram";
@@ -6,6 +7,8 @@ import { listSubscriptions } from "@/lib/subscriptions";
 export const dynamic = "force-dynamic";
 
 export async function POST() {
+  const denied = await workspaceApiGuard();
+  if (denied) return denied;
   if (process.env.NODE_ENV !== "development") {
     return Response.json({ ok: false, error: "Manual sending is only enabled locally." }, { status: 403 });
   }

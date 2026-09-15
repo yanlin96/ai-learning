@@ -23,7 +23,7 @@ It is:
 - Loads the current metropolitan train-line catalog from official GTFS data.
 - Combines line search and live status in one Okta-protected workflow on `/disruptions`; signed-in users can search and switch between every metropolitan train line in place.
 - Allows reminders to be created, viewed, edited, paused, and deleted.
-- Keeps service information on the read-only home dashboard and reminder mutations on `/reminders`.
+- The authenticated `/` homepage is a sidebar-free workspace launchpad with branding, account menu, daily brief and tool cards. Feature pages display the full desktop sidebar or mobile toolbox; Website Audit stays primary. Audit input remains on `/website-audit`; reminders remain on `/reminders`.
 - Uses an in-app confirmation dialog before deleting a reminder.
 - Stores one reminder time for each selected line.
 - Shows current and upcoming alerts for selected lines.
@@ -35,7 +35,7 @@ It is:
 - A separate `/website-audit` tool checks one public webpage for broken links, baseline SEO, and AI-crawler accessibility.
 - The website-audit landing experience prioritises the URL input over report imagery, offers a focusable example URL, explains the three-step workflow, and shows honest pending feedback while the bounded request is running.
 - The shared page header includes a compact Melbourne daily brief with current weather and Werribee Line status. Either source may fail independently without blocking the active tool.
-- Before login, the daily brief keeps weather public but replaces the Werribee status with a sign-in prompt.
+- All workspace pages and business APIs, including the daily brief, require login. `/login`, its legacy `/train-login` alias and Okta auth endpoints remain reachable without a session; the cron endpoint keeps its independent bearer-secret protection.
 - Website audits compare initial HTML with a JavaScript-rendered DOM when Chromium is available; they never claim to verify a provider's private search index.
 - Audit scores use weighted technical signals and display evidence confidence; they are diagnostic summaries, not Google rankings.
 - Link-check results include successful 2xx responses and 3xx redirect chains as evidence, without treating them as errors. Broken-link results include link text, internal/external scope, source DOM, URL, and response failure. Bot rejections, rate limits, and missing responses are shown as inconclusive rather than counted as broken. Reports link to Google Search Console URL Inspection for authoritative SEO follow-up.
@@ -66,6 +66,8 @@ Do not assume that only severe rail incidents matter. A parking notice may be de
 ## Current scope
 
 The commute assistant supports Okta-authenticated, read-only lookup across metropolitan train lines. Reminder storage and Telegram notification code remain local-first and are not currently promoted in the multi-user interface. The repository also contains the primary website-audit utility. Okta provides identity and session access only; the project does not yet have production database storage for per-user records.
+
+Sign-in gates the whole workspace, not just train lookup. The homepage uses Tailwind and lightweight code-native graphics, not external hero images or fabricated live scores. Login automatically starts the Okta-hosted flow; the app retains only compact connecting, setup and manual-retry states instead of a second promotional login page. Browser histories retain their existing storage boundaries; global authentication does not make them per-user or shared records.
 
 ## Success criteria
 

@@ -14,7 +14,7 @@ export default function WebsiteAuditPage() {
             <h1 className="max-w-none text-[clamp(32px,3.5vw,48px)] leading-tight">Check your website.<br /><em>Know what to fix next.</em></h1>
             <p className="mt-4 mb-4 max-w-2xl text-base leading-7 text-slate-600">Start with any public page. Get evidence for SEO, GEO / AI crawler access, broken links and accessibility — with practical fixes in priority order.</p>
             <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs font-semibold text-slate-600">
-              <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="text-teal-600" size={15} /> No signup needed</span>
+              <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="text-teal-600" size={15} /> Evidence-led checks</span>
               <span className="inline-flex items-center gap-1.5"><ShieldCheck className="text-teal-600" size={15} /> Read-only checks</span>
               <a className="inline-flex items-center gap-1.5 text-[#00539d] underline-offset-4 hover:underline" href="/history"><History size={15} /> Audit history</a>
             </div>

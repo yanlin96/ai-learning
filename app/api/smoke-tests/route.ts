@@ -1,9 +1,12 @@
+import { workspaceApiGuard } from "@/lib/workspace-auth";
 import { runSmokeTest } from "@/lib/smoke-test";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
 export async function POST(request: Request) {
+  const denied = await workspaceApiGuard();
+  if (denied) return denied;
   try {
     const body = await request.json() as { baseUrl?: unknown; manualUrls?: unknown; limit?: unknown };
     if (typeof body.baseUrl !== "string") {

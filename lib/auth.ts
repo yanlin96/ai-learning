@@ -16,5 +16,5 @@ export const authOptions: NextAuthOptions = {
     : [],
   session: { strategy: "jwt" },
   secret: sessionSecret || "missing-okta-configuration",
-  pages: { signIn: "/train-login" },
+  pages: { signIn: "/login" },
 };

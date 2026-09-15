@@ -1,9 +1,12 @@
+import { workspaceApiGuard } from "@/lib/workspace-auth";
 import { auditWebsite } from "@/lib/website-audit";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
 export async function POST(request: Request) {
+  const denied = await workspaceApiGuard();
+  if (denied) return denied;
   try {
     const body = await request.json() as { url?: unknown };
     if (typeof body.url !== "string") {

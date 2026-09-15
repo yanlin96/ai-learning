@@ -6,10 +6,10 @@ Last updated: 2026-09-15
 
 - Next.js dynamically reads the current metropolitan train-line catalog from the official GTFS Schedule without downloading the entire ZIP.
 - Reminder CRUD supports create, read, edit, pause, and delete with one daily time per line.
-- The read-only dashboard is separate from the `/reminders` CRUD page.
+- `/` is a sidebar-free Tailwind workspace launchpad with a dark cyan-accented hero, personalised welcome and actionable tool cards. Its compact header keeps branding, account and daily brief without sidebar space or mobile drawer. Feature pages retain the full navigation; `/website-audit` retains the existing input-first audit tool and reminder CRUD remains separate.
 - `/disruptions` combines searchable selection of every metropolitan train line with its live service and station notices in one workflow.
-- `/disruptions`, `/api/disruptions`, and `/api/lines` now require an Okta-backed Auth.js session. The landing-page brief keeps weather public but hides train evidence before login.
-- `/train-login` provides an Okta sign-in action when configured and a safe setup state while credentials are absent.
+- All workspace pages and business APIs now require an Okta-backed Auth.js session, including audit, smoke, history, reminders and daily brief. Middleware and server workspace/API guards both enforce access. The bearer-protected cron endpoint remains independent.
+- `/login` automatically starts the existing Auth.js Okta redirect without a duplicate promotional gateway. It retains compact Tailwind setup/error/retry states and safe local return paths; errors never auto-retry. `/train-login` forwards legacy links. OAuth callbacks and framework assets remain reachable.
 - The production site is available at `https://cpatools.gylxxgroup.com`; Vercel serves the custom domain over HTTPS and exposes the Okta callback at `/api/auth/callback/okta`.
 - Reminder entry and manual Telegram actions are hidden from the shared navigation and public train-status UI; the underlying reminder routes and APIs remain intact.
 - Header and footer components are shared across both pages.
@@ -63,6 +63,12 @@ Last updated: 2026-09-15
 Develop in small user-requested increments. The next likely product milestone is scheduling, but `docs/BACKLOG.md` is not authorization to start it.
 
 ## Verification baseline
+
+2026-09-15 direct Okta handoff: 38 unit tests, type checking and isolated production build pass. Local browser checks mock auth initiation (no real Okta login) and verify one automatic start, CSRF submission, preserved local callback, no error auto-loop, explicit retry and rejected external return URLs.
+
+2026-09-15 sidebar-free home: type checking and isolated production build pass. Fixture-session browser checks cover desktop home without sidebar/left offset, feature-page sidebar, mobile feature drawer, returning home without scroll lock or horizontal overflow, and unchanged login requirements.
+
+2026-09-15 workspace login/home: 38 unit tests pass. Production builds and type checking pass; a separate `.next-workspace-check` build avoids the active dev server's `.next` manifest collision. Local production-browser checks use ephemeral fixture sessions only and cover all page redirects, business API 401s, expired/invalid sessions, independent cron denial, auth/assets access, missing-Okta fail-closed server guards, signed-in home/audit/history navigation, old audit URL links, prefill and desktop/390px layouts without client exceptions. No real Okta users, external crawls or mutations were involved.
 
 ```powershell
 npm run typecheck
