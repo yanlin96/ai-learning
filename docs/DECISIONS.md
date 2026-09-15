@@ -1,5 +1,9 @@
 # Decisions
 
+## 2026-09-15 — Restore Audit as home and unify dark workspace chrome
+
+Supersede the separate sidebar-free index: signed-in root redirects to Website Audit, preserving old URL prefills. Keep explicit safe tool callbacks after login rather than overriding every requested destination. Remove the redundant Workspace home navigation item; brand links go directly to Audit. Use the Okta login navy (`#071226`) with white text, cyan accents and distinct active states on header/sidebar/account menu/footer, leaving tool content and the daily brief light. Preserve the persistent shared shell and Link navigation.
+
 ## 2026-09-15 — Persist workspace chrome across navigation
 
 Mount the header once in the authenticated shared layout through a pathname-aware client shell. Keep internal navigation on Next.js Link and external links on anchors. Preserve account/daily-brief state and desktop group choices across feature/home navigation; close the mobile drawer and release its scroll lock on route changes. Sidebar visibility is presentation only: middleware, page/API session guards and OAuth behavior remain unchanged.

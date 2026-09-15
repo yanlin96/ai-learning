@@ -23,7 +23,7 @@ It is:
 - Loads the current metropolitan train-line catalog from official GTFS data.
 - Combines line search and live status in one Okta-protected workflow on `/disruptions`; signed-in users can search and switch between every metropolitan train line in place.
 - Allows reminders to be created, viewed, edited, paused, and deleted.
-- The authenticated `/` homepage is a sidebar-free workspace launchpad with branding, account menu, daily brief and tool cards. Feature pages display the full desktop sidebar or mobile toolbox; Website Audit stays primary. Audit input remains on `/website-audit`; reminders remain on `/reminders`.
+- Website Audit at `/website-audit` is the default signed-in homepage. `/` redirects there, preserving legacy audit URL prefills; the separate index launchpad is retired. All workspace tools display the desktop sidebar or mobile toolbox.
 - Uses an in-app confirmation dialog before deleting a reminder.
 - Stores one reminder time for each selected line.
 - Shows current and upcoming alerts for selected lines.
@@ -35,7 +35,7 @@ It is:
 - A separate `/website-audit` tool checks one public webpage for broken links, baseline SEO, and AI-crawler accessibility.
 - The website-audit landing experience prioritises the URL input over report imagery, offers a focusable example URL, explains the three-step workflow, and shows honest pending feedback while the bounded request is running.
 - The shared page header includes a compact Melbourne daily brief with current weather and Werribee Line status. Either source may fail independently without blocking the active tool.
-- Internal route navigation keeps the shared header, account, daily brief and desktop sidebar group state mounted rather than reloading the document. The mobile toolbox closes after navigation; the homepage still has no visible sidebar or reserved sidebar space.
+- Internal route navigation keeps the shared header, account, daily brief and desktop sidebar group state mounted rather than reloading the document. The mobile toolbox closes after navigation. Header, sidebar, account menu and footer use the Okta-login navy background with white text and cyan accents; tool content and the daily brief remain light.
 - All workspace pages and business APIs, including the daily brief, require login. `/login`, its legacy `/train-login` alias and Okta auth endpoints remain reachable without a session; the cron endpoint keeps its independent bearer-secret protection.
 - Website audits compare initial HTML with a JavaScript-rendered DOM when Chromium is available; they never claim to verify a provider's private search index.
 - Audit scores use weighted technical signals and display evidence confidence; they are diagnostic summaries, not Google rankings.
@@ -68,7 +68,7 @@ Do not assume that only severe rail incidents matter. A parking notice may be de
 
 The commute assistant supports Okta-authenticated, read-only lookup across metropolitan train lines. Reminder storage and Telegram notification code remain local-first and are not currently promoted in the multi-user interface. The repository also contains the primary website-audit utility. Okta provides identity and session access only; the project does not yet have production database storage for per-user records.
 
-Sign-in gates the whole workspace, not just train lookup. The homepage uses Tailwind and lightweight code-native graphics, not external hero images or fabricated live scores. Login automatically starts the Okta-hosted flow; the app retains only compact connecting, setup and manual-retry states instead of a second promotional login page. Browser histories retain their existing storage boundaries; global authentication does not make them per-user or shared records.
+Sign-in gates the whole workspace, not just train lookup. Login automatically starts the Okta-hosted flow and defaults to Website Audit through the root redirect; explicit safe tool return paths are preserved. The app retains only compact connecting, setup and manual-retry states instead of a second promotional login page. Browser histories retain their existing storage boundaries; global authentication does not make them per-user or shared records.
 
 ## Success criteria
 
