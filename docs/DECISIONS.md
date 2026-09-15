@@ -1,5 +1,9 @@
 # Decisions
 
+## 2026-09-15 — Separate the white brief row and correct footer flow
+
+The daily brief's entire row, including its outer gutters, is white rather than inheriting navy header fill. Keep navy account/navigation/sidebar/footer. Mount the footer once in the shared shell outside page mains, using a min-height flex column with growing main and normal-flow footer; override legacy full-viewport main height locally. This prevents blank space below the footer without fixing it over long reports.
+
 ## 2026-09-15 — Restore Audit as home and unify dark workspace chrome
 
 Supersede the separate sidebar-free index: signed-in root redirects to Website Audit, preserving old URL prefills. Keep explicit safe tool callbacks after login rather than overriding every requested destination. Remove the redundant Workspace home navigation item; brand links go directly to Audit. Use the Okta login navy (`#071226`) with white text, cyan accents and distinct active states on header/sidebar/account menu/footer, leaving tool content and the daily brief light. Preserve the persistent shared shell and Link navigation.

@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { History } from "lucide-react";
-import { SiteFooter } from "@/app/site-footer";
 import { SmokeHistoryList } from "@/app/smoke-history-list";
 
 export const metadata: Metadata = {
@@ -19,7 +18,6 @@ export default function SmokeHistoryPage() {
         </header>
         <SmokeHistoryList />
       </section>
-      <SiteFooter />
     </main>
   );
 }

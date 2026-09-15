@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { History } from "lucide-react";
 import { HistoryList } from "@/app/history-list";
-import { SiteFooter } from "@/app/site-footer";
 
 export const metadata: Metadata = {
   title: "Audit history",
@@ -22,7 +21,6 @@ export default function HistoryPage() {
         </header>
         <HistoryList />
       </section>
-      <SiteFooter />
     </main>
   );
 }

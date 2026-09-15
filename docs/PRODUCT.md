@@ -20,6 +20,8 @@ It is:
 
 ## Current product behaviour
 
+- The shared footer sits at the bottom on short pages and follows content on long pages without covering results or leaving an empty block below it. The weather/train brief row and its outer gutters are white; only the top navigation, sidebar and footer are navy.
+
 - Loads the current metropolitan train-line catalog from official GTFS data.
 - Combines line search and live status in one Okta-protected workflow on `/disruptions`; signed-in users can search and switch between every metropolitan train line in place.
 - Allows reminders to be created, viewed, edited, paused, and deleted.

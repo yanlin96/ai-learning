@@ -24,6 +24,8 @@ Transport Victoria GTFS Schedule + GTFS-Realtime Alerts
 
 ## Main components
 
+The workspace shell owns one shared footer after page content in a min-viewport-height flex column. Page mains grow without the legacy `min-height: 100vh`, so short pages place the footer at the viewport bottom and long pages keep it in normal flow; never fix the footer over tool results. The header's account/navigation row remains navy, while the daily-brief row (including outer gutters) and its card are white.
+
 - `lib/disruptions.ts`: server-only Transport Victoria client and domain mapping.
 - `lib/train-lines.ts`: dynamically extracts metropolitan `routes.txt` from the official weekly GTFS ZIP using HTTP Range requests and caches it.
 - `lib/subscriptions.ts`: CRUD domain and local persistence adapter.

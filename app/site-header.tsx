@@ -194,7 +194,7 @@ export function SiteHeader() {
   }, [open]);
   useEffect(() => { setOpen(false); }, [pathname]);
   function close() { setOpen(false); }
-  return <header className="relative z-20 bg-[#071226] text-white xl:sticky xl:top-0">
+  return <header className="relative z-20 shrink-0 bg-[#071226] text-white xl:sticky xl:top-0">
     <aside className="fixed inset-y-0 left-0 z-40 hidden w-[252px] flex-col overflow-y-auto border-r border-white/15 bg-[#071226] px-4 py-5 text-white xl:flex" aria-label="Company tools">
       <Link className="flex items-center gap-3 border-b border-white/15 px-2 pb-5 text-white no-underline" href="/website-audit" aria-label="CPA Tools home">
         <span className="grid size-11 place-items-center rounded-xl bg-cyan-200 text-[#071226]"><MonitorCheck size={22}/></span>
@@ -228,6 +228,8 @@ export function SiteHeader() {
         <ToolboxLinks pathname={pathname} close={close}/>
       </aside>
     </>}
-    <div className="shell pb-2 [&_.daily-brief]:mt-3"><DailyBrief/></div>
+    <div className="bg-white text-[#090d46]">
+      <div className="shell py-3 [&_.daily-brief]:!mt-0 [&_.daily-brief]:!bg-white"><DailyBrief/></div>
+    </div>
   </header>;
 }

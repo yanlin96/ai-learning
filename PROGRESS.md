@@ -4,6 +4,8 @@ Last updated: 2026-09-15
 
 ## Working now
 
+- The daily brief now has a white full-width row and white card. A single shell-owned footer sits below the growing main: at the viewport bottom for short pages and after long content, without a trailing empty block.
+
 - Workspace header is mounted once in the shared authenticated layout. Internal links use Next.js Link; account/daily brief and desktop sidebar choices survive route changes. All tools retain sidebar navigation and mobile navigation releases its drawer scroll lock.
 
 - Next.js dynamically reads the current metropolitan train-line catalog from the official GTFS Schedule without downloading the entire ZIP.
@@ -65,6 +67,8 @@ Last updated: 2026-09-15
 Develop in small user-requested increments. The next likely product milestone is scheduling, but `docs/BACKLOG.md` is not authorization to start it.
 
 ## Verification baseline
+
+2026-09-15 footer/brief correction: type checking and isolated production build pass. Fixture-session browser checks confirm one shared footer reaches the document bottom on short pages, follows injected long content without fixed positioning, and keeps brief card/gutters white on desktop/mobile. Desktop screenshot inspected; no client exceptions.
 
 2026-09-15 dark chrome/Audit home: 38 tests, isolated production build and type checking pass. Fixture-session browser checks verify root-to-Audit redirect and legacy URL prefills, navy sidebar/footer/mobile drawer, persistent account/brief requests across Link navigation, mobile scroll-lock cleanup and no overflow/client exceptions. Desktop screenshot visually inspected; no real Okta login or external crawl used.
 

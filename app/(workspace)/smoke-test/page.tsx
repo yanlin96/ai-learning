@@ -1,7 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { Gauge, History } from "lucide-react";
-import { SiteFooter } from "@/app/site-footer";
 import { SmokeTestForm } from "@/app/smoke-test-form";
 
 export const metadata: Metadata = {
@@ -25,7 +24,6 @@ export default function SmokeTestPage() {
         </header>
         <SmokeTestForm />
       </section>
-      <SiteFooter />
     </main>
   );
 }

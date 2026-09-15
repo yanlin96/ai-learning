@@ -1,7 +1,6 @@
 import { BellRing } from "lucide-react";
 import { ReminderManager } from "@/app/reminder-manager";
 import { SecretGate } from "@/app/secret-gate";
-import { SiteFooter } from "@/app/site-footer";
 import { listSubscriptions } from "@/lib/subscriptions";
 import { getTrainLines } from "@/lib/train-lines";
 
@@ -27,7 +26,6 @@ export default async function RemindersPage() {
         </section>
         <ReminderManager initialSubscriptions={subscriptions} lines={trainLines} />
       </SecretGate>
-      <SiteFooter />
     </main>
   );
 }

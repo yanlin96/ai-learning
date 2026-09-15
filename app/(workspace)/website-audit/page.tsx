@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { CheckCircle2, ShieldCheck, History } from "lucide-react";
 import { AuditForm } from "@/app/audit-form";
-import { SiteFooter } from "@/app/site-footer";
 
 export default function WebsiteAuditPage() {
   return (
@@ -34,7 +33,6 @@ export default function WebsiteAuditPage() {
           </ol>
         </div>
       </section>
-      <SiteFooter />
     </main>
   );
 }

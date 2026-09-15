@@ -1,6 +1,5 @@
 import { getLineDisruptions, SOURCE_URL } from "@/lib/disruptions";
 import { getTrainLines } from "@/lib/train-lines";
-import { SiteFooter } from "@/app/site-footer";
 import { TrainStatusSearch } from "@/app/train-status-search";
 import { TrainAccount } from "@/app/train-auth-controls";
 import { getServerSession } from "next-auth";
@@ -60,7 +59,6 @@ export default async function DisruptionsPage({
         />
       </section>
 
-      <SiteFooter />
     </main>
   );
 }
