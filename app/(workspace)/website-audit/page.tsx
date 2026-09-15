@@ -1,12 +1,12 @@
+import Link from "next/link";
 import { CheckCircle2, ShieldCheck, History } from "lucide-react";
 import { AuditForm } from "@/app/audit-form";
-import { SiteHeader } from "@/app/site-header";
 import { SiteFooter } from "@/app/site-footer";
 
 export default function WebsiteAuditPage() {
   return (
     <main>
-      <SiteHeader />
+
       <section className="shell pb-16">
         <div className="mx-auto max-w-[920px] pt-7 sm:pt-10">
           <header className="mb-6">
@@ -16,7 +16,7 @@ export default function WebsiteAuditPage() {
             <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs font-semibold text-slate-600">
               <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="text-teal-600" size={15} /> Evidence-led checks</span>
               <span className="inline-flex items-center gap-1.5"><ShieldCheck className="text-teal-600" size={15} /> Read-only checks</span>
-              <a className="inline-flex items-center gap-1.5 text-[#00539d] underline-offset-4 hover:underline" href="/history"><History size={15} /> Audit history</a>
+              <Link className="inline-flex items-center gap-1.5 text-[#00539d] underline-offset-4 hover:underline" href="/history"><History size={15} /> Audit history</Link>
             </div>
           </header>
           <AuditForm />

@@ -35,6 +35,7 @@ It is:
 - A separate `/website-audit` tool checks one public webpage for broken links, baseline SEO, and AI-crawler accessibility.
 - The website-audit landing experience prioritises the URL input over report imagery, offers a focusable example URL, explains the three-step workflow, and shows honest pending feedback while the bounded request is running.
 - The shared page header includes a compact Melbourne daily brief with current weather and Werribee Line status. Either source may fail independently without blocking the active tool.
+- Internal route navigation keeps the shared header, account, daily brief and desktop sidebar group state mounted rather than reloading the document. The mobile toolbox closes after navigation; the homepage still has no visible sidebar or reserved sidebar space.
 - All workspace pages and business APIs, including the daily brief, require login. `/login`, its legacy `/train-login` alias and Okta auth endpoints remain reachable without a session; the cron endpoint keeps its independent bearer-secret protection.
 - Website audits compare initial HTML with a JavaScript-rendered DOM when Chromium is available; they never claim to verify a provider's private search index.
 - Audit scores use weighted technical signals and display evidence confidence; they are diagnostic summaries, not Google rankings.

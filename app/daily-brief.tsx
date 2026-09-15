@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 
 import { useEffect, useState } from "react";
 import { AlertTriangle, CheckCircle2, ChevronRight, Cloud, CloudFog, CloudLightning, CloudRain, Lock, Snowflake, Sun, TrainFront } from "lucide-react";
@@ -47,11 +48,11 @@ export function DailyBrief() {
         <div><small>MELBOURNE WEATHER</small>{data.weather ? <strong>{data.weather.temperature}° · {data.weather.condition} <em>{data.weather.low}–{data.weather.high}°</em></strong> : <strong>Weather temporarily unavailable</strong>}</div>
       </div>
       <i className="brief-divider" />
-      <a className="brief-item train-item" href="/disruptions" title={data.train.preview || undefined}>
+      <Link className="brief-item train-item" href="/disruptions" title={data.train.preview || undefined}>
         <span className={`brief-icon ${trainTone}`}><TrainFront size={18} /></span>
         <div><small>WERRIBEE LINE</small><strong className={trainTone}><TrainIcon size={13} /> {trainText}</strong></div>
         <ChevronRight size={16} />
-      </a>
+      </Link>
       <a className="brief-source" href={data.sources.weather} target="_blank" rel="noreferrer">Weather by Open-Meteo</a>
     </aside>
   );

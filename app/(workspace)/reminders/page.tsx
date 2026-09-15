@@ -2,7 +2,6 @@ import { BellRing } from "lucide-react";
 import { ReminderManager } from "@/app/reminder-manager";
 import { SecretGate } from "@/app/secret-gate";
 import { SiteFooter } from "@/app/site-footer";
-import { SiteHeader } from "@/app/site-header";
 import { listSubscriptions } from "@/lib/subscriptions";
 import { getTrainLines } from "@/lib/train-lines";
 
@@ -16,7 +15,7 @@ export default async function RemindersPage() {
 
   return (
     <main>
-      <SiteHeader />
+
       <SecretGate>
         <section className="page-intro shell">
           <span className="page-icon"><BellRing size={22} /></span>

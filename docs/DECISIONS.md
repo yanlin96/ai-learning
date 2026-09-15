@@ -1,5 +1,9 @@
 # Decisions
 
+## 2026-09-15 — Persist workspace chrome across navigation
+
+Mount the header once in the authenticated shared layout through a pathname-aware client shell. Keep internal navigation on Next.js Link and external links on anchors. Preserve account/daily-brief state and desktop group choices across feature/home navigation; close the mobile drawer and release its scroll lock on route changes. Sidebar visibility is presentation only: middleware, page/API session guards and OAuth behavior remain unchanged.
+
 ## 2026-09-15 — Use the branded Okta-hosted login directly
 
 Remove the duplicate application login promotion now that the custom-domain Okta sign-in page has been branded. Keep `/login` as an automatic Auth.js handoff, not a bare redirect to the identity-provider login URL: the application must initiate its OIDC transaction to create and validate state/nonce and preserve the requested local return path. Start once per mount; OAuth errors require explicit retry to prevent redirect loops. Setup failures remain locked and visible. Keep the existing server-side session boundaries and callback route.

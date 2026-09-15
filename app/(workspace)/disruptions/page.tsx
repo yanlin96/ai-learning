@@ -1,6 +1,5 @@
 import { getLineDisruptions, SOURCE_URL } from "@/lib/disruptions";
 import { getTrainLines } from "@/lib/train-lines";
-import { SiteHeader } from "@/app/site-header";
 import { SiteFooter } from "@/app/site-footer";
 import { TrainStatusSearch } from "@/app/train-status-search";
 import { TrainAccount } from "@/app/train-auth-controls";
@@ -43,7 +42,7 @@ export default async function DisruptionsPage({
 
   return (
     <main>
-      <SiteHeader />
+
 
       <section className="hero shell" id="top">
         <TrainAccount name={session.user?.name} email={session.user?.email} />

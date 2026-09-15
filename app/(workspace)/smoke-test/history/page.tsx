@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { History } from "lucide-react";
 import { SiteFooter } from "@/app/site-footer";
-import { SiteHeader } from "@/app/site-header";
 import { SmokeHistoryList } from "@/app/smoke-history-list";
 
 export const metadata: Metadata = {
@@ -12,7 +11,7 @@ export const metadata: Metadata = {
 export default function SmokeHistoryPage() {
   return (
     <main>
-      <SiteHeader />
+
       <section className="shell pt-8 pb-16">
         <header className="mb-7 flex items-start gap-4">
           <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-blue-50 text-[#00539d]"><History size={23} /></span>

@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Play, Trash2 } from "lucide-react";
 import { clearSmokeHistory, readSmokeHistory, removeSmokeDomain, type SmokeDomainHistory } from "@/lib/smoke-history";
@@ -14,7 +15,7 @@ export function SmokeHistoryList() {
   const [query, setQuery] = useState("");
   useEffect(() => setGroups(readSmokeHistory()), []);
   if (groups === null) return <p className="text-sm text-slate-500" role="status">Loading smoke-test history…</p>;
-  if (!groups.length) return <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center"><p className="mt-0 font-bold text-[#090d46]">No smoke tests saved in this browser.</p><a className="inline-flex rounded-lg bg-[#00539d] px-4 py-3 text-sm font-bold text-white no-underline" href="/smoke-test">Run your first smoke test</a></div>;
+  if (!groups.length) return <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center"><p className="mt-0 font-bold text-[#090d46]">No smoke tests saved in this browser.</p><Link className="inline-flex rounded-lg bg-[#00539d] px-4 py-3 text-sm font-bold text-white no-underline" href="/smoke-test">Run your first smoke test</Link></div>;
   const filtered = groups.filter((group) => group.domain.includes(query.toLowerCase().trim()));
   return (
     <div className="space-y-5">
@@ -40,7 +41,7 @@ export function SmokeHistoryList() {
               <div className="space-y-4 px-4 pb-5 sm:px-5">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <p className="m-0 text-xs leading-6 text-slate-500">Melbourne time. {run.discovered ?? run.checked + run.skipped} discovered URLs; {run.skipped} not checked due to scope or time limits. Unchecked URLs are not passes or failures.</p>
-                  <a className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-xs font-bold text-[#00539d] no-underline" href={"/smoke-test?url=" + encodeURIComponent(run.baseUrl || "https://" + group.domain) + "&limit=" + run.requestedLimit}><Play size={12} /> Run again</a>
+                  <Link className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-xs font-bold text-[#00539d] no-underline" href={"/smoke-test?url=" + encodeURIComponent(run.baseUrl || "https://" + group.domain) + "&limit=" + run.requestedLimit}><Play size={12} /> Run again</Link>
                 </div>
                 {run.pages ? <SmokeUrlResults pages={run.pages} /> : (
                   <div className="rounded-xl border border-amber-200 bg-amber-50 p-4">

@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
@@ -49,12 +50,12 @@ function HeaderAccount() {
 
   if (!session?.user) {
     return (
-      <a
+      <Link
         className="inline-flex min-h-10 items-center gap-2 rounded-full border border-[#cbd8e7] bg-white px-4 text-xs font-extrabold text-[#00539d] no-underline transition-colors hover:border-[#00539d] hover:bg-[#f0f5fe] max-[520px]:size-10 max-[520px]:justify-center max-[520px]:px-0"
         href="/login"
       >
         <LogIn size={16} /> <span className="max-[520px]:sr-only">Sign in</span>
-      </a>
+      </Link>
     );
   }
 
@@ -131,31 +132,31 @@ function ToolboxLinks({ pathname, close }: ToolboxLinksProps) {
     <nav className="grid content-start gap-4 py-5" aria-label="Workspace tools">
       <section className="grid gap-1.5">
         <p className="m-0 px-3 pb-1 text-[10px] font-extrabold tracking-[.11em] text-[#00539d] uppercase">Primary tool</p>
-        <a className={toolLinkClass(pathname === "/")} href="/" onClick={close}>
+        <Link className={toolLinkClass(pathname === "/")} href="/" onClick={close}>
           <span className={toolIcon}><Home size={19} /></span>
           <ToolCopy title="Workspace home" detail="Your tools and next steps" />
-        </a>
-        <a className={toolLinkClass(pathname === "/website-audit")} href="/website-audit" onClick={close}>
+        </Link>
+        <Link className={toolLinkClass(pathname === "/website-audit")} href="/website-audit" onClick={close}>
           <span className={toolIcon}><SearchCheck size={19} /></span>
           <ToolCopy title="Website audit" detail="SEO, GEO, links and accessibility" />
-        </a>
-        <a className={toolLinkClass(active("/history"))} href="/history" onClick={close}>
+        </Link>
+        <Link className={toolLinkClass(active("/history"))} href="/history" onClick={close}>
           <span className={toolIcon}><BarChart3 size={19} /></span>
           <ToolCopy title="Audit history" detail="Page findings and recommended fixes" />
-        </a>
+        </Link>
       </section>
 
       <details className={groupClass} open={groups.release} onToggle={(event) => setGroup("release", event.currentTarget.open)}>
         <summary className={summaryClass}>Release workflow <ChevronDown className="transition-transform group-open:rotate-180" size={15} /></summary>
         <div className="grid gap-1 pb-3">
-          <a className={toolLinkClass(pathname === "/smoke-test")} href="/smoke-test" onClick={close}>
+          <Link className={toolLinkClass(pathname === "/smoke-test")} href="/smoke-test" onClick={close}>
             <span className={toolIcon}><Gauge size={19} /></span>
             <ToolCopy title="Smoke testing" detail="Check up to 100 pages" />
-          </a>
-          <a className={toolLinkClass(active("/smoke-test/history"))} href="/smoke-test/history" onClick={close}>
+          </Link>
+          <Link className={toolLinkClass(active("/smoke-test/history"))} href="/smoke-test/history" onClick={close}>
             <span className={toolIcon}><BarChart3 size={19} /></span>
             <ToolCopy title="Smoke test history" detail="Release runs and URL results" />
-          </a>
+          </Link>
         </div>
       </details>
 
@@ -177,19 +178,19 @@ function ToolboxLinks({ pathname, close }: ToolboxLinksProps) {
       <details className={groupClass} open={groups.operations} onToggle={(event) => setGroup("operations", event.currentTarget.open)}>
         <summary className={summaryClass}>Commuter tools <ChevronDown className="transition-transform group-open:rotate-180" size={15} /></summary>
         <div className="grid gap-1 pb-3">
-          <a className={toolLinkClass(active("/disruptions"))} href="/disruptions" onClick={close}>
+          <Link className={toolLinkClass(active("/disruptions"))} href="/disruptions" onClick={close}>
             <span className={toolIcon}><TrainFront size={19} /></span>
             <ToolCopy title="Train line status" detail="All Metro lines · Okta sign-in" />
-          </a>
+          </Link>
         </div>
       </details>
     </nav>
   );
 }
 
-export function SiteHeader({ variant = "workspace" }: { variant?: "home" | "workspace" }) {
-  const isHome = variant === "home";
+export function SiteHeader() {
   const pathname = usePathname();
+  const isHome = pathname === "/";
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -201,7 +202,7 @@ export function SiteHeader({ variant = "workspace" }: { variant?: "home" | "work
 
   useEffect(() => {
     setOpen(false);
-  }, [pathname, variant]);
+  }, [pathname, isHome]);
 
   function close() {
     setOpen(false);
@@ -209,19 +210,19 @@ export function SiteHeader({ variant = "workspace" }: { variant?: "home" | "work
 
   return (
     <header className="relative z-20 bg-white/95 xl:sticky xl:top-0 xl:bg-white">
-      {!isHome && <aside className="fixed inset-y-0 left-0 z-40 hidden w-[252px] flex-col overflow-y-auto border-r border-[#e2e7ef] bg-[#f8fafc] px-4 py-5 xl:flex" aria-label="Company tools">
-        <a className="flex items-center gap-3 border-b border-[#dfe4ec] px-2 pb-5 text-[#090d46] no-underline" href="/" aria-label="PAS Website Quality Checker home">
+      {<aside className={`fixed inset-y-0 left-0 z-40 hidden w-[252px] flex-col overflow-y-auto border-r border-[#e2e7ef] bg-[#f8fafc] px-4 py-5 ${isHome ? "" : "xl:flex"}`} aria-label="Company tools">
+        <Link className="flex items-center gap-3 border-b border-[#dfe4ec] px-2 pb-5 text-[#090d46] no-underline" href="/" aria-label="PAS Website Quality Checker home">
           <span className="grid size-11 place-items-center rounded-xl bg-gradient-to-br from-[#00539d] to-[#0878bd] text-white shadow-sm"><MonitorCheck size={22} strokeWidth={2.2} /></span>
           <strong className="text-[15px] leading-[1.25] font-extrabold tracking-[-.01em]">PAS Website<br />Audit</strong>
-        </a>
+        </Link>
         <ToolboxLinks pathname={pathname} />
       </aside>}
 
       <nav className={`${isHome ? "mx-auto w-full max-w-[1280px] px-5 sm:px-8" : "shell xl:w-full xl:max-w-none xl:px-8"} flex h-[76px] items-center justify-between gap-5 border-b border-[#dddddd] xl:h-[70px]`} aria-label="Top navigation">
-        <a className={`flex items-center gap-3 text-[17px] font-extrabold tracking-[-.2px] text-[#090d46] no-underline ${isHome ? "" : "xl:hidden"}`} href="/" aria-label="PAS Website Quality Checker home">
+        <Link className={`flex items-center gap-3 text-[17px] font-extrabold tracking-[-.2px] text-[#090d46] no-underline ${isHome ? "" : "xl:hidden"}`} href="/" aria-label="PAS Website Quality Checker home">
           <span className="grid size-10 place-items-center rounded-[11px] bg-gradient-to-br from-[#00539d] to-[#0878bd] text-white"><MonitorCheck size={20} strokeWidth={2.2} /></span>
           <span className={isHome ? "" : "max-[600px]:hidden"}>{isHome ? "CPA Tools" : "PAS Website Quality Checker"}</span>
-        </a>
+        </Link>
         {!isHome && <div className="hidden gap-0.5 xl:grid">
           <span className="text-[9px] font-extrabold tracking-[.13em] text-[#00539d]">COMPANY WORKSPACE</span>
           <strong className="text-[15px] text-[#090d46]">Website audit &amp; supporting tools</strong>

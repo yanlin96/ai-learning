@@ -4,6 +4,8 @@ Last updated: 2026-09-15
 
 ## Working now
 
+- Workspace header is mounted once in the shared authenticated layout. Internal links use Next.js Link; account/daily brief and desktop sidebar choices survive route changes. Home remains sidebar-free and mobile navigation releases its drawer scroll lock.
+
 - Next.js dynamically reads the current metropolitan train-line catalog from the official GTFS Schedule without downloading the entire ZIP.
 - Reminder CRUD supports create, read, edit, pause, and delete with one daily time per line.
 - `/` is a sidebar-free Tailwind workspace launchpad with a dark cyan-accented hero, personalised welcome and actionable tool cards. Its compact header keeps branding, account and daily brief without sidebar space or mobile drawer. Feature pages retain the full navigation; `/website-audit` retains the existing input-first audit tool and reminder CRUD remains separate.
@@ -63,6 +65,8 @@ Last updated: 2026-09-15
 Develop in small user-requested increments. The next likely product milestone is scheduling, but `docs/BACKLOG.md` is not authorization to start it.
 
 ## Verification baseline
+
+2026-09-15 persistent shell: 38 unit tests, type checking and isolated production build pass. Fixture-session browser navigation across home/audit/history/smoke and the mobile drawer records one document load, one account fetch and one brief fetch. Desktop collapsed state survives navigation; home sidebar visibility/offset and mobile scroll-lock cleanup are correct, without client exceptions.
 
 2026-09-15 direct Okta handoff: 38 unit tests, type checking and isolated production build pass. Local browser checks mock auth initiation (no real Okta login) and verify one automatic start, CSRF submission, preserved local callback, no error auto-loop, explicit retry and rejected external return URLs.
 
