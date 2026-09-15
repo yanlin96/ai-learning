@@ -134,18 +134,22 @@ function ToolboxLinks({ pathname, close }: ToolboxLinksProps) {
           <span className={toolIcon}><SearchCheck size={19} /></span>
           <ToolCopy title="Website audit" detail="SEO, GEO, links and accessibility" />
         </a>
+        <a className={toolLinkClass(active("/history"))} href="/history" onClick={close}>
+          <span className={toolIcon}><BarChart3 size={19} /></span>
+          <ToolCopy title="Audit history" detail="Page findings and recommended fixes" />
+        </a>
       </section>
 
       <details className={groupClass} open={groups.release} onToggle={(event) => setGroup("release", event.currentTarget.open)}>
         <summary className={summaryClass}>Release workflow <ChevronDown className="transition-transform group-open:rotate-180" size={15} /></summary>
         <div className="grid gap-1 pb-3">
-          <a className={toolLinkClass(active("/smoke-test"))} href="/smoke-test" onClick={close}>
+          <a className={toolLinkClass(pathname === "/smoke-test")} href="/smoke-test" onClick={close}>
             <span className={toolIcon}><Gauge size={19} /></span>
             <ToolCopy title="Smoke testing" detail="Check up to 100 pages" />
           </a>
-          <a className={toolLinkClass(active("/history"))} href="/history" onClick={close}>
+          <a className={toolLinkClass(active("/smoke-test/history"))} href="/smoke-test/history" onClick={close}>
             <span className={toolIcon}><BarChart3 size={19} /></span>
-            <ToolCopy title="Reports" detail="Recent audit and smoke runs" />
+            <ToolCopy title="Smoke test history" detail="Release runs and URL results" />
           </a>
         </div>
       </details>

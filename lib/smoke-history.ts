@@ -15,6 +15,22 @@ export type SmokeHistoryRun = {
   browserChecked: number;
   counts: Record<SmokeStatus, number>;
   issueSamples: Array<{ url: string; status: SmokeStatus; issues: string[] }>;
+  /** Compact per-URL evidence; absent in older summary-only records. */
+  pages?: SmokeHistoryPage[];
+  baseUrl?: string;
+  discovered?: number;
+};
+
+export type SmokeHistoryPage = {
+  url: string;
+  finalUrl?: string;
+  title: string;
+  status: SmokeStatus;
+  httpStatus: number | null;
+  responseTimeMs: number | null;
+  browser: string;
+  source: string;
+  issues: string[];
 };
 
 export type SmokeDomainHistory = {
@@ -39,6 +55,19 @@ export function summariseSmokeRun(report: SmokeTestReport): SmokeHistoryRun {
     requestedLimit: report.requestedLimit,
     browserChecked: report.browserChecked,
     counts: report.counts,
+    baseUrl: report.baseUrl,
+    discovered: report.discovered,
+    pages: report.pages.map((page) => ({
+      url: page.url,
+      finalUrl: page.finalUrl,
+      title: page.title.slice(0, 200),
+      status: page.status,
+      httpStatus: page.httpStatus,
+      responseTimeMs: page.responseTimeMs,
+      browser: page.browser,
+      source: page.source,
+      issues: [...page.issues, ...page.browserIssues].slice(0, 8).map((issue) => issue.slice(0, 500)),
+    })),
     issueSamples: report.pages
       .filter((page) => page.status !== "pass")
       .slice(0, 10)

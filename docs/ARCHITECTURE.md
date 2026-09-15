@@ -54,6 +54,8 @@ Transport Victoria GTFS Schedule + GTFS-Realtime Alerts
 - `app/smoke-test/page.tsx`: release smoke-test UI for up to 100 same-origin pages.
 - `lib/smoke-history.ts`: browser-local smoke-run summaries grouped and bounded by domain.
 - `app/smoke-test/history/page.tsx`: domain-grouped smoke-test history UI.
+- `lib/audit-history.ts` and `app/history-list.tsx`: tab-local audit snapshots with findings, fixes and coverage; optional detail fields preserve older score-only records.
+- `app/smoke-url-results.tsx`: shared Tailwind result explorer for live smoke reports and saved run details, with search, status filters and pagination.
 
 ## Website audit data flow
 
@@ -111,7 +113,7 @@ Website-audit targets must use HTTP(S), resolve only to public addresses, and be
 
 Smoke tests use the same public-network boundary. Manual URLs must share the base website origin. The base URL and manually supplied priority URLs run before same-origin sitemap entries. Runs are read-only, deterministic, capped at 100 HTTP checks, and bounded by request and overall time budgets. One shared Chromium instance verifies up to 20 priority or HTTP-anomalous pages with four-page concurrency. Images, fonts, and media are blocked; documents, scripts, and stylesheets remain available so runtime and critical-resource failures can be observed. Smoke tests do not call OpenAI.
 
-Smoke history is client-side only. `localStorage` retains compact summaries across tabs and browser restarts, capped at 10 recently used domains and 10 runs per domain. Full reports and response bodies are not persisted, and server APIs never depend on this history.
+Smoke history is client-side only. `localStorage` retains compact per-URL evidence across tabs and browser restarts, capped at 10 recently used domains and 10 runs per domain. New runs save all checked URLs, HTTP status, timing, browser state and compact issue text, not response bodies or full reports. Optional page-detail fields distinguish legacy issue-sample-only records. Browser quota or disabled-storage failures leave existing history intact and show a warning alongside the current report. Server APIs never depend on this history.
 
 ## Read/write page boundary
 

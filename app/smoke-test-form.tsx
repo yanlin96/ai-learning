@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { CheckCircle2, CircleAlert, ExternalLink, Gauge, LoaderCircle, XCircle } from "lucide-react";
+import { CheckCircle2, CircleAlert, Gauge, LoaderCircle, XCircle } from "lucide-react";
 import type { SmokeTestReport } from "@/lib/smoke-test";
 import { recordSmokeRun } from "@/lib/smoke-history";
+import { SmokeUrlResults } from "@/app/smoke-url-results";
 
 const RESULT_COPY = {
   pass: { label: "PASS", detail: "All checked pages passed the smoke checks.", Icon: CheckCircle2 },
@@ -18,6 +19,7 @@ export function SmokeTestForm() {
   const [report, setReport] = useState<SmokeTestReport | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [historyWarning, setHistoryWarning] = useState("");
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -31,6 +33,7 @@ export function SmokeTestForm() {
     event.preventDefault();
     setLoading(true);
     setError("");
+    setHistoryWarning("");
     setReport(null);
     try {
       const manualUrls = manualText.split(/\r?\n|,/).map((value) => value.trim()).filter(Boolean);
@@ -42,7 +45,8 @@ export function SmokeTestForm() {
       const payload = await response.json() as { ok: boolean; report?: SmokeTestReport; error?: string };
       if (!response.ok || !payload.report) throw new Error(payload.error || "Smoke test failed");
       setReport(payload.report);
-      recordSmokeRun(payload.report);
+      const history = recordSmokeRun(payload.report);
+      if (!history.some((group) => group.runs[0]?.checkedAt === payload.report!.checkedAt)) setHistoryWarning("Your results are ready, but this browser could not save the run. Storage may be full or disabled. Keep this report open to review all URL results.");
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Smoke test failed");
     } finally {
@@ -85,6 +89,7 @@ export function SmokeTestForm() {
         </div>
       </form>
       {error && <p className="audit-error" role="alert">{error}</p>}
+      {historyWarning && <p className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900" role="status">{historyWarning}</p>}
       {report && outcome && (
         <section className="smoke-report" aria-live="polite">
           <article className={`smoke-outcome ${report.result}`}>
@@ -103,23 +108,7 @@ export function SmokeTestForm() {
             <span>{report.browserChecked} browser verified (maximum {report.browserLimit})</span>
             {report.skipped > 0 && <span>{report.skipped} not checked due to scope or time limits</span>}
           </div>
-          <article className="smoke-results">
-            <div className="smoke-results-head"><span>Result</span><span>Page</span><span>HTTP</span><span>Time</span><span>Browser</span><span>Checks</span></div>
-            {report.pages.map((page) => (
-              <div className="smoke-result-row" key={page.url}>
-                <b className={page.status}>{page.status}</b>
-                <span className="smoke-result-page">
-                  <strong>{page.title || new URL(page.url).pathname || "Homepage"}</strong>
-                  <a href={page.url} target="_blank" rel="noreferrer">{page.url} <ExternalLink size={12} /></a>
-                  <small>{page.source === "manual" ? "Priority URL" : "Sitemap"}{page.finalUrl && page.finalUrl !== page.url ? ` → ${page.finalUrl}` : ""}</small>
-                </span>
-                <strong>{page.httpStatus ?? "—"}</strong>
-                <span>{page.responseTimeMs === null ? "—" : `${page.responseTimeMs} ms`}</span>
-                <b className={`browser-state ${page.browser}`}>{page.browser.replace("-", " ")}</b>
-                <span>{[...page.issues, ...page.browserIssues].length ? [...page.issues, ...page.browserIssues].join(" · ") : "Essential checks passed"}</span>
-              </div>
-            ))}
-          </article>
+          <SmokeUrlResults pages={report.pages.map((page) => ({ ...page, issues: [...page.issues, ...page.browserIssues] }))} />
         </section>
       )}
     </>

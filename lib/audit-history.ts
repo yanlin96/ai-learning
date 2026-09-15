@@ -1,12 +1,12 @@
-import type { SeverityCounts } from "@/lib/audit-findings";
+import type { QualityFinding, SeverityCounts } from "@/lib/audit-findings";
 import type { WebsiteAudit } from "@/lib/website-audit";
 
 /**
  * Per-tab record of what has been audited.
  *
  * Session storage only: nothing reaches a server, and closing the tab discards it.
- * Only a summary of each run is kept — enough to see what was checked and how it
- * scored, without holding whole reports in a 5 MB quota.
+ * Compact snapshots preserve scores, actionable findings and coverage, not page
+ * response bodies or the full crawl report. Quota failures preserve prior history.
  */
 
 const STORAGE_KEY = "audit-history";
@@ -25,6 +25,11 @@ export type AuditHistoryEntry = {
   findingsTotal: number;
   severityCounts: SeverityCounts;
   contextual: boolean;
+  /** Optional for records saved before detailed history was introduced. */
+  findings?: QualityFinding[];
+  firstActions?: string[];
+  notVerified?: string[];
+  coverage?: { rendering: string; seoConfidence: string; aiConfidence: string; inconclusive: number; unchecked: number };
 };
 
 function newId() {
@@ -59,6 +64,16 @@ export function summariseRun(report: WebsiteAudit): AuditHistoryEntry {
     findingsTotal: report.qualityReport.findings.length,
     severityCounts: report.qualityReport.severityCounts,
     contextual: report.qualityReport.contextualAnalysis === "complete",
+    findings: report.qualityReport.findings.map((finding) => ({ ...finding })),
+    firstActions: [...report.qualityReport.firstActions],
+    notVerified: [...report.qualityReport.notVerified],
+    coverage: {
+      rendering: report.page.rendering,
+      seoConfidence: report.seo.confidence,
+      aiConfidence: report.aiVisibility.confidence,
+      inconclusive: report.links.inconclusive.length,
+      unchecked: report.links.unchecked,
+    },
   };
 }
 
@@ -69,6 +84,7 @@ export function recordAuditRun(report: WebsiteAudit): AuditHistoryEntry[] {
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify(next));
   } catch {
     // Over quota or storage disabled: the run still displays, it just is not remembered.
+    return readAuditHistory();
   }
   return next;
 }

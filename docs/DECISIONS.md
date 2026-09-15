@@ -2,6 +2,12 @@
 
 This is a lightweight decision log. Add an entry when a choice would otherwise be easy to forget or accidentally reverse.
 
+## 2026-09-15 — Prioritise audit interaction and separate evidence histories
+
+The audit landing page leads with URL input and short workflow guidance rather than an oversized static example report. Google tools remain in shared navigation, not duplicated in the audit report. All UI changed for this workflow uses Tailwind utilities without enabling Preflight for legacy pages.
+
+Audit and Smoke Test histories are independent destinations. New audit records preserve specific findings and fixes; new smoke records preserve compact evidence for every checked URL instead of only problem samples. Do not invent missing details for older records or call unchecked URLs successful. Keep the existing browser-only storage boundaries and run/domain caps; report quota failures alongside the visible result.
+
 ## 2026-09-12 — Introduce Okta at the train boundary first
 
 Authentication starts with the smallest useful protected area: `/disruptions` and its `/api/disruptions` and `/api/lines` data endpoints. Website Audit, Google tools, Smoke Test, and Reports remain unchanged. The public daily brief may show weather but not live train evidence before login.

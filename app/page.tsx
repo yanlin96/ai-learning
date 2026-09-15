@@ -1,4 +1,4 @@
-import { Bot, CheckCircle2, Link2Off, ShieldCheck, Sparkles } from "lucide-react";
+import { CheckCircle2, ShieldCheck, History } from "lucide-react";
 import { AuditForm } from "@/app/audit-form";
 import { SiteHeader } from "@/app/site-header";
 import { SiteFooter } from "@/app/site-footer";
@@ -7,31 +7,31 @@ export default function WebsiteAuditPage() {
   return (
     <main>
       <SiteHeader />
-      <section className="shell audit-page audit-home">
-        <div className="audit-launch">
-          <header className="audit-hero-copy">
-            <h1>Find what is quietly <em>hurting your website.</em></h1>
-            <p>Paste a URL and get a practical check of broken links, technical SEO, and AI crawler access—with the fixes prioritised for you.</p>
-            <div className="hero-benefits">
-              <span><CheckCircle2 size={15} /> No signup</span>
-              <span><ShieldCheck size={15} /> Read-only checks</span>
-              <span><Sparkles size={15} /> Clear next actions</span>
+      <section className="shell pb-16">
+        <div className="mx-auto max-w-[920px] pt-7 sm:pt-10">
+          <header className="mb-6">
+            <p className="m-0 mb-3 text-xs font-extrabold tracking-widest text-[#00539d] uppercase">Website audit</p>
+            <h1 className="max-w-none text-[clamp(32px,3.5vw,48px)] leading-tight">Check your website.<br /><em>Know what to fix next.</em></h1>
+            <p className="mt-4 mb-4 max-w-2xl text-base leading-7 text-slate-600">Start with any public page. Get evidence for SEO, GEO / AI crawler access, broken links and accessibility — with practical fixes in priority order.</p>
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs font-semibold text-slate-600">
+              <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="text-teal-600" size={15} /> No signup needed</span>
+              <span className="inline-flex items-center gap-1.5"><ShieldCheck className="text-teal-600" size={15} /> Read-only checks</span>
+              <a className="inline-flex items-center gap-1.5 text-[#00539d] underline-offset-4 hover:underline" href="/history"><History size={15} /> Audit history</a>
             </div>
           </header>
-          <aside className="result-preview" aria-label="Example audit result">
-            <div className="preview-glow" />
-            <div className="preview-window">
-              <div className="preview-bar"><i /><i /><i /><span>example.com</span><b>EXAMPLE REPORT</b></div>
-              <div className="preview-heading"><span><Bot size={18} /></span><div><small>WEBSITE HEALTH</small><strong>Good foundation. 3 fixes recommended.</strong></div></div>
-              <div className="preview-scores">
-                <div><small>SEO</small><strong>84</strong><i><b style={{ width: "84%" }} /></i></div>
-                <div><small>AI visibility</small><strong>91</strong><i><b style={{ width: "91%" }} /></i></div>
-              </div>
-              <div className="preview-finding"><Link2Off size={16} /><span><strong>3 links need attention</strong><small>Includes 1 high-priority internal link</small></span><b>FIX FIRST</b></div>
-              <div className="preview-ok"><CheckCircle2 size={15} /> JavaScript content rendered successfully</div>
-            </div>
-          </aside>
           <AuditForm />
+          <ol className="mt-7 mb-0 grid list-none gap-4 p-0 text-sm sm:grid-cols-3" aria-label="How website audit works">
+            {[
+              ["Paste a page URL", "Use a homepage or an important landing page."],
+              ["Run the checks", "We inspect the page without changing anything."],
+              ["Act on the evidence", "Review priority fixes and what still needs a human."],
+            ].map(([title, detail], index) => (
+              <li key={title} className="flex gap-3">
+                <span className="grid size-7 shrink-0 place-items-center rounded-full bg-[#edf4fd] text-xs font-extrabold text-[#00539d]">{index + 1}</span>
+                <span><strong className="block text-[#090d46]">{title}</strong><span className="mt-1 block text-xs leading-5 text-slate-500">{detail}</span></span>
+              </li>
+            ))}
+          </ol>
         </div>
       </section>
       <SiteFooter />

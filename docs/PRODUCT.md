@@ -33,21 +33,22 @@ It is:
 - The manual button is intended for local testing.
 - A scheduled endpoint can send the same useful updates automatically.
 - A separate `/website-audit` tool checks one public webpage for broken links, baseline SEO, and AI-crawler accessibility.
-- The website-audit landing experience previews the report outcome before input, offers a safe example URL, and shows staged feedback while a check is running.
+- The website-audit landing experience prioritises the URL input over report imagery, offers a focusable example URL, explains the three-step workflow, and shows honest pending feedback while the bounded request is running.
 - The shared page header includes a compact Melbourne daily brief with current weather and Werribee Line status. Either source may fail independently without blocking the active tool.
 - Before login, the daily brief keeps weather public but replaces the Werribee status with a sign-in prompt.
 - Website audits compare initial HTML with a JavaScript-rendered DOM when Chromium is available; they never claim to verify a provider's private search index.
 - Audit scores use weighted technical signals and display evidence confidence; they are diagnostic summaries, not Google rankings.
 - Link-check results include successful 2xx responses and 3xx redirect chains as evidence, without treating them as errors. Broken-link results include link text, internal/external scope, source DOM, URL, and response failure. Bot rejections, rate limits, and missing responses are shown as inconclusive rather than counted as broken. Reports link to Google Search Console URL Inspection for authoritative SEO follow-up.
 - Successful-link evidence is collapsed by default. Unchecked links are explicitly described as coverage gaps caused by the 80-link cap or time budget, never as failures.
-- The shared company workspace keeps Website Audit as the primary product. A low-emphasis desktop sidebar, or toolbox drawer on smaller screens, orders collapsible supporting groups by workflow: release and reports first, Google search tools second, and train utilities last.
+- The shared company workspace keeps Website Audit and its own history in the primary group. Release workflow contains Smoke Testing and its separate history, followed by Google search tools and train utilities. Google tools remain in navigation but no longer appear as a component in the audit report.
 - Reminder and manual Telegram controls are retained in the codebase but hidden from the shared navigation and public train-status experience while the product shifts toward multiple users.
 - A separate `/smoke-test` workflow checks release breadth across priority and sitemap URLs without running costly deep analysis on every page. It performs HTTP checks broadly and uses Playwright on priority and suspicious pages.
 - Smoke-test scope is configurable from 1 to 100 pages. Manual priority URLs run before sitemap URLs.
 - Smoke-test scope offers Quick (10), Standard (30), and Full (100) page presets alongside a custom limit.
 - Smoke tests are read-only and return an explicit Pass, Pass with warnings, or Fail recommendation.
 - Smoke testing never calls OpenAI; it must not consume model tokens.
-- Smoke-test history is grouped by domain in browser local storage. It keeps the 10 most recently used domains and the 10 most recent summary runs for each domain.
+- Audit history in tab-local session storage saves concrete findings, evidence, fixes, first actions and coverage for new runs. Older score-only records remain readable and are labelled as lacking detail.
+- Smoke-test history is grouped by domain in browser local storage. It keeps up to 10 domains and 10 recent runs per domain, saving compact evidence for every checked URL, including successful pages. Live and historical results provide URL/issue search, result filters, and 20-row pagination. Discovered but unchecked URLs are counted separately, never presented as tested. Storage failures are reported without losing the current on-screen report.
 
 ## What counts as useful
 

@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { ArrowRight, Check, CheckCircle2, ExternalLink, Link2Off, LoaderCircle, Search, TriangleAlert } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { ArrowRight, CheckCircle2, ExternalLink, Link2Off, LoaderCircle, Search, TriangleAlert } from "lucide-react";
 import type { AuditFinding, WebsiteAudit } from "@/lib/website-audit";
 import { CATEGORY_LABEL, SEVERITY_LABEL, SEVERITY_ORDER, type QualityFinding } from "@/lib/audit-findings";
 import { recordAuditRun } from "@/lib/audit-history";
@@ -46,15 +46,23 @@ export function AuditForm() {
   const [report, setReport] = useState<WebsiteAudit | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [stage, setStage] = useState(0);
+  const [historyWarning, setHistoryWarning] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const requestedUrl = new URLSearchParams(window.location.search).get("url");
+    if (requestedUrl) {
+      setUrl(requestedUrl);
+      inputRef.current?.focus();
+    }
+  }, []);
 
   async function submit(event: React.FormEvent) {
     event.preventDefault();
     setLoading(true);
     setError("");
+    setHistoryWarning("");
     setReport(null);
-    setStage(0);
-    const progress = window.setInterval(() => setStage((current) => Math.min(current + 1, 3)), 1500);
     try {
       const response = await fetch("/api/audits", {
         method: "POST",
@@ -64,40 +72,38 @@ export function AuditForm() {
       const payload = await response.json() as { ok: boolean; report?: WebsiteAudit; error?: string };
       if (!response.ok || !payload.report) throw new Error(payload.error || "Audit failed");
       setReport(payload.report);
-      recordAuditRun(payload.report);
+      const history = recordAuditRun(payload.report);
+      if (history[0]?.ranAt !== payload.report.checkedAt) setHistoryWarning("Your report is ready, but this browser could not save its history. Storage may be full or disabled. Keep this report open if you need its evidence.");
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Audit failed");
     } finally {
-      window.clearInterval(progress);
       setLoading(false);
     }
   }
 
   return (
     <>
-      <form className="audit-form" onSubmit={submit}>
-        <div className="audit-form-title"><span>Start a free website check</span><small>Usually takes about a minute</small></div>
-        <label htmlFor="audit-url">Website URL</label>
-        <div className="audit-url-row">
-          <Search size={19} />
-          <input id="audit-url" type="text" inputMode="url" placeholder="https://example.com" value={url} onChange={(event) => setUrl(event.target.value)} required />
-          <button type="submit" disabled={loading}>{loading ? <LoaderCircle className="spin" size={17} /> : null}{loading ? "Checking website…" : "Check my website"}{!loading ? <ArrowRight size={17} /> : null}</button>
+      <form className="rounded-2xl border border-[#cbdcf0] bg-white p-5 shadow-[0_12px_36px_rgba(9,13,70,.07)] sm:p-7" onSubmit={submit}>
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-2"><strong className="text-base text-[#090d46]">Start your website check</strong><small className="text-xs text-slate-500">Usually takes about a minute</small></div>
+        <label className="mb-2 block text-xs font-extrabold text-[#00539d]" htmlFor="audit-url">Website URL</label>
+        <div className="flex flex-wrap items-center gap-3 rounded-xl border-2 border-[#b9c9da] bg-white p-2 pl-4 transition focus-within:border-[#00539d] focus-within:ring-4 focus-within:ring-blue-100">
+          <Search className="shrink-0 text-slate-400" size={19} />
+          <input className="h-11 min-w-0 flex-1 border-0 bg-transparent text-base text-slate-800 outline-none" ref={inputRef} id="audit-url" type="text" inputMode="url" autoComplete="url" aria-describedby="audit-scope" placeholder="https://your-website.com" value={url} onChange={(event) => setUrl(event.target.value)} required disabled={loading} />
+          <button className="inline-flex min-h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-lg border-0 bg-[#00539d] px-6 text-sm font-extrabold text-white transition hover:bg-[#084697] disabled:cursor-wait disabled:opacity-60 sm:w-auto" type="submit" disabled={loading}>{loading ? <LoaderCircle className="animate-spin" size={17} /> : null}{loading ? "Checking website…" : "Check my website"}{!loading ? <ArrowRight size={17} /> : null}</button>
         </div>
-        <div className="audit-form-meta">
-          <p>Not sure what to try?</p>
-          <button type="button" onClick={() => setUrl("https://example.com")}>Use example.com</button>
-          <span>Checks one page and up to 80 links. Nothing is changed on the website.</span>
+        <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-slate-500">
+          <span>Just exploring?</span>
+          <button className="cursor-pointer border-0 bg-transparent p-0 text-xs font-bold text-[#00539d] underline underline-offset-2 disabled:opacity-50" type="button" disabled={loading} onClick={() => { setUrl("https://example.com"); inputRef.current?.focus(); }}>Try example.com</button>
         </div>
+        <p className="mt-3 mb-0 text-xs leading-5 text-slate-500" id="audit-scope">Checks one public page and up to 80 links. Nothing is changed on the website.</p>
       </form>
       {loading && (
-        <div className="audit-progress" role="status" aria-live="polite">
-          <div className="progress-copy"><span><LoaderCircle className="spin" size={18} /></span><div><strong>{["Fetching the page", "Checking links and metadata", "Rendering JavaScript", "Preparing your report"][stage]}</strong><small>Keep this tab open while the checks finish.</small></div></div>
-          <div className="progress-steps">
-            {["Fetch", "Links", "Render", "Report"].map((label, index) => <span key={label} className={index < stage ? "complete" : index === stage ? "active" : ""}><i>{index < stage ? <Check size={11} /> : index + 1}</i>{label}</span>)}
-          </div>
+        <div className="mt-4 rounded-xl border border-blue-100 bg-blue-50 p-5" role="status" aria-live="polite">
+          <div className="flex items-center gap-3"><LoaderCircle className="animate-spin text-[#00539d]" size={20} /><div><strong className="block text-sm text-[#090d46]">Checking your page</strong><small className="text-xs text-slate-600">Fetching, checking links and metadata, rendering JavaScript, then preparing the report. Keep this tab open.</small></div></div>
         </div>
       )}
-      {error && <p className="audit-error" role="alert">{error}</p>}
+      {error && <p className="mt-4 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800" role="alert">{error}</p>}
+      {historyWarning && <p className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900" role="status">{historyWarning}</p>}
       {report && (
         <section className="audit-report" aria-live="polite">
           <div className="audit-report-head">
@@ -185,15 +191,6 @@ export function AuditForm() {
                 </ul>
               </details>
             )}
-          </article>
-
-          <article className="audit-panel google-tools google-toolkit">
-            <div><p className="label">VERIFY WITH GOOGLE</p><h3>Continue with Google’s specialist tools</h3><p>Our audit finds broad technical issues. Use these focused tools for performance, rich results, and authoritative indexing evidence.</p></div>
-            <div className="google-tool-links">
-              <a href="https://pagespeed.web.dev/" target="_blank" rel="noreferrer"><span><strong>PageSpeed Insights</strong><small>Performance + Core Web Vitals</small></span><ExternalLink size={14} /></a>
-              <a href="https://search.google.com/test/rich-results" target="_blank" rel="noreferrer"><span><strong>Rich Results Test</strong><small>Structured data</small></span><ExternalLink size={14} /></a>
-              <a href="https://search.google.com/search-console" target="_blank" rel="noreferrer"><span><strong>Search Console</strong><small>Indexing · ownership required</small></span><ExternalLink size={14} /></a>
-            </div>
           </article>
 
           <article className="audit-panel">

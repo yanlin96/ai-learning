@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { MAX_RUNS_PER_DOMAIN, MAX_SMOKE_DOMAINS, mergeSmokeHistory } from "../lib/smoke-history.ts";
+import { MAX_RUNS_PER_DOMAIN, MAX_SMOKE_DOMAINS, mergeSmokeHistory, summariseSmokeRun, readSmokeHistory } from "../lib/smoke-history.ts";
 
 const run = (index) => ({
   id: String(index), checkedAt: new Date(Date.UTC(2026, 0, index + 1)).toISOString(),
@@ -33,4 +33,31 @@ test("each domain retains at most ten recent runs", () => {
   }
   assert.equal(history[0].runs.length, MAX_RUNS_PER_DOMAIN);
   assert.equal(history[0].runs[0].id, "11");
+});
+
+test("new history saves every checked URL, including passes beyond the issue sample limit", () => {
+  const pages = Array.from({ length: 100 }, (_, index) => ({
+    url: "https://example.com/page-" + index, title: "Page " + index,
+    finalUrl: index === 0 ? "https://example.com/redirected" : undefined,
+    status: index < 15 ? "warning" : "pass", source: "sitemap",
+    httpStatus: 200, responseTimeMs: 100, browser: "not-run",
+    issues: index < 15 ? ["Missing description"] : [], browserIssues: [],
+  }));
+  const summary = summariseSmokeRun({ ...run(1), baseUrl: "https://example.com", checkedAt: run(1).checkedAt, checked: 100, discovered: 120, pages });
+  assert.equal(summary.pages.length, 100);
+  assert.equal(summary.issueSamples.length, 10);
+  assert.equal(summary.pages[99].url, pages[99].url);
+  assert.equal(summary.pages[0].finalUrl, pages[0].finalUrl);
+  assert.equal(summary.pages[99].browser, "not-run");
+  assert.equal(summary.discovered, 120);
+});
+
+test("older summary-only smoke history stays readable without invented URL details", () => {
+  const legacy = [{ domain: "example.com", lastRunAt: run(1).checkedAt, runs: [run(1)] }];
+  globalThis.localStorage = { getItem: () => JSON.stringify(legacy) };
+  try {
+    const history = readSmokeHistory();
+    assert.equal(history[0].runs[0].pages, undefined);
+    assert.equal(history[0].runs[0].checked, 10);
+  } finally { delete globalThis.localStorage; }
 });
