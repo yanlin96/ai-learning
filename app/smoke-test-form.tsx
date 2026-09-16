@@ -5,6 +5,7 @@ import { CheckCircle2, CircleAlert, Gauge, LoaderCircle, XCircle } from "lucide-
 import type { SmokeTestReport } from "@/lib/smoke-test";
 import { recordSmokeRun } from "@/lib/smoke-history";
 import { SmokeUrlResults } from "@/app/smoke-url-results";
+import { fieldClass, primaryActionClass } from "@/app/tool-ui";
 
 const RESULT_COPY = {
   pass: { label: "PASS", detail: "All checked pages passed the smoke checks.", Icon: CheckCircle2 },
@@ -58,51 +59,55 @@ export function SmokeTestForm() {
 
   return (
     <>
-      <form className="smoke-form" onSubmit={submit}>
-        <div className="smoke-form-head">
-          <div><p className="label">TEST SCOPE</p><h2>Choose the pages to cover</h2></div>
-          <span>Read-only checks</span>
+      <form className="rounded-xl border border-slate-200 bg-white p-5 sm:p-6" onSubmit={submit} aria-busy={loading}>
+        <div className="mb-5 hidden flex-wrap items-center justify-between gap-2 sm:flex">
+          <h2 className="m-0 text-base font-bold text-[#090d46]">Choose the pages to cover</h2>
+          <span className="text-sm text-slate-600">Read-only checks</span>
         </div>
-        <label htmlFor="smoke-base">Website URL</label>
-        <input id="smoke-base" type="text" inputMode="url" placeholder="https://www.example.com" value={baseUrl} onChange={(event) => setBaseUrl(event.target.value)} required />
-        <div className="smoke-form-grid">
-          <div>
-            <label htmlFor="smoke-manual">Priority URLs <small>optional, one per line</small></label>
-            <textarea id="smoke-manual" rows={6} placeholder={"/login\n/contact-us\nhttps://www.example.com/member-centre"} value={manualText} onChange={(event) => setManualText(event.target.value)} />
-            <p>Priority URLs run first. Remaining capacity is filled from the site’s sitemap.xml.</p>
-          </div>
-          <div>
-            <label>Maximum pages</label>
-            <div className="scope-presets">
+        <label className="mb-2 block text-sm font-bold text-[#090d46]" htmlFor="smoke-base">Website URL</label>
+        <input className={fieldClass} id="smoke-base" type="text" inputMode="url" placeholder="https://www.example.com" value={baseUrl} onChange={(event) => setBaseUrl(event.target.value)} required disabled={loading} />
+        <div className="mt-4 grid gap-4 md:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] md:gap-6">
+          <details className="order-2 min-w-0 rounded-lg border border-slate-200 md:order-1">
+            <summary className="min-h-11 cursor-pointer rounded-lg px-3 py-3 text-sm font-bold text-[#00539d] focus-visible:outline-2 focus-visible:outline-[#00539d]">Priority URLs &amp; custom limit</summary>
+            <div className="border-t border-slate-200 p-3">
+            <label className="mb-2 block text-sm text-slate-600" htmlFor="smoke-limit-number">Custom page limit (1–100)</label>
+            <input className={fieldClass} id="smoke-limit-number" type="number" min={1} max={100} value={limit} disabled={loading} onChange={(event) => setLimit(Math.max(1, Math.min(100, Number(event.target.value) || 1)))} aria-describedby="smoke-budget-help" />
+            <div className="mt-4">
+            <label className="mb-2 block text-sm font-bold text-[#090d46]" htmlFor="smoke-manual">Priority URLs <span className="font-normal text-slate-600">(optional, one per line)</span></label>
+            <textarea className={fieldClass + " resize-y text-sm leading-6"} id="smoke-manual" rows={6} placeholder={"/login\n/contact-us\nhttps://www.example.com/member-centre"} value={manualText} onChange={(event) => setManualText(event.target.value)} disabled={loading} aria-describedby="smoke-priority-help" />
+            <p id="smoke-priority-help" className="mt-2 mb-0 text-sm leading-6 text-slate-600">Priority URLs run first. Remaining capacity is filled from the site’s sitemap.xml.</p>
+            </div></div>
+          </details>
+          <div className="order-1 md:order-2">
+            <fieldset className="m-0 min-w-0 border-0 p-0" disabled={loading}>
+            <legend className="mb-2 p-0 text-sm font-bold text-[#090d46]">Maximum pages</legend>
+            <div className="grid grid-cols-3 gap-2">
               {[{ label: "Quick", value: 10 }, { label: "Standard", value: 30 }, { label: "Full", value: 100 }].map((preset) => (
-                <button type="button" key={preset.value} aria-pressed={limit === preset.value} className={limit === preset.value ? "active" : ""} onClick={() => setLimit(preset.value)}><strong>{preset.label}</strong><small>{preset.value} pages</small></button>
+                <button type="button" key={preset.value} aria-pressed={limit === preset.value} className={`min-h-16 cursor-pointer rounded-lg border px-2 py-3 text-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#00539d] disabled:cursor-wait disabled:opacity-60 ${limit === preset.value ? "border-[#00539d] bg-blue-50 text-[#00539d]" : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"}`} onClick={() => setLimit(preset.value)}><strong className="block">{preset.label}</strong><span className="mt-1 block">{preset.value} pages</span></button>
               ))}
             </div>
-            <label className="custom-limit" htmlFor="smoke-limit-number">Or enter a custom limit</label>
-            <input id="smoke-limit-number" type="number" min={1} max={100} value={limit} onChange={(event) => setLimit(Math.max(1, Math.min(100, Number(event.target.value) || 1)))} />
-            <p>Larger runs may stop at the server time budget.</p>
-            <button type="submit" disabled={loading}>
-              {loading ? <LoaderCircle className="spin" size={17} /> : <Gauge size={17} />}
+            </fieldset>
+            <p id="smoke-budget-help" className="mt-2 mb-3 text-sm leading-6 text-slate-600">Up to {limit} pages; runs may stop at the server time limit.</p>
+            <button className={primaryActionClass + " w-full"} type="submit" disabled={loading}>
+              {loading ? <LoaderCircle className="animate-spin motion-reduce:animate-none" size={17} /> : <Gauge size={17} />}
               {loading ? "Running smoke test…" : "Run smoke test"}
             </button>
           </div>
         </div>
       </form>
-      {error && <p className="audit-error" role="alert">{error}</p>}
+      {loading && <p className="mt-4 rounded-xl bg-blue-50 p-4 text-sm leading-6 text-[#00539d]" role="status">Checking priority URLs and sitemap pages. Browser checks follow; larger runs can take longer. Keep this page open for the results.</p>}
+      {error && <p className="mt-4 rounded-xl bg-red-50 p-4 text-sm leading-6 text-red-800" role="alert">{error} Check the website URL and try again.</p>}
       {historyWarning && <p className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900" role="status">{historyWarning}</p>}
       {report && outcome && (
-        <section className="smoke-report" aria-live="polite">
-          <article className={`smoke-outcome ${report.result}`}>
-            <outcome.Icon size={30} />
-            <div><p className="label">RELEASE RECOMMENDATION</p><h2>{outcome.label}</h2><p>{outcome.detail}</p></div>
-            <div className="smoke-counts">
-              <span><strong>{report.checked}</strong> checked</span>
-              <span className="pass"><strong>{report.counts.pass}</strong> passed</span>
-              <span className="warning"><strong>{report.counts.warning}</strong> warnings</span>
-              <span className="fail"><strong>{report.counts.fail}</strong> failed</span>
-            </div>
+        <section className="mt-8 space-y-4" aria-live="polite">
+          <article className={`rounded-xl p-5 ${report.result === "pass" ? "bg-teal-50 text-teal-900" : report.result === "warning" ? "bg-amber-50 text-amber-900" : "bg-red-50 text-red-900"}`}>
+            <div className="flex items-start gap-3"><outcome.Icon className="mt-0.5 shrink-0" size={24} aria-hidden="true" />
+            <div><h2 className="m-0 text-xl font-bold text-inherit">{outcome.label}</h2><p className="mt-2 mb-0 text-sm leading-6">{outcome.detail}</p></div></div>
+            <dl className="mt-5 mb-0 grid grid-cols-2 gap-4 border-t border-current/20 pt-4 text-sm sm:grid-cols-4">
+              {[["Checked", report.checked], ["Passed", report.counts.pass], ["Warnings", report.counts.warning], ["Failed", report.counts.fail]].map(([label, value]) => <div key={label}><dt>{label}</dt><dd className="m-0 mt-1 text-xl font-bold tabular-nums">{value}</dd></div>)}
+            </dl>
           </article>
-          <div className="smoke-run-note">
+          <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm leading-6 text-slate-600">
             <span>Sitemap: <strong>{report.sitemap}</strong></span>
             <span>{report.discovered} URLs discovered</span>
             <span>{report.browserChecked} browser verified (maximum {report.browserLimit})</span>

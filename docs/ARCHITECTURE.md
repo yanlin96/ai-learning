@@ -24,7 +24,7 @@ Transport Victoria GTFS Schedule + GTFS-Realtime Alerts
 
 ## Main components
 
-`app/page-template.tsx` owns the Tailwind content container (1080px max width, responsive gutters/top spacing) and page heading rhythm. Audit, Smoke and train lookup use the tool heading; both histories use its compact icon variant. Keep result/filter/storage logic in their existing components. Shared account actions live only in the header, not duplicated inside the train page.
+`app/page-template.tsx` owns the Tailwind content container (1080px max width, responsive gutters/top spacing) and compact task-heading rhythm; history headings optionally add an icon. `app/tool-ui.tsx` supplies shared field/action styles and history search/empty-state patterns. Smoke scope/outcome and Metro selection/notices use Tailwind; detailed audit evidence tables still use their existing domain styles. Keep result/filter/storage logic in their existing components. Shared account actions live only in the header, not duplicated inside the train page. See `DESIGN.md` for reusable visual rules and `docs/WORKSPACE-UI.md` for route strategy.
 
 The workspace shell owns one shared footer after page content in a min-viewport-height flex column. Page mains grow without the legacy `min-height: 100vh`, so short pages place the footer at the viewport bottom and long pages keep it in normal flow; never fix the footer over tool results. The header's account/navigation row remains navy, while the daily-brief row (including outer gutters) and its card are white.
 
@@ -82,6 +82,10 @@ Scoring separates SEO from AI-search readiness. Critical indexability and crawle
 
 ### Transport Victoria
 
+- Regional lookup: `getRegionalSchedule` extracts folder `1/google_transit.zip` routes/trips/stops and maps exact route/trip IDs. Metro catalog/reminder APIs retain their existing default. `/api/lines?network=vline` opts into regional rail only.
+- `lib/vline.ts` reads the official V/Line Trip Updates protobuf with server-side KeyID and a 30-second fetch cache. `lib/vline-rules.ts` maps stop predictions without inventing missing delays; stale feeds (over five minutes or missing timestamp) hide predictions, stale trip measurements and completed trips are excluded, overnight trips remain eligible when a future stop exists. Unmatched schedule IDs are disclosed as a coverage gap.
+- `app/vline-status.tsx` consumes protected `/api/vline-trips?lineId=...`; current/upcoming disruption notices and vehicle maps are not supplied by this integration. V/Line has no disruption feed in this dataset, so the UI links to official notices instead. No regional Telegram scheduling is introduced.
+
 - Catalog: GTFS Schedule ZIP, read with partial HTTP Range requests and cached for one week.
 - Feed: Metro Train GTFS-Realtime Service Alerts.
 - Authentication: `KeyID` request header.
@@ -101,6 +105,8 @@ Scoring separates SEO from AI-search readiness. Critical indexability and crawle
 - The shared-header brief loads after the main page and degrades independently when weather is unavailable.
 
 ### Okta
+
+- Application sign-out clears the Auth.js session and returns to `/login?signedOut=1`, which waits for explicit sign-in instead of automatically restarting OAuth. The marker is presentation only, not an authentication exemption or proof of logout. Okta SSO is retained; fresh protected-page visits still use normal automatic login. Okta and application session lifetimes are independent.
 
 - Auth.js uses the Okta OIDC provider with an Authorization Code redirect flow and a server-side client secret.
 - `/login` automatically calls Auth.js `signIn("okta")` once after hydration, preserving its CSRF/state/nonce handling and the sanitized callback path. It does not redirect directly to a bare Okta login URL. OAuth errors disable automatic start and require manual retry; missing configuration fails closed. The branded login form lives on the Okta-hosted custom domain, outside this repository.

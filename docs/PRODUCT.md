@@ -15,12 +15,14 @@ It is:
 ## Current user
 
 - Staff using the shared website-quality workspace.
-- Signed-in staff checking any metropolitan train line without needing a saved reminder.
+- Signed-in staff checking Metro notices or V/Line train predictions without needing a saved reminder.
 - Wants a quick answer without repeatedly checking transport websites.
 
 ## Current product behaviour
 
-- Audit, Smoke and train lookup share a consistent tool-page layout; Audit and Smoke histories share a compact records-page heading. Content width, responsive gutters, top spacing, description style and action placement are aligned. Account/sign-out controls appear only in the top header.
+- Train lookup supports Metro notices and V/Line regional train predictions through an operator switch. V/Line shows reported destinations, next stops, prediction times and supplied delays, with refresh and bounded result expansion. Regional feeds do not cover coaches or disruption notices; missing/stale predictions never imply normal service. Reminder/Telegram scope remains metropolitan.
+
+- Audit, Smoke and train lookup share compact task headings instead of promotional heroes; Audit and Smoke histories share the same records/search/empty-state pattern. Content width, responsive gutters, top spacing, description style and action placement are aligned. Account/sign-out controls appear only in the top header.
 
 - The shared footer sits at the bottom on short pages and follows content on long pages without covering results or leaving an empty block below it. The weather/train brief row and its outer gutters are white; only the top navigation, sidebar and footer are navy.
 
@@ -41,6 +43,7 @@ It is:
 - The shared page header includes a compact Melbourne daily brief with current weather and Werribee Line status. Either source may fail independently without blocking the active tool.
 - Internal route navigation keeps the shared header, account, daily brief and desktop sidebar group state mounted rather than reloading the document. The mobile toolbox closes after navigation. Header, sidebar, account menu and footer use the Okta-login navy background with white text and cyan accents; tool content and the daily brief remain light.
 - All workspace pages and business APIs, including the daily brief, require login. `/login`, its legacy `/train-login` alias and Okta auth endpoints remain reachable without a session; the cron endpoint keeps its independent bearer-secret protection.
+- Signing out clears the CPA Tools session and pauses on a signed-out screen until explicit sign-in. Okta SSO remains active according to its own policies; visiting a protected tool again starts normal authentication.
 - Website audits compare initial HTML with a JavaScript-rendered DOM when Chromium is available; they never claim to verify a provider's private search index.
 - Audit scores use weighted technical signals and display evidence confidence; they are diagnostic summaries, not Google rankings.
 - Link-check results include successful 2xx responses and 3xx redirect chains as evidence, without treating them as errors. Broken-link results include link text, internal/external scope, source DOM, URL, and response failure. Bot rejections, rate limits, and missing responses are shown as inconclusive rather than counted as broken. Reports link to Google Search Console URL Inspection for authoritative SEO follow-up.
@@ -70,7 +73,7 @@ Do not assume that only severe rail incidents matter. A parking notice may be de
 
 ## Current scope
 
-The commute assistant supports Okta-authenticated, read-only lookup across metropolitan train lines. Reminder storage and Telegram notification code remain local-first and are not currently promoted in the multi-user interface. The repository also contains the primary website-audit utility. Okta provides identity and session access only; the project does not yet have production database storage for per-user records.
+The commute assistant supports Okta-authenticated, read-only lookup across metropolitan train lines and V/Line regional rail routes, with different evidence coverage for each operator. Reminder storage and Telegram notification code remain metropolitan, local-first and are not currently promoted in the multi-user interface. The repository also contains the primary website-audit utility. Okta provides identity and session access only; the project does not yet have production database storage for per-user records.
 
 Sign-in gates the whole workspace, not just train lookup. Login automatically starts the Okta-hosted flow and defaults to Website Audit through the root redirect; explicit safe tool return paths are preserved. The app retains only compact connecting, setup and manual-retry states instead of a second promotional login page. Browser histories retain their existing storage boundaries; global authentication does not make them per-user or shared records.
 

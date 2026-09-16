@@ -24,7 +24,7 @@ export type Disruption = {
 type Timestamp = number | { toString(): string } | null | undefined;
 type ActivePeriod = { start?: Timestamp; end?: Timestamp };
 
-function getApiKey(): string {
+export function getApiKey(): string {
   const configured = process.env.TRANSPORT_VIC_API_KEY?.trim();
   if (configured) return configured;
 

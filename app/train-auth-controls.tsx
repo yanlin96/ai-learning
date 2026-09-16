@@ -21,7 +21,7 @@ export function TrainAccount({ name, email }: { name?: string | null; email?: st
     <div className="train-account">
       <span aria-hidden="true">{label.charAt(0).toUpperCase()}</span>
       <div><small>SIGNED IN</small><strong>{label}</strong></div>
-      <button type="button" onClick={() => void signOut({ callbackUrl: "/" })}>
+      <button type="button" onClick={() => void signOut({ callbackUrl: "/login?signedOut=1" })}>
         <LogOut size={15} /> Sign out
       </button>
     </div>

@@ -2,6 +2,9 @@
 
 ## Responsibilities
 
+- `/api/lines?network=vline` exposes official regional rail routes; the default remains metropolitan.
+- `/api/vline-trips?lineId=...` checks the workspace session before reading regional predictions. It includes feed freshness and unmatched-trip coverage, not disruption alerts; failures return JSON and never expose KeyID.
+
 - `/api/lines` exposes the current official metropolitan train catalog to authenticated users.
 - `/api/subscriptions` lists and creates reminder subscriptions.
 - `/api/subscriptions/[id]` updates and deletes one subscription.

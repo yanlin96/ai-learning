@@ -1,5 +1,17 @@
 # Decisions
 
+## 2026-09-16 — Stop automatic re-login after application logout
+
+Sign out of CPA Tools only, retaining the Okta SSO session and its configured lifetime. Return to `/login?signedOut=1` with an explicit Continue with Okta action. Normal protected-page visits retain automatic Okta handoff; error states never auto-retry. Do not introduce global Okta logout or change application session lifetime without a separate request.
+
+## 2026-09-16 — Refine the incumbent workspace rather than replace its identity
+
+Keep navy navigation/footer, white tools/commute strip and the established font stack. Replace promotional tool headlines with compact task names and share Tailwind field/action/history patterns. Preserve persistent navigation, default-expanded release workflow, API/session boundaries and browser-local history. The mobile toolbox contains keyboard focus and returns it to its trigger when closed. Reusable visual rules live in `DESIGN.md`; route strategy lives in `docs/WORKSPACE-UI.md`. Detailed audit tables remain a bounded legacy-CSS migration, not a claim that all site CSS has been converted.
+
+## 2026-09-16 — Keep regional predictions distinct from Metro alerts
+
+Integrate official V/Line Trip Updates in the existing train lookup with a Metro/V/Line switch, not as fabricated disruption cards. Regional schedules come from GTFS folder 1; coaches are excluded. Exact route/trip IDs join the realtime feed to names. Missing, stale or unmatched predictions are coverage gaps, not an all-clear. Keep Metro reminder/Telegram behavior unchanged. New UI uses Tailwind and extends existing navy/white workspace identity; Impeccable guidance prioritises task clarity rather than replacing site branding.
+
 ## 2026-09-15 — Reuse page templates by workflow
 
 Use a shared Tailwind content container and heading for the three visible tools and two history pages. Tools use a prominent heading, histories its compact icon variant; keep domain-specific forms/results and browser storage untouched. Remove the train page's duplicate identity/sign-out capsule; header account actions remain the single entry. Hidden reminder CRUD is outside this visible-page template increment.

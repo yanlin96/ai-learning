@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import {
   BarChart3,
@@ -23,7 +23,7 @@ type ToolboxLinksProps = { pathname: string; close?: () => void };
 type HeaderSession = { user?: { name?: string | null; email?: string | null; image?: string | null } };
 
 const toolLinkBase =
-  "flex min-h-14 items-center gap-3 rounded-xl border border-transparent px-3 py-2.5 no-underline transition-colors hover:border-white/20 hover:bg-white/10";
+  "flex min-h-14 items-center gap-3 rounded-xl border border-transparent px-3 py-2.5 no-underline transition-colors motion-reduce:transition-none hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-200";
 const toolIcon =
   "grid size-9 shrink-0 place-items-center rounded-lg border border-white/15 bg-[#10213a] text-cyan-200";
 
@@ -62,7 +62,7 @@ function HeaderAccount() {
   const initials = label.split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part[0]).join("").toUpperCase();
   const avatar = (
     <span
-      className="grid size-9 shrink-0 place-items-center overflow-hidden rounded-full bg-gradient-to-br from-[#00539d] to-[#1688bd] text-[11px] font-extrabold tracking-wide text-white"
+      className="grid size-9 shrink-0 place-items-center overflow-hidden rounded-full bg-[#00539d] text-sm font-extrabold text-white"
       aria-hidden="true"
     >
       {session.user.image ? <img className="size-full object-cover" src={session.user.image} alt="" /> : initials || "U"}
@@ -77,8 +77,7 @@ function HeaderAccount() {
       >
         {avatar}
         <span className="min-w-0 max-w-44 max-[700px]:hidden">
-          <small className="block text-[8px] font-extrabold tracking-[.12em] text-slate-300">SIGNED IN</small>
-          <strong className="block overflow-hidden text-xs font-extrabold text-ellipsis whitespace-nowrap text-white">{label}</strong>
+          <strong className="block overflow-hidden text-sm font-bold text-ellipsis whitespace-nowrap text-white">{label}</strong>
         </span>
         <ChevronDown className="text-slate-300 transition-transform group-open/account:rotate-180 max-[700px]:hidden" size={15} />
       </summary>
@@ -87,13 +86,13 @@ function HeaderAccount() {
           {avatar}
           <p className="m-0 min-w-0">
             <strong className="block overflow-hidden text-sm font-extrabold text-ellipsis whitespace-nowrap text-white">{session.user.name || "CPA Tools user"}</strong>
-            <small className="mt-0.5 block overflow-hidden text-[11px] text-ellipsis whitespace-nowrap text-slate-300">{session.user.email}</small>
+            <small className="mt-0.5 block overflow-hidden text-xs text-ellipsis whitespace-nowrap text-slate-300">{session.user.email}</small>
           </p>
         </div>
         <button
-          className="flex min-h-10 w-full cursor-pointer items-center gap-2 rounded-lg border-0 bg-red-400/10 px-3 text-xs font-extrabold text-red-200 transition-colors hover:bg-red-400/20"
+          className="flex min-h-11 w-full cursor-pointer items-center gap-2 rounded-lg border-0 bg-red-400/10 px-3 text-sm font-bold text-red-200 transition-colors hover:bg-red-400/20"
           type="button"
-          onClick={() => void signOut({ callbackUrl: "/" })}
+          onClick={() => void signOut({ callbackUrl: "/login?signedOut=1" })}
         >
           <LogOut size={16} /> Sign out
         </button>
@@ -106,7 +105,7 @@ function ToolCopy({ title, detail }: { title: string; detail: string }) {
   return (
     <span className="min-w-0 flex-1">
       <strong className="block text-sm leading-5 font-extrabold text-white">{title}</strong>
-      <small className="mt-0.5 block text-[11px] leading-4 font-semibold text-slate-300">{detail}</small>
+      <small className="mt-1 block text-xs leading-5 text-slate-300">{detail}</small>
     </span>
   );
 }
@@ -124,18 +123,17 @@ function ToolboxLinks({ pathname, close }: ToolboxLinksProps) {
   }
 
   const summaryClass =
-    "flex min-h-12 cursor-pointer list-none items-center justify-between gap-2 px-2 text-[11px] font-extrabold tracking-[.08em] text-slate-300 uppercase [&::-webkit-details-marker]:hidden";
+    "flex min-h-12 cursor-pointer list-none items-center justify-between gap-2 rounded-lg px-2 text-xs font-bold text-slate-300 hover:text-white focus-visible:outline-2 focus-visible:outline-cyan-200 [&::-webkit-details-marker]:hidden";
   const groupClass = "group border-t border-white/15";
 
   return (
     <nav className="grid content-start gap-4 py-5" aria-label="Workspace tools">
       <section className="grid gap-1.5">
-        <p className="m-0 px-3 pb-1 text-[10px] font-extrabold tracking-[.11em] text-cyan-200 uppercase">Primary tool</p>
-        <Link className={toolLinkClass(pathname === "/website-audit")} href="/website-audit" onClick={close}>
+        <Link className={toolLinkClass(pathname === "/website-audit")} aria-current={pathname === "/website-audit" ? "page" : undefined} href="/website-audit" onClick={close}>
           <span className={toolIcon}><SearchCheck size={19} /></span>
           <ToolCopy title="Website audit" detail="SEO, GEO, links and accessibility" />
         </Link>
-        <Link className={toolLinkClass(active("/history"))} href="/history" onClick={close}>
+        <Link className={toolLinkClass(active("/history"))} aria-current={active("/history") ? "page" : undefined} href="/history" onClick={close}>
           <span className={toolIcon}><BarChart3 size={19} /></span>
           <ToolCopy title="Audit history" detail="Page findings and recommended fixes" />
         </Link>
@@ -144,11 +142,11 @@ function ToolboxLinks({ pathname, close }: ToolboxLinksProps) {
       <details className={groupClass} open={groups.release} onToggle={(event) => setGroup("release", event.currentTarget.open)}>
         <summary className={summaryClass}>Release workflow <ChevronDown className="transition-transform group-open:rotate-180" size={15} /></summary>
         <div className="grid gap-1 pb-3">
-          <Link className={toolLinkClass(pathname === "/smoke-test")} href="/smoke-test" onClick={close}>
+          <Link className={toolLinkClass(pathname === "/smoke-test")} aria-current={pathname === "/smoke-test" ? "page" : undefined} href="/smoke-test" onClick={close}>
             <span className={toolIcon}><Gauge size={19} /></span>
             <ToolCopy title="Smoke testing" detail="Check up to 100 pages" />
           </Link>
-          <Link className={toolLinkClass(active("/smoke-test/history"))} href="/smoke-test/history" onClick={close}>
+          <Link className={toolLinkClass(active("/smoke-test/history"))} aria-current={active("/smoke-test/history") ? "page" : undefined} href="/smoke-test/history" onClick={close}>
             <span className={toolIcon}><BarChart3 size={19} /></span>
             <ToolCopy title="Smoke test history" detail="Release runs and URL results" />
           </Link>
@@ -173,9 +171,9 @@ function ToolboxLinks({ pathname, close }: ToolboxLinksProps) {
       <details className={groupClass} open={groups.operations} onToggle={(event) => setGroup("operations", event.currentTarget.open)}>
         <summary className={summaryClass}>Commuter tools <ChevronDown className="transition-transform group-open:rotate-180" size={15} /></summary>
         <div className="grid gap-1 pb-3">
-          <Link className={toolLinkClass(active("/disruptions"))} href="/disruptions" onClick={close}>
+          <Link className={toolLinkClass(active("/disruptions"))} aria-current={active("/disruptions") ? "page" : undefined} href="/disruptions" onClick={close}>
             <span className={toolIcon}><TrainFront size={19} /></span>
-            <ToolCopy title="Train line status" detail="All Metro lines · Okta sign-in" />
+            <ToolCopy title="Train line status" detail="Metro notices · V/Line predictions" />
           </Link>
         </div>
       </details>
@@ -186,15 +184,19 @@ function ToolboxLinks({ pathname, close }: ToolboxLinksProps) {
 export function SiteHeader() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const drawer = useRef<HTMLElement>(null);
+  const menuButton = useRef<HTMLButtonElement>(null);
   useEffect(() => {
     if (!open) return;
     const previous = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    return () => { document.body.style.overflow = previous; };
+    drawer.current?.querySelector<HTMLButtonElement>("button")?.focus();
+    return () => { document.body.style.overflow = previous; menuButton.current?.focus(); };
   }, [open]);
   useEffect(() => { setOpen(false); }, [pathname]);
   function close() { setOpen(false); }
-  return <header className="relative z-20 shrink-0 bg-[#071226] text-white xl:sticky xl:top-0">
+  const routeLabel = pathname.startsWith("/smoke-test/history") ? "Smoke test history" : pathname.startsWith("/smoke-test") ? "Smoke testing" : pathname.startsWith("/history") ? "Audit history" : pathname.startsWith("/disruptions") ? "Train line status" : "Website audit";
+  return <header className="relative z-20 shrink-0 bg-[#071226] text-white [&_summary]:focus-visible:outline-2 [&_summary]:focus-visible:outline-offset-2 [&_summary]:focus-visible:outline-cyan-200 [&_button]:focus-visible:outline-2 [&_button]:focus-visible:outline-offset-2 [&_button]:focus-visible:outline-cyan-200">
     <aside className="fixed inset-y-0 left-0 z-40 hidden w-[252px] flex-col overflow-y-auto border-r border-white/15 bg-[#071226] px-4 py-5 text-white xl:flex" aria-label="Company tools">
       <Link className="flex items-center gap-3 border-b border-white/15 px-2 pb-5 text-white no-underline" href="/website-audit" aria-label="CPA Tools home">
         <span className="grid size-11 place-items-center rounded-xl bg-cyan-200 text-[#071226]"><MonitorCheck size={22}/></span>
@@ -202,34 +204,41 @@ export function SiteHeader() {
       </Link>
       <ToolboxLinks pathname={pathname}/>
     </aside>
-    <nav className="shell flex h-[76px] items-center justify-between gap-5 border-b border-white/15 xl:h-[70px] xl:w-full xl:max-w-none xl:px-8" aria-label="Top navigation">
+    <nav className="mx-auto flex h-16 w-[calc(100%_-_32px)] max-w-[1080px] items-center justify-between gap-5 sm:w-[calc(100%_-_48px)]" aria-label="Top navigation">
       <Link href="/website-audit" aria-label="CPA Tools home" className="flex items-center gap-3 text-white no-underline xl:hidden">
         <span className="grid size-10 place-items-center rounded-xl bg-cyan-200 text-[#071226]"><MonitorCheck size={20}/></span>
         <strong className="max-[600px]:hidden">CPA Tools</strong>
       </Link>
-      <div className="hidden gap-0.5 xl:grid">
-        <span className="text-[9px] font-extrabold tracking-[.13em] text-cyan-200">COMPANY WORKSPACE</span>
-        <strong className="text-[15px] text-white">Website audit &amp; supporting tools</strong>
+      <div className="hidden items-center gap-3 text-sm xl:flex">
+        <span className="text-slate-300">Workspace</span><span className="text-slate-400" aria-hidden="true">/</span>
+        <strong className="text-white">{routeLabel}</strong>
       </div>
       <div className="ml-auto flex items-center gap-3">
         <HeaderAccount/>
-        <button type="button" onClick={() => setOpen(!open)} aria-label={open ? "Close company toolbox" : "Open company toolbox"} aria-expanded={open} className="inline-flex h-10 min-w-10 cursor-pointer items-center justify-center gap-2 rounded-lg border border-white/20 bg-white/5 px-3 text-xs font-bold text-white hover:bg-white/10 xl:hidden">
+        <button ref={menuButton} type="button" onClick={() => setOpen(!open)} aria-label={open ? "Close company toolbox" : "Open company toolbox"} aria-expanded={open} className="inline-flex h-11 min-w-11 cursor-pointer items-center justify-center gap-2 rounded-lg border border-white/20 bg-white/5 px-3 text-sm font-bold text-white hover:bg-white/10 xl:hidden">
           {open ? <X size={19}/> : <Menu size={19}/>}<span className="max-[520px]:hidden">Tools</span>
         </button>
       </div>
     </nav>
     {open && <>
-      <button className="fixed inset-0 z-30 border-0 bg-black/50 backdrop-blur-sm xl:hidden" onClick={close} aria-label="Close company toolbox"/>
-      <aside className="fixed inset-y-0 right-0 z-[31] w-[min(410px,100vw)] overflow-y-auto border-l border-white/15 bg-[#071226] p-6 text-white shadow-2xl xl:hidden" onKeyDown={event => event.key === "Escape" && close()} aria-label="Company toolbox" role="dialog" aria-modal="true">
+      <button tabIndex={-1} className="fixed inset-0 z-30 border-0 bg-black/50 xl:hidden" onClick={close} aria-label="Close company toolbox"/>
+      <aside ref={drawer} className="fixed inset-y-0 right-0 z-[31] w-[min(410px,100vw)] overflow-y-auto border-l border-white/15 bg-[#071226] p-6 text-white shadow-2xl xl:hidden" onKeyDown={event => {
+        if (event.key === "Escape") { event.preventDefault(); close(); }
+        if (event.key !== "Tab") return;
+        const controls = Array.from(event.currentTarget.querySelectorAll<HTMLElement>('a[href], button, summary')).filter(element => element.getClientRects().length > 0);
+        const first = controls[0], last = controls[controls.length - 1];
+        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+        if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+      }} aria-label="Company toolbox" role="dialog" aria-modal="true">
         <div className="flex items-start justify-between gap-5 border-b border-white/15 pb-5">
-          <div><p className="m-0 text-[10px] font-bold tracking-wider text-cyan-200">COMPANY TOOLBOX</p><h2 className="mt-1.5 mb-0 text-2xl font-extrabold text-white">Everything in one place.</h2></div>
+          <h2 className="m-0 text-2xl font-extrabold text-white">Workspace tools</h2>
           <button type="button" onClick={close} aria-label="Close toolbox" className="grid size-10 shrink-0 cursor-pointer place-items-center rounded-lg border border-white/20 bg-white/5 text-white hover:bg-white/10"><X size={19}/></button>
         </div>
         <ToolboxLinks pathname={pathname} close={close}/>
       </aside>
     </>}
     <div className="bg-white text-[#090d46]">
-      <div className="shell py-3 [&_.daily-brief]:!mt-0 [&_.daily-brief]:!bg-white"><DailyBrief/></div>
+      <div className="mx-auto w-[calc(100%_-_32px)] max-w-[1080px] py-3 sm:w-[calc(100%_-_48px)] [&_.daily-brief]:!mt-0 [&_.daily-brief]:!bg-white"><DailyBrief/></div>
     </div>
   </header>;
 }

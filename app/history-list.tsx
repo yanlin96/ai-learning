@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { ExternalLink, Play, Trash2 } from "lucide-react";
 import { CATEGORY_LABEL, SEVERITY_LABEL, SEVERITY_ORDER } from "@/lib/audit-findings";
 import { clearAuditHistory, readAuditHistory, type AuditHistoryEntry } from "@/lib/audit-history";
+import { HistoryEmptyState, HistorySearch } from "@/app/tool-ui";
 
 const timeFormat = new Intl.DateTimeFormat("en-AU", {
   day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "Australia/Melbourne",
@@ -15,12 +16,12 @@ export function HistoryList() {
   const [query, setQuery] = useState("");
   useEffect(() => setEntries(readAuditHistory()), []);
   if (entries === null) return <p className="text-sm text-slate-500" role="status">Loading audit history…</p>;
-  if (!entries.length) return <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center"><p className="mt-0 font-bold text-[#090d46]">No audits saved in this tab yet.</p><Link className="inline-flex rounded-lg bg-[#00539d] px-4 py-3 text-sm font-bold text-white no-underline" href="/website-audit">Run your first website audit</Link></div>;
+  if (!entries.length) return <HistoryEmptyState title="Your audit history starts here" description="Run a website audit to save its scores, findings and recommended fixes in this tab. Closing the tab clears these records." href="/website-audit" action="Run a website audit" />;
   const filtered = entries.filter((entry) => (entry.url + " " + entry.title).toLowerCase().includes(query.toLowerCase().trim()));
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <input className="h-11 min-w-0 flex-1 rounded-lg border border-slate-300 bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-blue-100" type="search" aria-label="Search audit history by page or URL" placeholder="Find a page or URL…" value={query} onChange={(event) => setQuery(event.target.value)} />
+        <HistorySearch label="Search audit history by page or URL" placeholder="Find a page or URL…" value={query} onChange={setQuery} />
         <span className="text-xs text-slate-500">{filtered.length} of {entries.length} runs</span>
         <button className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-xs text-slate-600" type="button" onClick={() => { clearAuditHistory(); setEntries([]); }}><Trash2 size={14} /> Clear audit history</button>
       </div>

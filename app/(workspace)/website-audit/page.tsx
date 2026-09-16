@@ -8,7 +8,7 @@ export default function WebsiteAuditPage() {
     <main>
 
       <PageContent>
-          <PageHeading eyebrow="Website audit" title={<>Check your website.<br /><em>Know what to fix next.</em></>}
+          <PageHeading title="Website audit"
             description="Start with any public page. Get evidence for SEO, GEO / AI crawler access, broken links and accessibility — with practical fixes in priority order."
             actions={<>
               <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="text-teal-600" size={15} /> Evidence-led checks</span>
@@ -24,7 +24,7 @@ export default function WebsiteAuditPage() {
             ].map(([title, detail], index) => (
               <li key={title} className="flex gap-3">
                 <span className="grid size-7 shrink-0 place-items-center rounded-full bg-[#edf4fd] text-xs font-extrabold text-[#00539d]">{index + 1}</span>
-                <span><strong className="block text-[#090d46]">{title}</strong><span className="mt-1 block text-xs leading-5 text-slate-500">{detail}</span></span>
+                <span><strong className="block text-[#090d46]">{title}</strong><span className="mt-1 block text-sm leading-5 text-slate-600">{detail}</span></span>
               </li>
             ))}
           </ol>

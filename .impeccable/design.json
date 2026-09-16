@@ -1,0 +1,429 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-16T10:25:46+10:00",
+  "title": "Design System: CPA Tools workspace",
+  "extensions": {
+    "colorMeta": {
+      "brand": {
+        "role": "primary",
+        "displayName": "Brand blue",
+        "tonalRamp": [
+          "oklch(15% 0.13844 253.372)",
+          "oklch(26% 0.13844 253.372)",
+          "oklch(38% 0.13844 253.372)",
+          "oklch(49% 0.13844 253.372)",
+          "oklch(61% 0.13844 253.372)",
+          "oklch(72% 0.13844 253.372)",
+          "oklch(84% 0.13844 253.372)",
+          "oklch(95% 0.13844 253.372)"
+        ]
+      },
+      "action-hover": {
+        "role": "primary",
+        "displayName": "Action hover blue",
+        "tonalRamp": [
+          "oklch(15% 0.11267 252.803)",
+          "oklch(26% 0.11267 252.803)",
+          "oklch(38% 0.11267 252.803)",
+          "oklch(49% 0.11267 252.803)",
+          "oklch(61% 0.11267 252.803)",
+          "oklch(72% 0.11267 252.803)",
+          "oklch(84% 0.11267 252.803)",
+          "oklch(95% 0.11267 252.803)"
+        ]
+      },
+      "workspace-navy": {
+        "role": "primary",
+        "displayName": "Workspace navy",
+        "tonalRamp": [
+          "oklch(15% 0.04427 260.950)",
+          "oklch(26% 0.04427 260.950)",
+          "oklch(38% 0.04427 260.950)",
+          "oklch(49% 0.04427 260.950)",
+          "oklch(61% 0.04427 260.950)",
+          "oklch(72% 0.04427 260.950)",
+          "oklch(84% 0.04427 260.950)",
+          "oklch(95% 0.04427 260.950)"
+        ]
+      },
+      "nav-surface": {
+        "role": "primary",
+        "displayName": "Navigation surface",
+        "tonalRamp": [
+          "oklch(15% 0.05305 257.960)",
+          "oklch(26% 0.05305 257.960)",
+          "oklch(38% 0.05305 257.960)",
+          "oklch(49% 0.05305 257.960)",
+          "oklch(61% 0.05305 257.960)",
+          "oklch(72% 0.05305 257.960)",
+          "oklch(84% 0.05305 257.960)",
+          "oklch(95% 0.05305 257.960)"
+        ]
+      },
+      "navy": {
+        "role": "primary",
+        "displayName": "Heading navy",
+        "tonalRamp": [
+          "oklch(15% 0.10359 270.311)",
+          "oklch(26% 0.10359 270.311)",
+          "oklch(38% 0.10359 270.311)",
+          "oklch(49% 0.10359 270.311)",
+          "oklch(61% 0.10359 270.311)",
+          "oklch(72% 0.10359 270.311)",
+          "oklch(84% 0.10359 270.311)",
+          "oklch(95% 0.10359 270.311)"
+        ]
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "White paper",
+        "tonalRamp": [
+          "oklch(15% 0.00000 0)",
+          "oklch(26% 0.00000 0)",
+          "oklch(38% 0.00000 0)",
+          "oklch(49% 0.00000 0)",
+          "oklch(61% 0.00000 0)",
+          "oklch(72% 0.00000 0)",
+          "oklch(84% 0.00000 0)",
+          "oklch(95% 0.00000 0)"
+        ]
+      },
+      "cyan-200": {
+        "role": "secondary",
+        "displayName": "Cyan navigation accent",
+        "tonalRamp": [
+          "oklch(39.8% 0.07 227.392)",
+          "oklch(45% 0.085 224.283)",
+          "oklch(52% 0.105 223.128)",
+          "oklch(60.9% 0.126 221.723)",
+          "oklch(71.5% 0.143 215.221)",
+          "oklch(86.5% 0.127 207.078)",
+          "oklch(91.7% 0.08 205.041)",
+          "oklch(98.4% 0.019 200.873)"
+        ]
+      },
+      "blue-50": {
+        "role": "secondary",
+        "displayName": "Pale blue",
+        "tonalRamp": [
+          "oklch(37.9% 0.146 265.522)",
+          "oklch(42.4% 0.199 265.638)",
+          "oklch(48.8% 0.243 264.376)",
+          "oklch(54.6% 0.245 262.881)",
+          "oklch(62.3% 0.214 259.815)",
+          "oklch(80.9% 0.105 251.813)",
+          "oklch(88.2% 0.059 254.128)",
+          "oklch(97% 0.014 254.604)"
+        ]
+      },
+      "slate-50": {
+        "role": "neutral",
+        "displayName": "Light slate",
+        "tonalRamp": [
+          "oklch(20.8% 0.042 265.755)",
+          "oklch(27.9% 0.041 260.031)",
+          "oklch(37.2% 0.044 257.287)",
+          "oklch(44.6% 0.043 257.281)",
+          "oklch(55.4% 0.046 257.417)",
+          "oklch(86.9% 0.022 252.894)",
+          "oklch(92.9% 0.013 255.508)",
+          "oklch(98.4% 0.003 247.858)"
+        ]
+      },
+      "slate-200": {
+        "role": "neutral",
+        "displayName": "Panel divider",
+        "tonalRamp": [
+          "oklch(20.8% 0.042 265.755)",
+          "oklch(27.9% 0.041 260.031)",
+          "oklch(37.2% 0.044 257.287)",
+          "oklch(44.6% 0.043 257.281)",
+          "oklch(55.4% 0.046 257.417)",
+          "oklch(86.9% 0.022 252.894)",
+          "oklch(92.9% 0.013 255.508)",
+          "oklch(98.4% 0.003 247.858)"
+        ]
+      },
+      "slate-300": {
+        "role": "neutral",
+        "displayName": "Field border / dark-shell detail",
+        "tonalRamp": [
+          "oklch(20.8% 0.042 265.755)",
+          "oklch(27.9% 0.041 260.031)",
+          "oklch(37.2% 0.044 257.287)",
+          "oklch(44.6% 0.043 257.281)",
+          "oklch(55.4% 0.046 257.417)",
+          "oklch(86.9% 0.022 252.894)",
+          "oklch(92.9% 0.013 255.508)",
+          "oklch(98.4% 0.003 247.858)"
+        ]
+      },
+      "slate-500": {
+        "role": "neutral",
+        "displayName": "Placeholder slate",
+        "tonalRamp": [
+          "oklch(20.8% 0.042 265.755)",
+          "oklch(27.9% 0.041 260.031)",
+          "oklch(37.2% 0.044 257.287)",
+          "oklch(44.6% 0.043 257.281)",
+          "oklch(55.4% 0.046 257.417)",
+          "oklch(86.9% 0.022 252.894)",
+          "oklch(92.9% 0.013 255.508)",
+          "oklch(98.4% 0.003 247.858)"
+        ]
+      },
+      "slate-600": {
+        "role": "neutral",
+        "displayName": "Secondary slate",
+        "tonalRamp": [
+          "oklch(20.8% 0.042 265.755)",
+          "oklch(27.9% 0.041 260.031)",
+          "oklch(37.2% 0.044 257.287)",
+          "oklch(44.6% 0.043 257.281)",
+          "oklch(55.4% 0.046 257.417)",
+          "oklch(86.9% 0.022 252.894)",
+          "oklch(92.9% 0.013 255.508)",
+          "oklch(98.4% 0.003 247.858)"
+        ]
+      },
+      "slate-700": {
+        "role": "neutral",
+        "displayName": "Body slate",
+        "tonalRamp": [
+          "oklch(20.8% 0.042 265.755)",
+          "oklch(27.9% 0.041 260.031)",
+          "oklch(37.2% 0.044 257.287)",
+          "oklch(44.6% 0.043 257.281)",
+          "oklch(55.4% 0.046 257.417)",
+          "oklch(86.9% 0.022 252.894)",
+          "oklch(92.9% 0.013 255.508)",
+          "oklch(98.4% 0.003 247.858)"
+        ]
+      },
+      "amber-50": {
+        "role": "secondary",
+        "displayName": "Pale amber feedback",
+        "tonalRamp": [
+          "oklch(41.4% 0.112 45.904)",
+          "oklch(47.3% 0.137 46.201)",
+          "oklch(55.5% 0.163 48.998)",
+          "oklch(66.6% 0.179 58.318)",
+          "oklch(76.9% 0.188 70.08)",
+          "oklch(87.9% 0.169 91.605)",
+          "oklch(92.4% 0.12 95.746)",
+          "oklch(98.7% 0.022 95.277)"
+        ]
+      },
+      "amber-800": {
+        "role": "secondary",
+        "displayName": "Amber feedback text",
+        "tonalRamp": [
+          "oklch(41.4% 0.112 45.904)",
+          "oklch(47.3% 0.137 46.201)",
+          "oklch(55.5% 0.163 48.998)",
+          "oklch(66.6% 0.179 58.318)",
+          "oklch(76.9% 0.188 70.08)",
+          "oklch(87.9% 0.169 91.605)",
+          "oklch(92.4% 0.12 95.746)",
+          "oklch(98.7% 0.022 95.277)"
+        ]
+      },
+      "red-50": {
+        "role": "secondary",
+        "displayName": "Pale red feedback",
+        "tonalRamp": [
+          "oklch(39.6% 0.141 25.723)",
+          "oklch(44.4% 0.177 26.899)",
+          "oklch(50.5% 0.213 27.518)",
+          "oklch(57.7% 0.245 27.325)",
+          "oklch(63.7% 0.237 25.331)",
+          "oklch(80.8% 0.114 19.571)",
+          "oklch(88.5% 0.062 18.334)",
+          "oklch(97.1% 0.013 17.38)"
+        ]
+      },
+      "red-800": {
+        "role": "secondary",
+        "displayName": "Red feedback text",
+        "tonalRamp": [
+          "oklch(39.6% 0.141 25.723)",
+          "oklch(44.4% 0.177 26.899)",
+          "oklch(50.5% 0.213 27.518)",
+          "oklch(57.7% 0.245 27.325)",
+          "oklch(63.7% 0.237 25.331)",
+          "oklch(80.8% 0.114 19.571)",
+          "oklch(88.5% 0.062 18.334)",
+          "oklch(97.1% 0.013 17.38)"
+        ]
+      },
+      "teal-700": {
+        "role": "secondary",
+        "displayName": "Teal feedback",
+        "tonalRamp": [
+          "oklch(38.6% 0.063 188.416)",
+          "oklch(43.7% 0.078 188.216)",
+          "oklch(51.1% 0.096 186.391)",
+          "oklch(60% 0.118 184.704)",
+          "oklch(70.4% 0.14 182.503)",
+          "oklch(85.5% 0.138 181.071)",
+          "oklch(91% 0.096 180.426)",
+          "oklch(98.4% 0.014 180.72)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Compact shared page title, not a promotional display role."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Result and empty-state titles."
+      },
+      "section": {
+        "displayName": "Section",
+        "purpose": "Form section and result-item headings."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Descriptions and helper copy."
+      },
+      "field": {
+        "displayName": "Field",
+        "purpose": "Full-size input text."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Sentence-case labels and task actions."
+      },
+      "chip": {
+        "displayName": "Chip",
+        "purpose": "Bold extra-small passive evidence labels."
+      },
+      "metadata": {
+        "displayName": "Metadata",
+        "purpose": "Brief labels, source attribution and timestamps."
+      }
+    },
+    "shadows": [
+      {
+        "name": "account-popover",
+        "value": "0 18px 46px rgba(9,13,70,.16)",
+        "purpose": "Elevated account overlay only; not a working-panel shadow."
+      },
+      {
+        "name": "account-trigger-hover",
+        "value": "0 5px 16px rgba(9,13,70,.07)",
+        "purpose": "Existing account trigger hover feedback."
+      }
+    ],
+    "motion": [
+      {
+        "name": "transition-colors",
+        "value": "150ms cubic-bezier(0.4, 0, 0.2, 1)",
+        "purpose": "Existing shared color feedback; reduced-motion variants disable transitions where implemented."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "md",
+        "value": "768px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px"
+      },
+      {
+        "name": "xl",
+        "value": "1280px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary action",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Shared task action with hover, keyboard focus and pending-disabled styling.",
+      "html": "<button class=\"ds-primary\" type=\"button\">Run smoke test</button>",
+      "css": ".ds-primary{display:inline-flex;min-height:48px;align-items:center;justify-content:center;gap:8px;border:0;border-radius:var(--r, 8px);background:var(--brand, #00539d);color:var(--paper, #ffffff);padding:12px 20px;font:700 14px/20px var(--sans, Avenir, \"Avenir Next\", \"Nunito Sans\", Helvetica, Arial, sans-serif);text-decoration:none;cursor:pointer;transition:background-color 150ms cubic-bezier(0.4,0,0.2,1),color 150ms cubic-bezier(0.4,0,0.2,1),border-color 150ms cubic-bezier(0.4,0,0.2,1);}.ds-primary:hover{background:#003f78}.ds-primary:focus-visible{outline:2px solid var(--brand, #00539d);outline-offset:2px}.ds-primary:disabled{cursor:wait;opacity:.6}@media(prefers-reduced-motion:reduce){.ds-primary{transition:none}}"
+    },
+    {
+      "name": "History search field",
+      "kind": "input",
+      "refersTo": "field",
+      "description": "Labelled full-width search field with the existing outlined search icon.",
+      "html": "<label class=\"ds-search\"><span class=\"ds-search-label\">Search audit history</span><svg class=\"ds-search-icon\" width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"11\" cy=\"11\" r=\"8\"></circle><path d=\"m21 21-4.3-4.3\"></path></svg><input class=\"ds-search-input\" type=\"search\" placeholder=\"Search history\"></label>",
+      "css": ".ds-search{position:relative;display:block;min-width:0;font-family:var(--sans, Avenir, \"Avenir Next\", \"Nunito Sans\", Helvetica, Arial, sans-serif)}.ds-search-label{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}.ds-search-icon{pointer-events:none;position:absolute;top:16px;left:12px;color:var(--color-slate-500, oklch(55.4% 0.046 257.417))}.ds-search-input{box-sizing:border-box;min-height:48px;width:100%;border:1px solid var(--color-slate-300, oklch(86.9% 0.022 252.894));border-radius:var(--r, 8px);background:var(--paper, #ffffff);padding:10px 12px 10px 40px;color:var(--navy, #090d46);font:400 16px/24px var(--sans, Avenir, \"Avenir Next\", \"Nunito Sans\", Helvetica, Arial, sans-serif);caret-color:var(--brand, #00539d)}.ds-search-input::placeholder{color:var(--color-slate-500, oklch(55.4% 0.046 257.417))}.ds-search-input:focus{border-color:var(--brand, #00539d);outline:2px solid var(--brand, #00539d);outline-offset:2px}.ds-search-input:disabled{cursor:not-allowed;background:var(--color-slate-50, oklch(98.4% 0.003 247.858));color:var(--color-slate-500, oklch(55.4% 0.046 257.417))}"
+    },
+    {
+      "name": "Workspace tool navigation",
+      "kind": "nav",
+      "refersTo": "nav-tool",
+      "description": "Dark toolbox surface with default and current tool rows; labels mirror existing navigation.",
+      "html": "<nav class=\"ds-tools\" aria-label=\"Workspace tools\"><a class=\"ds-tool\" href=\"/website-audit\" aria-current=\"page\"><span class=\"ds-tool-icon\"><svg width=\"19\" height=\"19\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m8 11 2 2 4-4\"></path><circle cx=\"11\" cy=\"11\" r=\"8\"></circle><path d=\"m21 21-4.3-4.3\"></path></svg></span><span class=\"ds-tool-copy\"><strong class=\"ds-tool-title\">Website audit</strong><small class=\"ds-tool-detail\">SEO, GEO, links and accessibility</small></span></a><a class=\"ds-tool\" href=\"https://search.google.com/search-console\" target=\"_blank\" rel=\"noreferrer\"><span class=\"ds-tool-copy\"><strong class=\"ds-tool-title\">Search Console</strong><small class=\"ds-tool-detail\">Indexing and URL inspection</small></span><svg class=\"ds-tool-external\" width=\"15\" height=\"15\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M15 3h6v6\"></path><path d=\"M10 14 21 3\"></path><path d=\"M21 14v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4\"></path></svg></a></nav>",
+      "css": ".ds-tools{display:grid;gap:6px;padding:20px 16px;background:#071226;color:var(--paper, #ffffff);font-family:var(--sans, Avenir, \"Avenir Next\", \"Nunito Sans\", Helvetica, Arial, sans-serif)}.ds-tool{display:flex;min-height:56px;align-items:center;gap:12px;border:1px solid transparent;border-radius:12px;padding:10px 12px;color:var(--paper, #ffffff);text-decoration:none;transition:background-color 150ms cubic-bezier(0.4,0,0.2,1),color 150ms cubic-bezier(0.4,0,0.2,1),border-color 150ms cubic-bezier(0.4,0,0.2,1);}.ds-tool-copy{min-width:0;flex:1}.ds-tool-title{display:block;font:800 14px/20px var(--sans, Avenir, \"Avenir Next\", \"Nunito Sans\", Helvetica, Arial, sans-serif);color:var(--paper, #ffffff)}.ds-tool-detail{display:block;margin-top:4px;font:400 12px/20px var(--sans, Avenir, \"Avenir Next\", \"Nunito Sans\", Helvetica, Arial, sans-serif);color:var(--color-slate-300, oklch(86.9% 0.022 252.894))}.ds-tool-external{flex-shrink:0;color:var(--color-slate-300, oklch(86.9% 0.022 252.894))}.ds-tool[aria-current=\"page\"]{border-color:color-mix(in oklab,var(--color-cyan-200, oklch(91.7% 0.08 205.041)) 40%,transparent);background:color-mix(in oklab,var(--color-cyan-200, oklch(91.7% 0.08 205.041)) 15%,transparent)}.ds-tool:hover{background:rgb(255 255 255 / .1)}.ds-tool:focus-visible{outline:2px solid var(--color-cyan-200, oklch(91.7% 0.08 205.041));outline-offset:2px}@media(prefers-reduced-motion:reduce){.ds-tool{transition:none}}.ds-tool-icon{display:grid;width:36px;height:36px;flex-shrink:0;place-items:center;border:1px solid rgb(255 255 255 / .15);border-radius:8px;background:#10213a;color:var(--color-cyan-200, oklch(91.7% 0.08 205.041))}"
+    },
+    {
+      "name": "Notice chips",
+      "kind": "chip",
+      "refersTo": "notice",
+      "description": "Passive evidence labels; notice and service-change variants use text as well as color.",
+      "html": "<div class=\"ds-notices\"><span class=\"ds-notice\">Notice</span><span class=\"ds-notice ds-notice-warning\">Service change</span></div>",
+      "css": ".ds-notices{display:flex;flex-wrap:wrap;gap:12px;font-family:var(--sans, Avenir, \"Avenir Next\", \"Nunito Sans\", Helvetica, Arial, sans-serif)}.ds-notice{display:inline-block;border-radius:6px;padding:4px 8px;background:var(--color-blue-50, oklch(97% 0.014 254.604));color:var(--brand, #00539d);font:700 12px/16px var(--sans, Avenir, \"Avenir Next\", \"Nunito Sans\", Helvetica, Arial, sans-serif)}.ds-notice-warning{background:var(--color-amber-50, oklch(98.7% 0.022 95.277));color:var(--color-amber-800, oklch(47.3% 0.137 46.201))}"
+    },
+    {
+      "name": "History empty-state card",
+      "kind": "card",
+      "refersTo": "panel",
+      "description": "Existing flat empty-state pattern with a clear route back to the task; no invented card-hover elevation.",
+      "html": "<section class=\"ds-empty\"><h2 class=\"ds-empty-title\">No audit history yet</h2><p class=\"ds-empty-copy\">Run a website audit to review its findings here.</p><a class=\"ds-empty-action\" href=\"/website-audit\">Run a website audit</a></section>",
+      "css": ".ds-empty{border:1px solid var(--color-slate-200, oklch(92.9% 0.013 255.508));border-radius:12px;background:var(--color-slate-50, oklch(98.4% 0.003 247.858));padding:40px 24px;font-family:var(--sans, Avenir, \"Avenir Next\", \"Nunito Sans\", Helvetica, Arial, sans-serif)}.ds-empty-title{margin:0;color:var(--navy, #090d46);font:700 20px/28px var(--sans, Avenir, \"Avenir Next\", \"Nunito Sans\", Helvetica, Arial, sans-serif)}.ds-empty-copy{max-width:65ch;margin:8px 0 20px;color:var(--color-slate-600, oklch(44.6% 0.043 257.281));font:400 14px/24px var(--sans, Avenir, \"Avenir Next\", \"Nunito Sans\", Helvetica, Arial, sans-serif)}.ds-empty-action{display:inline-flex;min-height:48px;align-items:center;justify-content:center;gap:8px;border:0;border-radius:var(--r, 8px);background:var(--brand, #00539d);color:var(--paper, #ffffff);padding:12px 20px;font:700 14px/20px var(--sans, Avenir, \"Avenir Next\", \"Nunito Sans\", Helvetica, Arial, sans-serif);text-decoration:none;cursor:pointer;transition:background-color 150ms cubic-bezier(0.4,0,0.2,1),color 150ms cubic-bezier(0.4,0,0.2,1),border-color 150ms cubic-bezier(0.4,0,0.2,1);}.ds-empty-action:hover{background:#003f78}.ds-empty-action:focus-visible{outline:2px solid var(--brand, #00539d);outline-offset:2px}.ds-empty-action:disabled{cursor:wait;opacity:.6}@media(prefers-reduced-motion:reduce){.ds-empty-action{transition:none}}"
+    }
+  ],
+  "narrative": {
+    "northStar": "CPA Tools workspace",
+    "overview": "The CPA Tools workspace is a compact tools workbench: navy navigation frames white working surfaces, with blue actions and cyan navigation accents. The refinement preserves the incumbent identity and Tailwind implementation rather than introducing a new visual concept.\n\nHierarchy comes from compact task headings, readable descriptions, single-border panels and explicit control states. The shared shell supports finding a tool and inspecting its evidence without promotional scale or decorative motion. Native disclosures contain secondary configuration, while embedded evidence uses dividers rather than redundant enclosing panels.",
+    "keyCharacteristics": [
+      "Navy navigation and white content.",
+      "Compact task hierarchy with the existing sans-serif stack.",
+      "Single-border panels and generous control targets.",
+      "Explicit active, pending and unavailable states."
+    ],
+    "rules": [
+      {
+        "name": "The Shell and Paper Rule",
+        "body": "Keep navy on navigation and white on working content, including the daily-brief gutters.",
+        "section": "colors"
+      },
+      {
+        "name": "The Compact Heading Rule",
+        "body": "Use the shared page heading, not the legacy promotional hero ramp, for workspace tool pages.",
+        "section": "typography"
+      },
+      {
+        "name": "The Border Before Shadow Rule",
+        "body": "Use single borders for shared working panels; reserve overlay elevation for navigation surfaces.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do preserve navy navigation, white working surfaces and cyan navigation accents.",
+      "Do reuse shared page headings, fields and primary actions through Tailwind utilities.",
+      "Do keep evidence, coverage limits and unavailable states visible in plain language.",
+      "Do use one border on shared panels and visible offset keyboard outlines on controls.",
+      "Do preserve the established sans-serif stack and existing compact type hierarchy."
+    ],
+    "donts": [
+      "Don't invent a new identity, display face or promotional hero for the workbench.",
+      "Don't turn legacy report CSS, uppercase kickers or tiny report labels into shared design rules.",
+      "Don't flatten warning, error and unavailable evidence into a successful state.",
+      "Don't use data-specific train colors or operator-local color deviations as workspace brand tokens.",
+      "Don't claim report CSS migration or uniformly verified accessibility and reduced-motion coverage."
+    ]
+  }
+}

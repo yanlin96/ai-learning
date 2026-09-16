@@ -40,7 +40,7 @@ function findSignature(buffer: Buffer, signature: number) {
   return -1;
 }
 
-async function findMetroRoutesEntry(): Promise<ZipEntry> {
+async function findMetroRoutesEntry(archivePath = METRO_ARCHIVE_PATH): Promise<ZipEntry> {
   const head = await fetch(GTFS_URL, { method: "HEAD", next: { revalidate: 604800 } });
   const fileSize = Number(head.headers.get("content-length"));
   if (!head.ok || !Number.isFinite(fileSize)) throw new Error("Unable to read Transport Victoria GTFS metadata");
@@ -71,7 +71,7 @@ async function findMetroRoutesEntry(): Promise<ZipEntry> {
     const localOffset = directory.readUInt32LE(offset + 42);
     const name = directory.subarray(offset + 46, offset + 46 + nameLength).toString("utf8");
     const normalisedName = name.replaceAll("\\", "/");
-    if (normalisedName === METRO_ARCHIVE_PATH || normalisedName.endsWith(`/${METRO_ARCHIVE_PATH}`)) {
+    if (normalisedName === archivePath || normalisedName.endsWith(`/${archivePath}`)) {
       return { method, compressedSize, localOffset };
     }
     offset += 46 + nameLength + extraLength + commentLength;
@@ -91,7 +91,7 @@ async function extractEntry(entry: ZipEntry) {
   throw new Error(`Unsupported GTFS ZIP compression method ${entry.method}`);
 }
 
-function extractRoutesFromMetroArchive(archive: Buffer) {
+function extractRoutesFromMetroArchive(archive: Buffer, fileName = "routes.txt") {
   const eocd = findSignature(archive, EOCD_SIGNATURE);
   if (eocd < 0) throw new Error("Invalid metropolitan GTFS archive");
   const directorySize = archive.readUInt32LE(eocd + 12);
@@ -108,7 +108,7 @@ function extractRoutesFromMetroArchive(archive: Buffer) {
     const localOffset = directory.readUInt32LE(offset + 42);
     const name = directory.subarray(offset + 46, offset + 46 + nameLength).toString("utf8").replaceAll("\\", "/");
 
-    if (name === "routes.txt" || name.endsWith("/routes.txt")) {
+    if (name === fileName || name.endsWith(`/${fileName}`)) {
       if (archive.readUInt32LE(localOffset) !== LOCAL_SIGNATURE) throw new Error("Invalid routes.txt entry");
       const localNameLength = archive.readUInt16LE(localOffset + 26);
       const localExtraLength = archive.readUInt16LE(localOffset + 28);
@@ -183,4 +183,44 @@ export function getTrainLines(): Promise<TrainLine[]> {
 
 export async function findTrainLine(id: string) {
   return (await getTrainLines()).find((line) => line.id === id);
+}
+
+export type RegionalSchedule = {
+  lines: TrainLine[];
+  trips: Map<string, { routeId: string; headsign: string }>;
+  stops: Map<string, string>;
+  routes: Map<string, string>;
+};
+
+let regionalCache: Promise<RegionalSchedule> | undefined;
+
+/** Regional rail only (folder 1); coaches in folder 5 are intentionally excluded. */
+export function getRegionalSchedule(): Promise<RegionalSchedule> {
+  regionalCache ??= (async () => {
+    const archive = await extractEntry(await findMetroRoutesEntry("1/google_transit.zip"));
+    const records = (file: string) => {
+      const rows = parseCsv(extractRoutesFromMetroArchive(archive, file));
+      const headers = rows.shift()?.map((header) => header.replace(/^\uFEFF/, "")) ?? [];
+      return rows.map((row) => Object.fromEntries(headers.map((key, index) => [key, row[index] ?? ""])));
+    };
+    const routes = new Map<string, string>();
+    const byName = new Map<string, TrainLine>();
+    for (const row of records("routes.txt")) {
+      const name = row.route_long_name || row.route_short_name;
+      if (!name || row.route_type !== "2" || /replacement\s+bus|coach/i.test(name)) continue;
+      const id = `vline-${slug(name)}`;
+      routes.set(row.route_id, id);
+      const current = byName.get(name);
+      if (current) current.routeCodes.push(row.route_id);
+      else byName.set(name, { id, name, routeCodes: [row.route_id], color: "#773f98" });
+    }
+    return {
+      lines: [...byName.values()].sort((a, b) => a.name.localeCompare(b.name)),
+      routes,
+      trips: new Map(records("trips.txt").filter((row) => routes.has(row.route_id))
+        .map((row) => [row.trip_id, { routeId: row.route_id, headsign: row.trip_headsign }])),
+      stops: new Map(records("stops.txt").map((row) => [row.stop_id, row.stop_name])),
+    };
+  })().catch((error) => { regionalCache = undefined; throw error; });
+  return regionalCache;
 }

@@ -26,7 +26,7 @@ export function DailyBrief() {
     return () => controller.abort();
   }, []);
 
-  if (!data) return <div className="daily-brief loading" aria-label="Loading Melbourne daily brief"><span /><span /></div>;
+  if (!data) return <div className="grid min-h-16 grid-cols-2 gap-6 rounded-xl border border-slate-200 p-4" role="status" aria-label="Loading Melbourne daily brief"><span className="h-6 rounded bg-slate-100 motion-safe:animate-pulse" /><span className="h-6 rounded bg-slate-100 motion-safe:animate-pulse" /></div>;
 
   const WeatherIcon = data.weather ? WEATHER_ICONS[data.weather.tone] : Cloud;
   const trainTone = data.train.requiresAuth ? "unknown" : data.train.unavailable ? "unknown" : data.train.count ? "warning" : "clear";
@@ -42,18 +42,17 @@ export function DailyBrief() {
         : "Running normally";
 
   return (
-    <aside className="daily-brief" aria-label="Melbourne weather and Werribee Line status">
-      <div className="brief-item weather-item">
-        <span className={`brief-icon ${data.weather?.tone || "unknown"}`}><WeatherIcon size={18} /></span>
-        <div><small>MELBOURNE WEATHER</small>{data.weather ? <strong>{data.weather.temperature}° · {data.weather.condition} <em>{data.weather.low}–{data.weather.high}°</em></strong> : <strong>Weather temporarily unavailable</strong>}</div>
+    <aside className="grid items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 text-sm sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] sm:gap-5 sm:px-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]" aria-label="Melbourne weather and Werribee Line status">
+      <div className="flex min-w-0 items-center gap-3">
+        <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-blue-50 text-[#00539d]"><WeatherIcon size={18} aria-hidden="true" /></span>
+        <div className="min-w-0"><span className="block text-xs text-slate-600">Melbourne weather</span>{data.weather ? <strong className="mt-1 block text-sm text-[#090d46]">{data.weather.temperature}° · {data.weather.condition} <span className="font-normal text-slate-600">{data.weather.low}–{data.weather.high}°</span></strong> : <strong className="block text-sm text-slate-600">Weather temporarily unavailable</strong>}</div>
       </div>
-      <i className="brief-divider" />
-      <Link className="brief-item train-item" href="/disruptions" title={data.train.preview || undefined}>
-        <span className={`brief-icon ${trainTone}`}><TrainFront size={18} /></span>
-        <div><small>WERRIBEE LINE</small><strong className={trainTone}><TrainIcon size={13} /> {trainText}</strong></div>
-        <ChevronRight size={16} />
+      <Link className="flex min-h-11 min-w-0 items-center gap-3 rounded-lg text-[#090d46] no-underline hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#00539d] sm:border-l sm:border-slate-200 sm:pl-5" href="/disruptions" title={data.train.preview || undefined}>
+        <span className={`grid size-9 shrink-0 place-items-center rounded-lg ${trainTone === "warning" ? "bg-amber-50 text-amber-800" : "bg-blue-50 text-[#00539d]"}`}><TrainFront size={18} aria-hidden="true" /></span>
+        <div className="min-w-0"><span className="block text-xs text-slate-600">Werribee Line</span><strong className={`mt-1 flex items-center gap-1.5 text-sm ${trainTone === "warning" ? "text-amber-800" : "text-[#090d46]"}`}><TrainIcon className="shrink-0" size={14} aria-hidden="true" /> {trainText}</strong></div>
+        <ChevronRight className="ml-auto shrink-0 text-slate-500" size={16} aria-hidden="true" />
       </Link>
-      <a className="brief-source" href={data.sources.weather} target="_blank" rel="noreferrer">Weather by Open-Meteo</a>
+      <a className="text-xs text-slate-600 underline sm:col-span-2 sm:justify-self-end lg:col-span-1" href={data.sources.weather} target="_blank" rel="noreferrer">Weather by Open-Meteo</a>
     </aside>
   );
 }

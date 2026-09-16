@@ -44,8 +44,8 @@ export default async function DisruptionsPage({
 
 
       <PageContent>
-        <PageHeading eyebrow="Melbourne train status" title={<>Find your line.<br/>Know before you <em>go.</em></>}
-          description="Search any metropolitan train line and check the service changes, planned works, and station notices that could affect your trip."/>
+        <PageHeading title="Train line status"
+          description="Metro service and station notices, or V/Line regional train predictions. Check the evidence before you travel."/>
 
         <TrainStatusSearch
           lines={lines}

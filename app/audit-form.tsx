@@ -5,6 +5,7 @@ import { ArrowRight, CheckCircle2, ExternalLink, Link2Off, LoaderCircle, Search,
 import type { AuditFinding, WebsiteAudit } from "@/lib/website-audit";
 import { CATEGORY_LABEL, SEVERITY_LABEL, SEVERITY_ORDER, type QualityFinding } from "@/lib/audit-findings";
 import { recordAuditRun } from "@/lib/audit-history";
+import { primaryActionClass } from "@/app/tool-ui";
 
 function FindingRow({ finding }: { finding: QualityFinding }) {
   return (
@@ -83,19 +84,19 @@ export function AuditForm() {
 
   return (
     <>
-      <form className="rounded-2xl border border-[#cbdcf0] bg-white p-5 shadow-[0_12px_36px_rgba(9,13,70,.07)] sm:p-7" onSubmit={submit}>
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-2"><strong className="text-base text-[#090d46]">Start your website check</strong><small className="text-xs text-slate-500">Usually takes about a minute</small></div>
-        <label className="mb-2 block text-xs font-extrabold text-[#00539d]" htmlFor="audit-url">Website URL</label>
-        <div className="flex flex-wrap items-center gap-3 rounded-xl border-2 border-[#b9c9da] bg-white p-2 pl-4 transition focus-within:border-[#00539d] focus-within:ring-4 focus-within:ring-blue-100">
+      <form className="rounded-xl border border-slate-200 bg-white p-5 sm:p-6" onSubmit={submit} aria-busy={loading}>
+        <div className="mb-5 flex flex-wrap items-center justify-between gap-2"><h2 className="m-0 text-base font-bold text-[#090d46]">Start your website check</h2><span className="text-sm text-slate-600">Usually takes about a minute</span></div>
+        <label className="mb-2 block text-sm font-bold text-[#090d46]" htmlFor="audit-url">Website URL</label>
+        <div className="flex flex-wrap items-center gap-3 rounded-lg border border-slate-300 bg-white p-2 pl-4 focus-within:border-[#00539d] focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-[#00539d]">
           <Search className="shrink-0 text-slate-400" size={19} />
-          <input className="h-11 min-w-0 flex-1 border-0 bg-transparent text-base text-slate-800 outline-none" ref={inputRef} id="audit-url" type="text" inputMode="url" autoComplete="url" aria-describedby="audit-scope" placeholder="https://your-website.com" value={url} onChange={(event) => setUrl(event.target.value)} required disabled={loading} />
-          <button className="inline-flex min-h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-lg border-0 bg-[#00539d] px-6 text-sm font-extrabold text-white transition hover:bg-[#084697] disabled:cursor-wait disabled:opacity-60 sm:w-auto" type="submit" disabled={loading}>{loading ? <LoaderCircle className="animate-spin" size={17} /> : null}{loading ? "Checking website…" : "Check my website"}{!loading ? <ArrowRight size={17} /> : null}</button>
+          <input className="h-11 min-w-0 flex-1 border-0 bg-transparent text-base text-slate-800 outline-none placeholder:text-slate-500" ref={inputRef} id="audit-url" type="text" inputMode="url" autoComplete="url" aria-describedby="audit-scope" placeholder="https://your-website.com" value={url} onChange={(event) => setUrl(event.target.value)} required disabled={loading} />
+          <button className={primaryActionClass + " w-full sm:w-auto"} type="submit" disabled={loading}>{loading ? <LoaderCircle className="animate-spin motion-reduce:animate-none" size={17} /> : null}{loading ? "Checking website…" : "Check my website"}{!loading ? <ArrowRight size={17} /> : null}</button>
         </div>
-        <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-slate-500">
+        <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-slate-600">
           <span>Just exploring?</span>
-          <button className="cursor-pointer border-0 bg-transparent p-0 text-xs font-bold text-[#00539d] underline underline-offset-2 disabled:opacity-50" type="button" disabled={loading} onClick={() => { setUrl("https://example.com"); inputRef.current?.focus(); }}>Try example.com</button>
+          <button className="min-h-11 cursor-pointer rounded-md border-0 bg-transparent px-1 text-sm font-bold text-[#00539d] underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-[#00539d] disabled:opacity-50" type="button" disabled={loading} onClick={() => { setUrl("https://example.com"); inputRef.current?.focus(); }}>Try example.com</button>
         </div>
-        <p className="mt-3 mb-0 text-xs leading-5 text-slate-500" id="audit-scope">Checks one public page and up to 80 links. Nothing is changed on the website.</p>
+        <p className="mt-2 mb-0 text-sm leading-6 text-slate-600" id="audit-scope">Checks one public page and up to 80 links. Nothing is changed on the website.</p>
       </form>
       {loading && (
         <div className="mt-4 rounded-xl border border-blue-100 bg-blue-50 p-5" role="status" aria-live="polite">
@@ -106,13 +107,12 @@ export function AuditForm() {
       {historyWarning && <p className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900" role="status">{historyWarning}</p>}
       {report && (
         <section className="audit-report" aria-live="polite">
-          <div className="audit-report-head">
-            <div><p className="eyebrow">AUDIT COMPLETE</p><h2>{report.page.title || new URL(report.finalUrl).hostname}</h2></div>
-            <a href={report.finalUrl} target="_blank" rel="noreferrer">Open page <ExternalLink size={14} /></a>
+          <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+            <h2 className="m-0 min-w-0 text-2xl font-bold break-words text-[#090d46]">{report.page.title || new URL(report.finalUrl).hostname}</h2>
+            <a className="inline-flex min-h-11 shrink-0 items-center gap-2 text-sm font-bold text-[#00539d] underline" href={report.finalUrl} target="_blank" rel="noreferrer">Open page <ExternalLink size={14} /></a>
           </div>
-          <article className={`audit-verdict ${report.qualityReport.findings.length ? "attention" : "clear"}`}>
-            <span>{report.qualityReport.findings.length}</span>
-            <div><p className="label">WHAT TO DO NEXT</p><h3>{report.qualityReport.findings.length ? "Your website is working, but a few issues deserve attention." : "The checks that ran found a healthy foundation."}</h3><p>{report.qualityReport.firstActions[0] || "Review the evidence coverage below, then keep monitoring after future releases."}</p></div>
+          <article className={`mb-5 rounded-xl p-5 ${report.qualityReport.findings.length ? "bg-amber-50 text-amber-900" : "bg-teal-50 text-teal-900"}`}>
+            <h3 className="m-0 text-lg leading-7 font-bold text-inherit">{report.qualityReport.findings.length ? `${report.qualityReport.findings.length} confirmed findings to review` : "The checks that ran found a healthy foundation."}</h3><p className="mt-2 mb-0 text-sm leading-6">{report.qualityReport.firstActions[0] || "Review the evidence coverage below, then keep monitoring after future releases."}</p>
           </article>
           <div className="audit-score-grid">
             <article title={report.seo.methodology}><span>Technical SEO</span><strong>{report.seo.score}</strong><small>/ 100 · {report.seo.rating}</small><em>{report.seo.confidence} confidence</em></article>
@@ -121,7 +121,7 @@ export function AuditForm() {
             <article><span>JS dependency</span><strong>{report.page.javascriptDependencyPercent === null ? "—" : `${report.page.javascriptDependencyPercent}%`}</strong><small>{report.page.rendering === "complete" ? "rendered comparison" : "browser unavailable"}</small></article>
           </div>
           <p className="score-disclaimer">Scores are weighted diagnostics, not Google rankings. Confidence reflects browser rendering, robots availability, and checked-link coverage.</p>
-          {report.summary && <article className="audit-summary"><p className="label">AI SUMMARY</p><p>{report.summary}</p></article>}
+          {report.summary && <article className="my-5 rounded-xl bg-blue-50 p-5 text-[#090d46]"><h3 className="m-0 text-base font-bold">AI summary</h3><p className="mt-2 mb-0 text-sm leading-6">{report.summary}</p></article>}
 
           <article className={`audit-panel broken-panel${report.links.broken.length ? " has-issues" : ""}`}>
             <div className="link-panel-head">

@@ -1,6 +1,7 @@
 node_modules
 .next
 .next-workspace-check
+.impeccable/review/
 .env*
 !.env.example
 .evn.local

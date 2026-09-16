@@ -1,8 +1,16 @@
 # Progress
 
-Last updated: 2026-09-15
+Last updated: 2026-09-16
 
 ## Working now
+
+- Application sign-out returns to a paused signed-out login state rather than immediately restarting Okta authentication. Explicit sign-in and normal protected-page auto-login remain available; Okta SSO and both session lifetimes are unchanged.
+
+- Impeccable workspace refinement preserves navy chrome/white content while replacing promotional tool headings with compact task titles. Navigation/account text is more readable, active links expose `aria-current`, and the mobile toolbox manages initial focus, Tab containment and Escape return. Shared Tailwind fields, actions, history search/empty states, smoke scope/outcome and Metro notice layouts leave auth, storage and transport classification unchanged. Detailed audit tables retain legacy CSS for incremental migration.
+
+- Smoke scope keeps preset selection and its run action visible on a 390×844 mobile viewport, with priority URLs/custom limit in an accessible disclosure. Embedded history URL explorers stack full-width search and filters without an extra panel; train-source recovery is visible in the first viewport. The synthetic browser check verifies 17 desktop/mobile/state captures, single document/account/brief loads across client navigation, focus/overflow, pagination/filtering and pending/error/report rendering.
+
+- Train lookup now switches between existing Metro alerts and official V/Line regional predictions. Regional rail catalog, exact trip/route matching, next reported stops, supplied delays, feed freshness, refresh and incremental result expansion are implemented. Missing/stale data is explicit; official notice links cover the feed's lack of disruption/coach data. Reminder/Telegram scope is unchanged.
 
 - The three visible tools (Audit, Smoke, train lookup) and two histories use shared Tailwind page templates with aligned width/gutters/title/description/spacing. Train lookup no longer duplicates header account/sign-out actions; its protected data workflow is unchanged.
 
@@ -69,6 +77,10 @@ Last updated: 2026-09-15
 Develop in small user-requested increments. The next likely product milestone is scheduling, but `docs/BACKLOG.md` is not authorization to start it.
 
 ## Verification baseline
+
+2026-09-16 logout: type checking, isolated production build and 44 unit tests pass. `node scripts/verify-signout.cjs` uses a synthetic session with real Auth.js logout to verify session removal, business API 401, paused logout/reload, explicit restart, normal protected-page automatic login, error pause and desktop/mobile overflow. OAuth initiation is intercepted; no real Okta login or provider logout is performed.
+
+2026-09-16 regional lookup: 44 tests, isolated production build and type checking pass. Official authenticated HTTP checks return 18 Metro lines, 13 regional rail routes, preserved Mernda parking notices with year-inclusive Melbourne periods, and matched Geelong predictions with a fresh feed and no unmatched trip IDs in the sampled responses. The new API denies anonymous access. Fixture-session desktop/390px browser checks and inspected screenshots show no overflow/client exceptions; full selected route name is readable. Impeccable's engine/detector was unavailable, so its inline fallback review was used; no independent automated design audit is claimed. No reminder records, real Okta users or Telegram sends were changed.
 
 2026-09-15 page templates: 38 tests, isolated production build and type checking pass. Fixture-session browser checks cover all five visible routes with matching 1080px content width and top/left origin, one heading/footer, no duplicate train account and no mobile overflow/client exceptions. Smoke desktop screenshot inspected; train source credentials were unset for unavailable-data checks, without an external crawl or data mutation.
 
