@@ -1,5 +1,9 @@
 # Decisions
 
+## 2026-09-16 — Keep accessibility estimate as a separate tool
+
+Use `/accessibility` and its own protected API rather than adding accessibility as another Website Audit score. Expose a 0–100 estimate derived from deterministic DOM findings, weighted by finding severity. Use the rendered DOM when available and reduce confidence when only initial HTML can be inspected. Keep untested contrast, keyboard, focus order, zoom and assistive-technology behaviour visible as manual coverage gaps. The estimate is diagnostic prioritisation, not WCAG certification, and does not trigger link, SEO, crawler or OpenAI work.
+
 ## 2026-09-16 — Stop automatic re-login after application logout
 
 Sign out of CPA Tools only, retaining the Okta SSO session and its configured lifetime. Return to `/login?signedOut=1` with an explicit Continue with Okta action. Normal protected-page visits retain automatic Okta handoff; error states never auto-retry. Do not introduce global Okta logout or change application session lifetime without a separate request.

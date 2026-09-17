@@ -1,12 +1,11 @@
 import "server-only";
 
-import { existsSync } from "node:fs";
 import * as cheerio from "cheerio";
-import { assertPublicUrl, normalizePublicUrl, safePublicFetch } from "@/lib/public-web";
+import { normalizePublicUrl, safePublicFetch } from "@/lib/public-web";
+import { renderPublicPage } from "@/lib/public-page-renderer";
 import { classifyLinkStatus } from "@/lib/link-status";
 import { isCrawlerAllowed } from "@/lib/robots";
 import { scoreAiVisibility, scoreSeo, type AuditScore } from "@/lib/audit-scoring";
-import { auditAccessibility } from "@/lib/accessibility-audit";
 import { auditContentFreshness, readExclusionPatterns } from "@/lib/content-freshness";
 import {
   capContextualFinding,
@@ -239,50 +238,6 @@ async function inspectLink(candidate: LinkCandidate, pageOrigin: string): Promis
   }
 }
 
-function localChromePath() {
-  if (process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH) return process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH;
-  const roots = [process.env.PROGRAMFILES, process.env["PROGRAMFILES(X86)"], process.env.LOCALAPPDATA].filter(Boolean);
-  const suffixes = ["Google\\Chrome\\Application\\chrome.exe", "Microsoft\\Edge\\Application\\msedge.exe"];
-  for (const root of roots) for (const suffix of suffixes) {
-    const candidate = `${root}\\${suffix}`;
-    if (existsSync(candidate)) return candidate;
-  }
-  return null;
-}
-
-async function renderPage(url: URL) {
-  const [{ chromium: playwrightChromium }, sparticuz] = await Promise.all([
-    import("playwright-core"),
-    import("@sparticuz/chromium"),
-  ]);
-  const executablePath = process.env.VERCEL ? await sparticuz.default.executablePath() : localChromePath();
-  if (!executablePath) throw new Error("No local Chrome or Edge executable found");
-  const browser = await playwrightChromium.launch({
-    executablePath,
-    headless: true,
-    args: process.env.VERCEL ? sparticuz.default.args : [],
-  });
-  try {
-    const page = await browser.newPage();
-    await page.route("**/*", async (route) => {
-      try {
-        const requestUrl = new URL(route.request().url());
-        if (!["http:", "https:"].includes(requestUrl.protocol)) return route.continue();
-        await assertPublicUrl(requestUrl);
-        return route.continue();
-      } catch {
-        return route.abort("blockedbyclient");
-      }
-    });
-    await page.goto(url.href, { waitUntil: "domcontentloaded", timeout: 15_000 });
-    await page.waitForLoadState("load", { timeout: 5_000 }).catch(() => undefined);
-    await page.waitForTimeout(750);
-    return { html: await page.content(), textLength: (await page.locator("body").innerText()).trim().length };
-  } finally {
-    await browser.close();
-  }
-}
-
 /**
  * Broken-link severity separates "our page is wrong" from "their server blipped".
  * The requirement calls out legitimate external outages as the main false-positive
@@ -419,8 +374,8 @@ function pageHealthFindings(input: {
   return findings;
 }
 
-const CONTEXTUAL_CATEGORIES: FindingCategory[] = ["content-quality", "expired-content", "accessibility", "seo"];
-const CONTEXTUAL_OWNERS: FindingOwner[] = ["Content", "Design/Accessibility", "Web Publishing", "Engineering"];
+const CONTEXTUAL_CATEGORIES: FindingCategory[] = ["content-quality", "expired-content", "seo"];
+const CONTEXTUAL_OWNERS: FindingOwner[] = ["Content", "Web Publishing", "Engineering"];
 const SEVERITIES: Severity[] = ["critical", "high", "medium", "low"];
 const CONFIDENCES: Confidence[] = ["high", "medium", "low"];
 
@@ -490,9 +445,9 @@ async function addContextualFindings(report: WebsiteAudit, pageText: string): Pr
       model: process.env.OPENAI_MODEL || "gpt-5.4-mini",
       instructions: `You review published web page copy for a professional membership body.
 Return ONLY a JSON array. Each element must be an object with these string fields:
-category (one of "content-quality", "expired-content", "accessibility", "seo"),
+category (one of "content-quality", "expired-content", "seo"),
 severity (one of "medium", "low"), confidence (one of "medium", "low"),
-element, evidence, impact, fix, owner (one of "Content", "Design/Accessibility", "Web Publishing", "Engineering").
+element, evidence, impact, fix, owner (one of "Content", "Web Publishing", "Engineering").
 
 Rules:
 - Quote the page's own wording in "evidence". Never invent text that is not in the supplied content.
@@ -500,6 +455,7 @@ Rules:
 - Do NOT flag historical content, past events, prior-year reports, or superseded regulatory references as defects. A professional body publishes these deliberately.
 - Only flag a date as expired when the page presents it as a live deadline or offer.
 - Do not repeat findings already listed in "existingFindings".
+- Do not assess accessibility here; it is handled by the separate Accessibility tool.
 - Do not comment on anything you cannot see in the supplied text.
 - "fix" must be a specific edit an author can make, not general advice.`,
       input: JSON.stringify({
@@ -571,7 +527,7 @@ export async function auditWebsite(input: string): Promise<WebsiteAudit> {
   let renderingNote: string | undefined;
   let renderedHtml = "";
   try {
-    const rendered = await renderPage(finalUrl);
+    const rendered = await renderPublicPage(finalUrl);
     renderedTextLength = rendered.textLength;
     renderedHtml = rendered.html;
     for (const [href, candidate] of collectLinks(rendered.html, finalUrl, "rendered")) {
@@ -688,7 +644,6 @@ export async function auditWebsite(input: string): Promise<WebsiteAudit> {
   // because content injected by JavaScript is what a member actually sees.
   const contentHtml = renderedHtml || html;
   const contentText = renderedHtml ? visibleText(renderedHtml) : rawText;
-  const accessibilityFindings = auditAccessibility(renderedHtml ? cheerio.load(renderedHtml) : $);
   const freshness = auditContentFreshness(
     contentText,
     finalUrl.href,
@@ -698,7 +653,6 @@ export async function auditWebsite(input: string): Promise<WebsiteAudit> {
 
   const deterministicFindings = sortFindings([
     ...broken.map(brokenLinkFinding),
-    ...accessibilityFindings,
     ...freshness.findings,
     ...pageHealthFindings({
       title,
@@ -713,8 +667,6 @@ export async function auditWebsite(input: string): Promise<WebsiteAudit> {
   const verified: string[] = [
     `Page responded with HTTP ${response.status} and returned HTML.`,
     `${checkedLinks.length} of ${discovered.size} discovered links tested for HTTP status.`,
-    `${cheerio.load(contentHtml)("img").length} images inspected for alt attributes.`,
-    "Heading hierarchy, form labels, link labels, and document language read from the DOM.",
     "Title, meta description, canonical, and robots directives read from the response.",
     `robots.txt permissions and live access tested for ${crawlers.length} AI crawlers.`,
     renderedTextLength !== null
@@ -723,7 +675,6 @@ export async function auditWebsite(input: string): Promise<WebsiteAudit> {
   ];
 
   const notVerified: string[] = [
-    "Colour contrast, keyboard navigation, and focus order (require interactive testing).",
     "Core Web Vitals and other performance metrics.",
     "Mobile and responsive rendering behaviour.",
     "Structured data validity beyond the presence of JSON-LD blocks.",

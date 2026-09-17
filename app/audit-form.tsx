@@ -120,7 +120,7 @@ export function AuditForm() {
             <article><span>Broken links</span><strong>{report.links.broken.length}</strong><small>of {report.links.checked} checked</small></article>
             <article><span>JS dependency</span><strong>{report.page.javascriptDependencyPercent === null ? "—" : `${report.page.javascriptDependencyPercent}%`}</strong><small>{report.page.rendering === "complete" ? "rendered comparison" : "browser unavailable"}</small></article>
           </div>
-          <p className="score-disclaimer">Scores are weighted diagnostics, not Google rankings. Confidence reflects browser rendering, robots availability, and checked-link coverage.</p>
+          <p className="score-disclaimer">Scores are weighted diagnostics, not rankings. Confidence reflects browser rendering, robots availability and checked-link coverage.</p>
           {report.summary && <article className="my-5 rounded-xl bg-blue-50 p-5 text-[#090d46]"><h3 className="m-0 text-base font-bold">AI summary</h3><p className="mt-2 mb-0 text-sm leading-6">{report.summary}</p></article>}
 
           <article className={`audit-panel broken-panel${report.links.broken.length ? " has-issues" : ""}`}>

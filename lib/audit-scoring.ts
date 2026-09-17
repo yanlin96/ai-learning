@@ -8,6 +8,10 @@ export type AuditScore = {
   methodology: string;
 };
 
+type AccessibilityFinding = {
+  severity: "critical" | "high" | "medium" | "low";
+};
+
 type SeoScoreInput = {
   noindex: boolean;
   titleLength: number;
@@ -102,5 +106,17 @@ export function scoreAiVisibility(input: AiScoreInput): AuditScore {
     rating: rating(finalScore),
     confidence: confidence(input.renderingComplete, robotsKnown, input.linksDiscovered, input.linksChecked),
     methodology: "Weighted readiness signals: search-crawler access 50%, initial HTML and JavaScript dependency 35%, indexability and structured content 15%. Training-bot permission is not scored.",
+  };
+}
+
+/** Estimates only deterministic DOM signals; this is not a compliance result. */
+export function scoreAccessibility(findings: AccessibilityFinding[], renderingComplete: boolean): AuditScore {
+  const deduction = { critical: 30, high: 18, medium: 10, low: 4 } as const;
+  const finalScore = clamp(100 - findings.reduce((total, finding) => total + deduction[finding.severity], 0));
+  return {
+    score: finalScore,
+    rating: rating(finalScore),
+    confidence: renderingComplete ? "high" : "medium",
+    methodology: "Estimated from automated DOM checks for text alternatives, accessible names, form labels, heading structure, document language and frame titles. It does not test colour contrast, keyboard use, focus order, zoom or assistive-technology usability and is not a WCAG compliance result.",
   };
 }

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { scoreAiVisibility, scoreSeo } from "../lib/audit-scoring.ts";
+import { scoreAccessibility, scoreAiVisibility, scoreSeo } from "../lib/audit-scoring.ts";
 
 test("SEO scoring gives critical indexability more weight than minor metadata", () => {
   const base = { noindex: false, titleLength: 35, descriptionLength: 120, h1Count: 1, hasCanonical: true, imageCount: 0, missingAlt: 0, brokenInternal: 0, brokenExternal: 0, renderingComplete: true, robotsKnown: true, linksDiscovered: 10, linksChecked: 10 };
@@ -30,4 +30,12 @@ test("GPTBot training permission does not lower AI search visibility score", () 
 test("incomplete evidence lowers confidence", () => {
   const result = scoreSeo({ noindex: false, titleLength: 35, descriptionLength: 120, h1Count: 1, hasCanonical: true, imageCount: 0, missingAlt: 0, brokenInternal: 0, brokenExternal: 0, renderingComplete: false, robotsKnown: false, linksDiscovered: 100, linksChecked: 30 });
   assert.equal(result.confidence, "low");
+});
+
+test("accessibility estimate weights deterministic severity and browser coverage", () => {
+  assert.equal(scoreAccessibility([], true).score, 100);
+  assert.equal(scoreAccessibility([{ severity: "high" }, { severity: "medium" }, { severity: "low" }], true).score, 68);
+  assert.equal(scoreAccessibility([{ severity: "critical" }, { severity: "critical" }, { severity: "high" }, { severity: "high" }, { severity: "high" }], false).score, 0);
+  assert.equal(scoreAccessibility([], false).confidence, "medium");
+  assert.match(scoreAccessibility([], true).methodology, /not a WCAG compliance result/i);
 });

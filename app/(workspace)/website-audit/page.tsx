@@ -9,7 +9,7 @@ export default function WebsiteAuditPage() {
 
       <PageContent>
           <PageHeading title="Website audit"
-            description="Start with any public page. Get evidence for SEO, GEO / AI crawler access, broken links and accessibility — with practical fixes in priority order."
+            description="Start with any public page. Get evidence for SEO, GEO / AI crawler access and broken links — with practical fixes in priority order."
             actions={<>
               <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="text-teal-600" size={15} /> Evidence-led checks</span>
               <span className="inline-flex items-center gap-1.5"><ShieldCheck className="text-teal-600" size={15} /> Read-only checks</span>

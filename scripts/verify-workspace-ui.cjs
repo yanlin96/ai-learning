@@ -31,10 +31,10 @@ const assert = require('node:assert/strict');
     await page.getByRole('button', { name: 'Check my website' }).waitFor();
     await page.getByRole('link', { name: 'Train line status' }).first().count();
     await page.waitForTimeout(700);
-    const captures = [['website-audit', 'Website audit'], ['smoke-test', 'Smoke testing'], ['history', 'Website audit history'], ['smoke-test/history', 'Smoke test history'], ['disruptions', 'Train line status']];
+    const captures = [['website-audit', 'Website audit'], ['accessibility', 'Accessibility estimate'], ['smoke-test', 'Smoke testing'], ['history', 'Website audit history'], ['smoke-test/history', 'Smoke test history'], ['disruptions', 'Train line status']];
     for (const [path, title] of captures) {
       if (path !== 'website-audit') {
-        const names = { 'smoke-test': 'Smoke testing', history: 'Audit history', 'smoke-test/history': 'Smoke test history', disruptions: 'Train line status' };
+        const names = { accessibility: 'Accessibility', 'smoke-test': 'Smoke testing', history: 'Audit history', 'smoke-test/history': 'Smoke test history', disruptions: 'Train line status' };
         if (path === 'disruptions') await page.locator('aside[aria-label="Company tools"] details').last().evaluate(el => { el.open = true; });
         await page.locator('aside[aria-label="Company tools"]').getByRole('link', { name: names[path], exact: false }).click();
       }
@@ -77,7 +77,7 @@ const assert = require('node:assert/strict');
     await page.evaluate(() => {
       const pages = Array.from({ length: 25 }, (_, index) => ({ url: 'https://example.com/page-' + index, title: 'Synthetic test page ' + index, status: index === 0 ? 'fail' : 'pass', httpStatus: index === 0 ? 500 : 200, responseTimeMs: 250, browser: 'not-selected', source: 'sitemap', issues: index === 0 ? ['HTTP 500; inspect server logs'] : [] }));
       localStorage.setItem('smoke-test-history-v1', JSON.stringify([{ domain: 'example.com', runs: [{ id: 'fixture', checkedAt: '2026-09-16T00:00:00Z', result: 'fail', checked: 25, skipped: 2, requestedLimit: 30, browserChecked: 0, counts: { pass: 24, warning: 0, fail: 1 }, issueSamples: [], pages }] }]));
-      sessionStorage.setItem('audit-history', JSON.stringify([{ id: 'fixture', url: 'https://example.com', title: 'Synthetic audit record', ranAt: '2026-09-16T00:00:00Z', seoScore: 84, aiScore: 91, brokenLinks: 0, linksChecked: 30, linksDiscovered: 35, findingsTotal: 0, severityCounts: { critical: 0, high: 0, medium: 0, low: 0 }, findings: [], notVerified: ['Manual accessibility review remains necessary.'], firstActions: [], coverage: { rendering: 'browser', seoConfidence: 'high', aiConfidence: 'medium', inconclusive: 1, unchecked: 5 } }]));
+      sessionStorage.setItem('audit-history', JSON.stringify([{ id: 'fixture', url: 'https://example.com', title: 'Synthetic audit record', ranAt: '2026-09-16T00:00:00Z', seoScore: 84, aiScore: 91, brokenLinks: 0, linksChecked: 30, linksDiscovered: 35, findingsTotal: 0, severityCounts: { critical: 0, high: 0, medium: 0, low: 0 }, findings: [], notVerified: [], firstActions: [], coverage: { rendering: 'browser', seoConfidence: 'high', aiConfidence: 'medium', inconclusive: 1, unchecked: 5 } }]));
     });
     for (const path of ['history', 'smoke-test/history']) {
       await page.goto(origin + '/' + path);
@@ -107,7 +107,7 @@ const assert = require('node:assert/strict');
     await page.getByRole('heading', { name: 'PASS WITH WARNINGS' }).waitFor();
     await page.screenshot({ path: '.impeccable/review/smoke-result-mobile.png', fullPage: true });
     await page.goto(origin + '/website-audit');
-    await page.route('**/api/audits', route => route.fulfill({ json: { report: { finalUrl: 'https://example.com', checkedAt: new Date().toISOString(), page: { title: 'Synthetic audit result', rendering: 'unavailable', javascriptDependencyPercent: null }, links: { discovered: 1, checked: 1, unchecked: 0, broken: [], successful: [], inconclusive: [] }, seo: { score: 84, rating: 'Good', confidence: 'medium', findings: [] }, aiVisibility: { score: 91, rating: 'Good', confidence: 'medium', findings: [], crawlers: [] }, qualityReport: { severityCounts: { critical: 0, high: 0, medium: 0, low: 0 }, findings: [], firstActions: [], quickWins: [], retestChecklist: [], verified: ['HTTP response checked'], notVerified: ['Browser rendering unavailable'], exclusionsApplied: [], contextualAnalysis: 'unavailable' }, summary: 'Synthetic preview only; not a real website assessment.' } } }));
+    await page.route('**/api/audits', route => route.fulfill({ json: { report: { finalUrl: 'https://example.com', checkedAt: new Date().toISOString(), page: { title: 'Synthetic audit result', rendering: 'unavailable', javascriptDependencyPercent: null }, links: { discovered: 1, checked: 1, unchecked: 0, broken: [], successful: [], inconclusive: [] }, seo: { score: 84, rating: 'Good', confidence: 'medium', findings: [] }, aiVisibility: { score: 91, rating: 'Excellent', confidence: 'medium', findings: [], crawlers: [] }, qualityReport: { severityCounts: { critical: 0, high: 0, medium: 0, low: 0 }, findings: [], firstActions: [], quickWins: [], retestChecklist: [], verified: ['HTTP response checked'], notVerified: [], exclusionsApplied: [], contextualAnalysis: 'unavailable' }, summary: 'Synthetic preview only; not a real website assessment.' } } }));
     await page.getByLabel('Website URL', { exact: true }).fill('https://example.com');
     await page.getByRole('button', { name: 'Check my website' }).click();
     await page.getByRole('heading', { name: 'Synthetic audit result' }).waitFor();
@@ -115,6 +115,16 @@ const assert = require('node:assert/strict');
     await page.screenshot({ path: '.impeccable/review/audit-result-mobile.png', fullPage: true });
     await page.setViewportSize({ width: 1440, height: 1000 });
     await page.screenshot({ path: '.impeccable/review/audit-result-desktop.png', fullPage: true });
+    await page.goto(origin + '/accessibility');
+    await page.route('**/api/accessibility-audits', route => route.fulfill({ json: { report: { finalUrl: 'https://example.com', checkedAt: new Date().toISOString(), page: { title: 'Synthetic accessibility result', status: 200, rendering: 'complete' }, estimate: { score: 86, rating: 'Good', confidence: 'high', findingsCount: 1, methodology: 'Synthetic estimate.' }, findings: [{ category: 'accessibility', severity: 'medium', confidence: 'high', element: 'Document language', evidence: 'The html element has no lang attribute.', impact: 'Screen readers may use the wrong pronunciation.', fix: 'Set lang on the html element.', owner: 'Engineering' }], severityCounts: { critical: 0, high: 0, medium: 1, low: 0 }, verified: ['Rendered DOM inspected.'], notVerified: ['Keyboard navigation and focus order.'] } } }));
+    await page.getByLabel('Website URL', { exact: true }).fill('https://example.com');
+    await page.getByRole('button', { name: 'Estimate accessibility', exact: true }).click();
+    await page.getByRole('heading', { name: 'Synthetic accessibility result' }).waitFor();
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, 'accessibility desktop overflow');
+    await page.screenshot({ path: '.impeccable/review/accessibility-result-desktop.png', fullPage: true });
+    await page.setViewportSize({ width: 390, height: 844 });
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, 'accessibility mobile overflow');
+    await page.screenshot({ path: '.impeccable/review/accessibility-result-mobile.png', fullPage: true });
     assert.deepEqual(errors, []);
     console.log(JSON.stringify({ passed: true, clientNavigationRequests: navigationRequests, captures: captures.length * 2 + 7, smokePaginationAndFilter: true, loadingAndError: true, mobileFocus: true, pageErrors: errors }));
   } finally { await browser?.close(); server.kill(); }

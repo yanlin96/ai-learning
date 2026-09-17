@@ -40,11 +40,18 @@ function looksLikeFilename(alt: string) {
 }
 
 /** The name a screen reader would announce for an element. */
-function accessibleName(node: ReturnType<CheerioAPI>) {
-  const own = normalise(node.text());
-  if (own) return own;
+function accessibleName($: CheerioAPI, node: ReturnType<CheerioAPI>) {
+  const labelledBy = (node.attr("aria-labelledby") || "")
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((id) => normalise($("[id]").filter((_, element) => $(element).attr("id") === id).first().text()))
+    .filter(Boolean)
+    .join(" ");
+  if (labelledBy) return labelledBy;
   const aria = normalise(node.attr("aria-label") || "");
   if (aria) return aria;
+  const own = normalise(node.text());
+  if (own) return own;
   const title = normalise(node.attr("title") || "");
   if (title) return title;
   const imgAlt = normalise(node.find("img[alt]").first().attr("alt") || "");
@@ -133,7 +140,7 @@ export function auditAccessibility($: CheerioAPI): QualityFinding[] {
   for (const element of $("a[href]").toArray()) {
     const href = normalise($(element).attr("href") || "");
     if (!href || href.startsWith("#")) continue;
-    const name = accessibleName($(element));
+    const name = accessibleName($, $(element));
     if (!name) {
       namelessLinks.push(href);
       continue;
@@ -260,7 +267,7 @@ export function auditAccessibility($: CheerioAPI): QualityFinding[] {
     });
   }
 
-  const namelessButtons = $("button").toArray().filter((element) => !accessibleName($(element))).length;
+  const namelessButtons = $("button").toArray().filter((element) => !accessibleName($, $(element))).length;
   if (namelessButtons) {
     findings.push({
       category: "accessibility",

@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import {
   BarChart3,
+  Accessibility,
   ChevronDown,
   ExternalLink,
   Gauge,
@@ -131,7 +132,11 @@ function ToolboxLinks({ pathname, close }: ToolboxLinksProps) {
       <section className="grid gap-1.5">
         <Link className={toolLinkClass(pathname === "/website-audit")} aria-current={pathname === "/website-audit" ? "page" : undefined} href="/website-audit" onClick={close}>
           <span className={toolIcon}><SearchCheck size={19} /></span>
-          <ToolCopy title="Website audit" detail="SEO, GEO, links and accessibility" />
+          <ToolCopy title="Website audit" detail="SEO, GEO and broken links" />
+        </Link>
+        <Link className={toolLinkClass(active("/accessibility"))} aria-current={active("/accessibility") ? "page" : undefined} href="/accessibility" onClick={close}>
+          <span className={toolIcon}><Accessibility size={19} /></span>
+          <ToolCopy title="Accessibility" detail="Automated estimate and fixes" />
         </Link>
         <Link className={toolLinkClass(active("/history"))} aria-current={active("/history") ? "page" : undefined} href="/history" onClick={close}>
           <span className={toolIcon}><BarChart3 size={19} /></span>
@@ -195,7 +200,7 @@ export function SiteHeader() {
   }, [open]);
   useEffect(() => { setOpen(false); }, [pathname]);
   function close() { setOpen(false); }
-  const routeLabel = pathname.startsWith("/smoke-test/history") ? "Smoke test history" : pathname.startsWith("/smoke-test") ? "Smoke testing" : pathname.startsWith("/history") ? "Audit history" : pathname.startsWith("/disruptions") ? "Train line status" : "Website audit";
+  const routeLabel = pathname.startsWith("/smoke-test/history") ? "Smoke test history" : pathname.startsWith("/smoke-test") ? "Smoke testing" : pathname.startsWith("/accessibility") ? "Accessibility" : pathname.startsWith("/history") ? "Audit history" : pathname.startsWith("/disruptions") ? "Train line status" : "Website audit";
   return <header className="relative z-20 shrink-0 bg-[#071226] text-white [&_summary]:focus-visible:outline-2 [&_summary]:focus-visible:outline-offset-2 [&_summary]:focus-visible:outline-cyan-200 [&_button]:focus-visible:outline-2 [&_button]:focus-visible:outline-offset-2 [&_button]:focus-visible:outline-cyan-200">
     <aside className="fixed inset-y-0 left-0 z-40 hidden w-[252px] flex-col overflow-y-auto border-r border-white/15 bg-[#071226] px-4 py-5 text-white xl:flex" aria-label="Company tools">
       <Link className="flex items-center gap-3 border-b border-white/15 px-2 pb-5 text-white no-underline" href="/website-audit" aria-label="CPA Tools home">

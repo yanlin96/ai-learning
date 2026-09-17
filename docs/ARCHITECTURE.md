@@ -51,8 +51,11 @@ The workspace shell owns one shared footer after page content in a min-viewport-
 - `lib/website-audit.ts`: server-only, bounded single-page audit engine with public-URL validation, raw HTML parsing, optional Chromium rendering, link checks, crawler simulation, and optional OpenAI summary.
 - `lib/robots.ts`: standards-aware robots adapter. Use the dependency-backed parser rather than reimplementing wildcard and rule-precedence semantics.
 - `lib/audit-scoring.ts`: pure weighted scoring and confidence rules, separate from crawling and UI presentation.
+- `lib/accessibility-audit.ts` and `lib/accessibility-estimate.ts`: a dedicated, bounded accessibility workflow for accessible names, text alternatives, labels, headings, language and frame titles. `lib/audit-scoring.ts` converts only these findings into an estimate; confidence falls when browser rendering is unavailable and the result never represents WCAG compliance.
+- `lib/public-page-renderer.ts`: shared SSRF-guarded Chromium rendering used by Website Audit and Accessibility Estimate.
 - `app/api/audits/route.ts`: accepts one public URL and returns a structured report; it must never become an unrestricted internal-network fetch proxy.
 - `app/(workspace)/website-audit/page.tsx`: website-audit UI, kept separate from the workspace home and commute reminder flows.
+- `app/(workspace)/accessibility/page.tsx` and `/api/accessibility-audits`: dedicated accessibility UI and protected API; they do not run link, SEO, crawler or OpenAI checks.
 - `lib/public-web.ts`: shared public-URL normalization, DNS/private-address rejection, redirect validation, and bounded fetch used by public-web inspection features.
 - `lib/smoke-test.ts`: breadth-first sitemap discovery and bounded multi-page smoke-test orchestration.
 - `lib/smoke-rules.ts`: pure Pass/Warning/Fail classification rules.

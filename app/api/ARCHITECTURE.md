@@ -33,6 +33,8 @@ The current repository is local-first, so `data/subscriptions.json` is the persi
 
 `POST /api/audits` is a bounded public-web inspection endpoint. It returns a Quality & Fix Report alongside the raw signals: every finding carries severity, confidence, evidence, impact, fix, and owner. Deterministic checks (HTTP status, markup, dates) may reach high confidence; language-model findings are capped at medium severity and medium confidence by `capContextualFinding`, because the stated false-positive budget for contextual findings is under 10%. Archive URLs matched by `AUDIT_ARCHIVE_PATTERNS` downgrade date findings rather than hiding them. It accepts one URL and delegates all network and classification work to `lib/website-audit.ts`. Keep credentials, browser execution, DNS/public-address validation, redirects, limits, and optional OpenAI calls server-side. A successful crawl means the tested crawler can access the URL; it does not prove indexing or citation by an external AI product.
 
+`POST /api/accessibility-audits` is the separate accessibility estimate endpoint. It shares public-address validation and bounded browser rendering but runs only deterministic DOM checks. It does not check links, robots/crawlers, SEO or call OpenAI. Its score is not WCAG certification, and the response must preserve manual-testing limitations.
+
 `POST /api/smoke-tests` accepts a public base URL, optional same-origin priority URLs, and a page limit capped at 100. It delegates discovery and checking to `lib/smoke-test.ts`. It must remain read-only, bounded, and protected by the shared public-network validation in `lib/public-web.ts`.
 
 The user-facing write surface is `/reminders`; the home dashboard should remain read-oriented even though both pages consume these APIs.

@@ -4,6 +4,8 @@ Last updated: 2026-09-16
 
 ## Working now
 
+- Accessibility Estimate is now a separate primary tool at `/accessibility`, backed by `/api/accessibility-audits`. It uses shared safe rendering but runs only deterministic accessibility checks, avoiding Website Audit's link, SEO, crawler and OpenAI work. Website Audit and its history no longer display the estimate.
+
 - Application sign-out returns to a paused signed-out login state rather than immediately restarting Okta authentication. Explicit sign-in and normal protected-page auto-login remain available; Okta SSO and both session lifetimes are unchanged.
 
 - Impeccable workspace refinement preserves navy chrome/white content while replacing promotional tool headings with compact task titles. Navigation/account text is more readable, active links expose `aria-current`, and the mobile toolbox manages initial focus, Tab containment and Escape return. Shared Tailwind fields, actions, history search/empty states, smoke scope/outcome and Metro notice layouts leave auth, storage and transport classification unchanged. Detailed audit tables retain legacy CSS for incremental migration.
@@ -77,6 +79,8 @@ Last updated: 2026-09-16
 Develop in small user-requested increments. The next likely product milestone is scheduling, but `docs/BACKLOG.md` is not authorization to start it.
 
 ## Verification baseline
+
+2026-09-16 accessibility estimate: sequential type checking, isolated production build and 47 tests pass. Deterministic DOM-to-score tests cover accessible-name overrides and real findings. Synthetic browser verification covers the standalone route, navigation, report, manual-testing boundary and desktop/390px layouts without overflow or client errors. The API rejects anonymous access; no external website was crawled.
 
 2026-09-16 logout: type checking, isolated production build and 44 unit tests pass. `node scripts/verify-signout.cjs` uses a synthetic session with real Auth.js logout to verify session removal, business API 401, paused logout/reload, explicit restart, normal protected-page automatic login, error pause and desktop/mobile overflow. OAuth initiation is intercepted; no real Okta login or provider logout is performed.
 

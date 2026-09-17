@@ -39,6 +39,7 @@ const assert = require('node:assert/strict');
     assert.equal((await context.request.get(origin + '/api/auth/session')).status(), 200);
     assert.equal((await (await context.request.get(origin + '/api/auth/session')).json()).user, undefined);
     assert.equal((await context.request.post(origin + '/api/audits', { data: {} })).status(), 401);
+    assert.equal((await context.request.post(origin + '/api/accessibility-audits', { data: {} })).status(), 401);
     for (const width of [1440, 390]) {
       await page.setViewportSize({ width, height: width === 390 ? 844 : 1000 });
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
