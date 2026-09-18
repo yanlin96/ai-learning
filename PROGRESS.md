@@ -1,8 +1,13 @@
 # Progress
 
-Last updated: 2026-09-16
+Last updated: 2026-09-18
 
 ## Working now
+
+- Accessibility Estimate detects access-denied and automated-access challenge documents before scoring. A blocked headless render falls back to real initial HTML as a visible reduced-confidence partial estimate; if both retrieval paths are blocked, the API returns unable to assess and creates no misleading report.
+
+- A shell-persistent CPA Tools assistant provides capability help and a constrained command path from every signed-in page. Explicit English/Chinese requests and tested common misspellings use a local fast path; unmatched natural language uses a login-protected OpenAI Structured Outputs classifier restricted to the fixed tool-intent enum. URLs and final actions remain application-owned. Given a supported check and user-supplied URL, it calls the existing protected API and stores the full result under a random current-tab ID. The conversation remains open and presents authenticated `/reports/[id]`; only the user's click navigates. The route reuses each tool's report renderer, survives reload in the creating tab and is intentionally not shareable across browsers/devices. The assistant has no arbitrary fetch authority and keeps OpenAI credentials server-side.
+- Assistant conversations acknowledge the user's message immediately and expose labelled Thinking and Running feedback. Inputs pause during work, completed reports become explicit links, and reduced-motion users keep the same textual status without rotation.
 
 - Accessibility Estimate is now a separate primary tool at `/accessibility`, backed by `/api/accessibility-audits`. It uses shared safe rendering but runs only deterministic accessibility checks, avoiding Website Audit's link, SEO, crawler and OpenAI work. Website Audit and its history no longer display the estimate.
 
@@ -79,6 +84,10 @@ Last updated: 2026-09-16
 Develop in small user-requested increments. The next likely product milestone is scheduling, but `docs/BACKLOG.md` is not authorization to start it.
 
 ## Verification baseline
+
+2026-09-18 access-control-aware accessibility estimates: 59 unit tests, type checking and isolated production build pass. Focused tests cover challenge detection, browser-blocked initial-HTML fallback, recovery when rendering succeeds after an initial block, and no score when both paths are blocked. Fixture-session browser verification covers the visible partial state in authenticated assistant reports at desktop and 390px widths, with no overflow or client exceptions. No live target was crawled during verification.
+
+2026-09-18 workspace assistant private report links and semantic fallback: 55 unit tests, type checking and isolated production build pass. Fixture-session browser verification covers automatic protected API execution while chat stays open, explicit random `/reports/[id]` links, navigation only after user click, same-tab reload without request replay, a second report from the persistent assistant, mocked OpenAI semantic routing for an ambiguous keyboard-access request, local fast-path handling for the exact typo-bearing accessibility prompt, responsive result rendering and no client exceptions. It also confirms one document, account-session and daily-brief request across normal client navigation. No live OpenAI request or external website crawl was made during verification, and no chat history is stored.
 
 2026-09-16 accessibility estimate: sequential type checking, isolated production build and 47 tests pass. Deterministic DOM-to-score tests cover accessible-name overrides and real findings. Synthetic browser verification covers the standalone route, navigation, report, manual-testing boundary and desktop/390px layouts without overflow or client errors. The API rejects anonymous access; no external website was crawled.
 

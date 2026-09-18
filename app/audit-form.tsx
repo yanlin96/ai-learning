@@ -6,6 +6,7 @@ import type { AuditFinding, WebsiteAudit } from "@/lib/website-audit";
 import { CATEGORY_LABEL, SEVERITY_LABEL, SEVERITY_ORDER, type QualityFinding } from "@/lib/audit-findings";
 import { recordAuditRun } from "@/lib/audit-history";
 import { primaryActionClass } from "@/app/tool-ui";
+import { consumeAssistantRun } from "@/app/assistant-run";
 
 function FindingRow({ finding }: { finding: QualityFinding }) {
   return (
@@ -42,24 +43,32 @@ function Finding({ finding }: { finding: AuditFinding }) {
   );
 }
 
-export function AuditForm() {
+export function AuditForm({ initialReport = null, reportOnly = false }: { initialReport?: WebsiteAudit | null; reportOnly?: boolean }) {
   const [url, setUrl] = useState("");
-  const [report, setReport] = useState<WebsiteAudit | null>(null);
+  const [report, setReport] = useState<WebsiteAudit | null>(initialReport);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [historyWarning, setHistoryWarning] = useState("");
+  const [assistantStarting, setAssistantStarting] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const assistantRunStarted = useRef(false);
 
   useEffect(() => {
-    const requestedUrl = new URLSearchParams(window.location.search).get("url");
+    if (reportOnly) return;
+    const params = new URLSearchParams(window.location.search);
+    const requestedUrl = params.get("url");
     if (requestedUrl) {
       setUrl(requestedUrl);
-      inputRef.current?.focus();
+      if (consumeAssistantRun(params) && !assistantRunStarted.current) {
+        assistantRunStarted.current = true;
+        setAssistantStarting(true);
+        const timer = window.setTimeout(() => { setAssistantStarting(false); void runAudit(requestedUrl); }, 650);
+        return () => window.clearTimeout(timer);
+      } else inputRef.current?.focus();
     }
   }, []);
 
-  async function submit(event: React.FormEvent) {
-    event.preventDefault();
+  async function runAudit(targetUrl: string) {
     setLoading(true);
     setError("");
     setHistoryWarning("");
@@ -68,7 +77,7 @@ export function AuditForm() {
       const response = await fetch("/api/audits", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ url }),
+        body: JSON.stringify({ url: targetUrl }),
       });
       const payload = await response.json() as { ok: boolean; report?: WebsiteAudit; error?: string };
       if (!response.ok || !payload.report) throw new Error(payload.error || "Audit failed");
@@ -82,29 +91,36 @@ export function AuditForm() {
     }
   }
 
+  function submit(event: React.FormEvent) {
+    event.preventDefault();
+    if (assistantStarting) return;
+    void runAudit(url);
+  }
+
   return (
     <>
-      <form className="rounded-xl border border-slate-200 bg-white p-5 sm:p-6" onSubmit={submit} aria-busy={loading}>
+      {!reportOnly && <form className="rounded-xl border border-slate-200 bg-white p-5 sm:p-6" onSubmit={submit} aria-busy={loading}>
         <div className="mb-5 flex flex-wrap items-center justify-between gap-2"><h2 className="m-0 text-base font-bold text-[#090d46]">Start your website check</h2><span className="text-sm text-slate-600">Usually takes about a minute</span></div>
         <label className="mb-2 block text-sm font-bold text-[#090d46]" htmlFor="audit-url">Website URL</label>
         <div className="flex flex-wrap items-center gap-3 rounded-lg border border-slate-300 bg-white p-2 pl-4 focus-within:border-[#00539d] focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-[#00539d]">
           <Search className="shrink-0 text-slate-400" size={19} />
-          <input className="h-11 min-w-0 flex-1 border-0 bg-transparent text-base text-slate-800 outline-none placeholder:text-slate-500" ref={inputRef} id="audit-url" type="text" inputMode="url" autoComplete="url" aria-describedby="audit-scope" placeholder="https://your-website.com" value={url} onChange={(event) => setUrl(event.target.value)} required disabled={loading} />
-          <button className={primaryActionClass + " w-full sm:w-auto"} type="submit" disabled={loading}>{loading ? <LoaderCircle className="animate-spin motion-reduce:animate-none" size={17} /> : null}{loading ? "Checking website…" : "Check my website"}{!loading ? <ArrowRight size={17} /> : null}</button>
+          <input className="h-11 min-w-0 flex-1 border-0 bg-transparent text-base text-slate-800 outline-none placeholder:text-slate-500" ref={inputRef} id="audit-url" type="text" inputMode="url" autoComplete="url" aria-describedby="audit-scope" placeholder="https://your-website.com" value={url} onChange={(event) => setUrl(event.target.value)} required disabled={loading || assistantStarting} />
+          <button className={primaryActionClass + ` w-full sm:w-auto ${assistantStarting ? "animate-pulse ring-4 ring-blue-100 motion-reduce:animate-none" : ""}`} type="submit" disabled={loading || assistantStarting}>{loading ? <LoaderCircle className="animate-spin motion-reduce:animate-none" size={17} /> : null}{assistantStarting ? "Starting audit…" : loading ? "Checking website…" : "Check my website"}{!loading && !assistantStarting ? <ArrowRight size={17} /> : null}</button>
         </div>
         <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-slate-600">
           <span>Just exploring?</span>
           <button className="min-h-11 cursor-pointer rounded-md border-0 bg-transparent px-1 text-sm font-bold text-[#00539d] underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-[#00539d] disabled:opacity-50" type="button" disabled={loading} onClick={() => { setUrl("https://example.com"); inputRef.current?.focus(); }}>Try example.com</button>
         </div>
         <p className="mt-2 mb-0 text-sm leading-6 text-slate-600" id="audit-scope">Checks one public page and up to 80 links. Nothing is changed on the website.</p>
-      </form>
-      {loading && (
+      </form>}
+      {!reportOnly && assistantStarting && <p className="mt-4 rounded-xl border border-blue-100 bg-blue-50 p-4 text-sm font-bold text-[#00539d]" role="status">Assistant filled the URL. Starting Website Audit…</p>}
+      {!reportOnly && loading && (
         <div className="mt-4 rounded-xl border border-blue-100 bg-blue-50 p-5" role="status" aria-live="polite">
           <div className="flex items-center gap-3"><LoaderCircle className="animate-spin text-[#00539d]" size={20} /><div><strong className="block text-sm text-[#090d46]">Checking your page</strong><small className="text-xs text-slate-600">Fetching, checking links and metadata, rendering JavaScript, then preparing the report. Keep this tab open.</small></div></div>
         </div>
       )}
-      {error && <p className="mt-4 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800" role="alert">{error}</p>}
-      {historyWarning && <p className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900" role="status">{historyWarning}</p>}
+      {!reportOnly && error && <p className="mt-4 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800" role="alert">{error}</p>}
+      {!reportOnly && historyWarning && <p className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900" role="status">{historyWarning}</p>}
       {report && (
         <section className="audit-report" aria-live="polite">
           <div className="mb-5 flex flex-wrap items-center justify-between gap-3">

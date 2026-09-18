@@ -126,7 +126,7 @@ The CPA Tools workspace is a compact tools workbench: navy navigation frames whi
 
 Hierarchy comes from compact task headings, readable descriptions, single-border panels and explicit control states. The shared shell supports finding a tool and inspecting its evidence without promotional scale or decorative motion. Native disclosures contain secondary configuration, while embedded evidence uses dividers rather than redundant enclosing panels.
 
-This is a source-grounded record of the current shared system, not a claim of completed visual or accessibility verification. Evidence: `docs/PRODUCT.md`, `docs/WORKSPACE-UI.md`, `app/globals.css`, `app/page-template.tsx`, `app/tool-ui.tsx`, `app/site-header.tsx`, `app/daily-brief.tsx`, `app/smoke-test-form.tsx`, `app/smoke-url-results.tsx`, `app/smoke-history-list.tsx`, `app/train-status-search.tsx`, and the installed Tailwind theme. Existing domain report CSS has not been migrated; its old type sizes, colors and decoration are not the shared workspace specification.
+This is a source-grounded record of the current shared system, not a claim of completed visual or accessibility verification. Evidence: `docs/PRODUCT.md`, `docs/WORKSPACE-UI.md`, `app/globals.css`, `app/page-template.tsx`, `app/tool-ui.tsx`, `app/site-header.tsx`, `app/workspace-assistant.tsx`, `app/daily-brief.tsx`, `app/smoke-test-form.tsx`, `app/smoke-url-results.tsx`, `app/smoke-history-list.tsx`, `app/train-status-search.tsx`, and the installed Tailwind theme. Existing domain report CSS has not been migrated; its old type sizes, colors and decoration are not the shared workspace specification.
 
 **Key Characteristics:**
 
@@ -201,11 +201,13 @@ URL-result explorer controls use a single-column mobile grid with full-width sea
 
 At the extra-large breakpoint, a fixed 252px desktop sidebar appears and global main padding reserves its width. Below that breakpoint, navigation uses a right toolbox drawer up to 410px wide, bounded by viewport width. The top bar is 64px high. Small-screen account/name reductions at 700px and 520px are local shell adaptations, not additional global grid breakpoints.
 
+The assistant is a shell-level modal anchored above a 48px bottom-right launcher. Its panel is capped at 390px wide and 620px high, while remaining within 16px mobile gutters and the available dynamic viewport height. Conversation content scrolls inside the panel; the underlying workspace does not scroll while it is open.
+
 The existing spacing scale is expressed in frontmatter; half-steps used by controls remain component-specific padding. The older shell's 1180px/1760px width rules are not the shared content model.
 
 ## Elevation & Depth
 
-Working forms, result panels and the daily brief are flat: one border and tonal contrast establish separation without resting shadows. Navigation adds translucent layers on navy; the account popover and mobile drawer are elevated overlays. The account popover uses a soft navy shadow (`0 18px 46px rgba(9,13,70,.16)`); the account trigger has a smaller hover shadow (`0 5px 16px rgba(9,13,70,.07)`). The global legacy shadow variable does not establish a shared panel-shadow rule.
+Working forms, result panels and the daily brief are flat: one border and tonal contrast establish separation without resting shadows. Navigation adds translucent layers on navy; the account popover, mobile drawer and assistant are elevated overlays. The account popover uses a soft navy shadow (`0 18px 46px rgba(9,13,70,.16)`); the account trigger has a smaller hover shadow (`0 5px 16px rgba(9,13,70,.07)`). The assistant uses a deeper soft navy shadow (`0 22px 60px rgba(7,18,38,.24)`) over a restrained dark backdrop. The global legacy shadow variable does not establish a shared panel-shadow rule.
 
 **The Border Before Shadow Rule.** Use single borders for shared working panels; reserve overlay elevation for navigation surfaces.
 
@@ -254,6 +256,14 @@ Desktop sidebar and mobile toolbox share the same tool content. The drawer conta
 ### Daily brief
 
 A flat white bordered panel with two compact icon-and-text summaries and weather attribution. Icon tiles are 36px; the train link has a 44px minimum target and a brand-blue keyboard outline. Weather and train failures retain explicit unavailable copy independently. Loading uses placeholders and a status label; it does not claim successful service. The old daily-brief shimmer and raised-card CSS are not the current component design.
+
+### Workspace assistant
+
+The assistant extends the established shell rather than introducing a separate identity: workspace navy header and launcher, white conversation surface, brand-blue user messages/actions and cyan icon tile. Suggested commands use compact bordered buttons; completed tool results open in a dedicated authenticated report page rather than expanding inside chat.
+
+While open, the panel is an accessible modal dialog with a backdrop, contained Tab order, Escape and explicit close actions, body scroll lock and focus restoration to the launcher. The launcher leaves the tab order until the dialog closes. The message log announces additions politely, and the composer retains the shared field/focus treatment.
+
+Submitting a message immediately adds the user's message, then shows labelled thinking and running states. A supported check runs through its existing protected API while the conversation remains open. Completion adds one prominent, keyboard-focusable `/reports/[id]` action to the assistant response; navigation waits for the user's click. The link uses Next.js client navigation, closes the panel so the report is immediately usable, and preserves the shell-level conversation for reopening. The dynamic page uses the shared page heading and the normal report component in result-only mode; it does not duplicate the tool form or turn the conversation into a long report. Reports are current-tab-only, and the empty state explains when local data is missing. Status animation uses the existing loading icon and is removed under reduced-motion preferences; text preserves every state when motion is reduced.
 
 ## Do's and Don'ts
 

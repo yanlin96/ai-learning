@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { CheckCircle2, CircleAlert, Gauge, LoaderCircle, XCircle } from "lucide-react";
 import type { SmokeTestReport } from "@/lib/smoke-test";
 import { recordSmokeRun } from "@/lib/smoke-history";
 import { SmokeUrlResults } from "@/app/smoke-url-results";
 import { fieldClass, primaryActionClass } from "@/app/tool-ui";
+import { consumeAssistantRun } from "@/app/assistant-run";
 
 const RESULT_COPY = {
   pass: { label: "PASS", detail: "All checked pages passed the smoke checks.", Icon: CheckCircle2 },
@@ -13,25 +14,34 @@ const RESULT_COPY = {
   fail: { label: "FAIL", detail: "At least one checked page has a release-blocking failure.", Icon: XCircle },
 };
 
-export function SmokeTestForm() {
+export function SmokeTestForm({ initialReport = null, reportOnly = false }: { initialReport?: SmokeTestReport | null; reportOnly?: boolean }) {
   const [baseUrl, setBaseUrl] = useState("");
   const [manualText, setManualText] = useState("");
   const [limit, setLimit] = useState(30);
-  const [report, setReport] = useState<SmokeTestReport | null>(null);
+  const [report, setReport] = useState<SmokeTestReport | null>(initialReport);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [historyWarning, setHistoryWarning] = useState("");
+  const [assistantStarting, setAssistantStarting] = useState(false);
+  const assistantRunStarted = useRef(false);
 
   useEffect(() => {
+    if (reportOnly) return;
     const params = new URLSearchParams(window.location.search);
     const requestedUrl = params.get("url");
     const requestedLimit = Number(params.get("limit"));
     if (requestedUrl) setBaseUrl(requestedUrl);
-    if (requestedLimit >= 1 && requestedLimit <= 100) setLimit(requestedLimit);
+    const nextLimit = requestedLimit >= 1 && requestedLimit <= 100 ? requestedLimit : 30;
+    if (requestedLimit >= 1 && requestedLimit <= 100) setLimit(nextLimit);
+    if (requestedUrl && consumeAssistantRun(params) && !assistantRunStarted.current) {
+      assistantRunStarted.current = true;
+      setAssistantStarting(true);
+      const timer = window.setTimeout(() => { setAssistantStarting(false); void runSmokeTest(requestedUrl, nextLimit); }, 650);
+      return () => window.clearTimeout(timer);
+    }
   }, []);
 
-  async function submit(event: React.FormEvent) {
-    event.preventDefault();
+  async function runSmokeTest(targetUrl: string, targetLimit: number) {
     setLoading(true);
     setError("");
     setHistoryWarning("");
@@ -41,7 +51,7 @@ export function SmokeTestForm() {
       const response = await fetch("/api/smoke-tests", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ baseUrl, manualUrls, limit }),
+        body: JSON.stringify({ baseUrl: targetUrl, manualUrls, limit: targetLimit }),
       });
       const payload = await response.json() as { ok: boolean; report?: SmokeTestReport; error?: string };
       if (!response.ok || !payload.report) throw new Error(payload.error || "Smoke test failed");
@@ -55,17 +65,23 @@ export function SmokeTestForm() {
     }
   }
 
+  function submit(event: React.FormEvent) {
+    event.preventDefault();
+    if (assistantStarting) return;
+    void runSmokeTest(baseUrl, limit);
+  }
+
   const outcome = report ? RESULT_COPY[report.result] : null;
 
   return (
     <>
-      <form className="rounded-xl border border-slate-200 bg-white p-5 sm:p-6" onSubmit={submit} aria-busy={loading}>
+      {!reportOnly && <form className="rounded-xl border border-slate-200 bg-white p-5 sm:p-6" onSubmit={submit} aria-busy={loading}>
         <div className="mb-5 hidden flex-wrap items-center justify-between gap-2 sm:flex">
           <h2 className="m-0 text-base font-bold text-[#090d46]">Choose the pages to cover</h2>
           <span className="text-sm text-slate-600">Read-only checks</span>
         </div>
         <label className="mb-2 block text-sm font-bold text-[#090d46]" htmlFor="smoke-base">Website URL</label>
-        <input className={fieldClass} id="smoke-base" type="text" inputMode="url" placeholder="https://www.example.com" value={baseUrl} onChange={(event) => setBaseUrl(event.target.value)} required disabled={loading} />
+        <input className={fieldClass} id="smoke-base" type="text" inputMode="url" placeholder="https://www.example.com" value={baseUrl} onChange={(event) => setBaseUrl(event.target.value)} required disabled={loading || assistantStarting} />
         <div className="mt-4 grid gap-4 md:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] md:gap-6">
           <details className="order-2 min-w-0 rounded-lg border border-slate-200 md:order-1">
             <summary className="min-h-11 cursor-pointer rounded-lg px-3 py-3 text-sm font-bold text-[#00539d] focus-visible:outline-2 focus-visible:outline-[#00539d]">Priority URLs &amp; custom limit</summary>
@@ -88,16 +104,17 @@ export function SmokeTestForm() {
             </div>
             </fieldset>
             <p id="smoke-budget-help" className="mt-2 mb-3 text-sm leading-6 text-slate-600">Up to {limit} pages; runs may stop at the server time limit.</p>
-            <button className={primaryActionClass + " w-full"} type="submit" disabled={loading}>
-              {loading ? <LoaderCircle className="animate-spin motion-reduce:animate-none" size={17} /> : <Gauge size={17} />}
-              {loading ? "Running smoke test…" : "Run smoke test"}
+            <button className={primaryActionClass + ` w-full ${assistantStarting ? "animate-pulse ring-4 ring-blue-100 motion-reduce:animate-none" : ""}`} type="submit" disabled={loading || assistantStarting}>
+              {loading || assistantStarting ? <LoaderCircle className="animate-spin motion-reduce:animate-none" size={17} /> : <Gauge size={17} />}
+              {assistantStarting ? "Starting smoke test…" : loading ? "Running smoke test…" : "Run smoke test"}
             </button>
           </div>
         </div>
-      </form>
-      {loading && <p className="mt-4 rounded-xl bg-blue-50 p-4 text-sm leading-6 text-[#00539d]" role="status">Checking priority URLs and sitemap pages. Browser checks follow; larger runs can take longer. Keep this page open for the results.</p>}
-      {error && <p className="mt-4 rounded-xl bg-red-50 p-4 text-sm leading-6 text-red-800" role="alert">{error} Check the website URL and try again.</p>}
-      {historyWarning && <p className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900" role="status">{historyWarning}</p>}
+      </form>}
+      {!reportOnly && assistantStarting && <p className="mt-4 rounded-xl border border-blue-100 bg-blue-50 p-4 text-sm font-bold text-[#00539d]" role="status">Assistant filled the URL. Starting the standard Smoke Test…</p>}
+      {!reportOnly && loading && <p className="mt-4 rounded-xl bg-blue-50 p-4 text-sm leading-6 text-[#00539d]" role="status">Checking priority URLs and sitemap pages. Browser checks follow; larger runs can take longer. Keep this page open for the results.</p>}
+      {!reportOnly && error && <p className="mt-4 rounded-xl bg-red-50 p-4 text-sm leading-6 text-red-800" role="alert">{error} Check the website URL and try again.</p>}
+      {!reportOnly && historyWarning && <p className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900" role="status">{historyWarning}</p>}
       {report && outcome && (
         <section className="mt-8 space-y-4" aria-live="polite">
           <article className={`rounded-xl p-5 ${report.result === "pass" ? "bg-teal-50 text-teal-900" : report.result === "warning" ? "bg-amber-50 text-amber-900" : "bg-red-50 text-red-900"}`}>

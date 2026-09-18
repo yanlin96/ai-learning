@@ -1,5 +1,13 @@
 # Decisions
 
+## 2026-09-18 — Never score access-control challenge pages
+
+Accessibility Estimate must distinguish the requested page from WAF, bot-challenge and access-denied documents returned to automation. Prefer a successful rendered DOM. If browser rendering is blocked but the initial HTTP response contains the real page, inspect that initial HTML as a clearly labelled partial estimate with reduced confidence and an explicit dynamic-content gap. If both paths are blocked, return an unable-to-assess error and no score. Keep detection conservative and do not add stealth plugins, fingerprint spoofing, CAPTCHA bypass or proxy rotation; allowlisting or a future user-run browser extension is the appropriate path for sites that require stronger access.
+
+## 2026-09-18 — Open assistant results on private dynamic report routes
+
+Keep the assistant inside the authenticated persistent workspace shell. Use a deterministic, tested intent map for explicit English/Chinese requests and an authenticated server-side OpenAI fallback only when local rules cannot classify the language. Structured output is restricted to the product's fixed intent enum; URL extraction and action construction remain application-owned, so the model cannot invent a target or gain free-form API/external-navigation access. Do not store OpenAI responses, and degrade to the generic help response if the key or model is unavailable. For a supported check, call the existing protected API and save its completed report under a random ID in current-tab `sessionStorage`. Keep the conversation open and present authenticated `/reports/[id]` as an explicit link; only the user's click navigates, after which the persistent assistant retains its conversation state. Reuse normal result renderers instead of building chat-only summaries. The API/session boundary—not the report ID—provides access control. A report URL survives reload in the creating tab but is intentionally not durable or shareable across browsers/devices. If sharing is later required, replace this store with authenticated server persistence keyed by user or tenant. OpenAI credentials remain server-side.
+
 ## 2026-09-16 — Keep accessibility estimate as a separate tool
 
 Use `/accessibility` and its own protected API rather than adding accessibility as another Website Audit score. Expose a 0–100 estimate derived from deterministic DOM findings, weighted by finding severity. Use the rendered DOM when available and reduce confidence when only initial HTML can be inspected. Keep untested contrast, keyboard, focus order, zoom and assistive-technology behaviour visible as manual coverage gaps. The estimate is diagnostic prioritisation, not WCAG certification, and does not trigger link, SEO, crawler or OpenAI work.

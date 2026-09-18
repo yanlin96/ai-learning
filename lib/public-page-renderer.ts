@@ -34,10 +34,15 @@ export async function renderPublicPage(url: URL) {
         return route.abort("blockedbyclient");
       }
     });
-    await page.goto(url.href, { waitUntil: "domcontentloaded", timeout: 15_000 });
+    const navigation = await page.goto(url.href, { waitUntil: "domcontentloaded", timeout: 15_000 });
     await page.waitForLoadState("load", { timeout: 5_000 }).catch(() => undefined);
     await page.waitForTimeout(750);
-    return { html: await page.content(), textLength: (await page.locator("body").innerText()).trim().length };
+    return {
+      html: await page.content(),
+      textLength: (await page.locator("body").innerText()).trim().length,
+      status: navigation?.status() ?? null,
+      finalUrl: page.url(),
+    };
   } finally {
     await browser.close();
   }

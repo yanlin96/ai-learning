@@ -44,6 +44,10 @@ const assert = require('node:assert/strict');
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, path + ' desktop overflow');
       await page.screenshot({ path: '.impeccable/review/' + path.replaceAll('/', '-') + '-desktop.png', fullPage: true });
     }
+    await page.getByRole('button', { name: 'Open CPA Tools assistant' }).click();
+    await page.getByRole('dialog', { name: 'CPA Tools assistant' }).waitFor();
+    await page.screenshot({ path: '.impeccable/review/assistant-desktop.png', fullPage: true });
+    await page.getByRole('button', { name: 'Close assistant', exact: true }).click();
     assert.equal(requests.documents, 1, 'client navigation should preserve document');
     assert.equal(requests.session, 1, 'account must not refetch on navigation');
     assert.equal(requests.brief, 1, 'daily brief must not refetch on navigation');
@@ -74,6 +78,22 @@ const assert = require('node:assert/strict');
     await page.screenshot({ path: '.impeccable/review/toolbox-mobile.png', fullPage: true });
     await page.keyboard.press('Escape');
     assert.equal(await opener.evaluate(el => el === document.activeElement), true);
+    const assistantLauncher = page.getByRole('button', { name: 'Open CPA Tools assistant' });
+    await assistantLauncher.click();
+    await page.getByRole('dialog', { name: 'CPA Tools assistant' }).waitFor();
+    assert.equal(await page.getByLabel('Ask CPA Tools').evaluate(el => el === document.activeElement), true);
+    await page.getByLabel('Ask CPA Tools').fill('你能做什么？');
+    await page.getByRole('button', { name: 'Send message' }).click();
+    await page.getByText('Understanding your request…', { exact: true }).waitFor();
+    assert.equal(await page.getByLabel('Ask CPA Tools').isDisabled(), true, 'assistant input should pause while responding');
+    assert.equal(await page.getByRole('button', { name: 'Close assistant', exact: true }).evaluate(el => el === document.activeElement), true, 'processing should keep focus on an enabled dialog control');
+    await page.keyboard.press('Tab');
+    assert.equal(await page.getByRole('dialog', { name: 'CPA Tools assistant' }).evaluate(el => el.contains(document.activeElement)), true, 'processing Tab should stay inside assistant dialog');
+    await page.getByText(/Website Audit for SEO/).waitFor();
+    assert.equal(await page.getByLabel('Ask CPA Tools').evaluate(el => el === document.activeElement), true, 'composer should regain focus after replying');
+    await page.screenshot({ path: '.impeccable/review/assistant-mobile.png', fullPage: true });
+    await page.getByRole('button', { name: 'Close assistant', exact: true }).click();
+    assert.equal(await assistantLauncher.evaluate(el => el === document.activeElement), true);
     await page.evaluate(() => {
       const pages = Array.from({ length: 25 }, (_, index) => ({ url: 'https://example.com/page-' + index, title: 'Synthetic test page ' + index, status: index === 0 ? 'fail' : 'pass', httpStatus: index === 0 ? 500 : 200, responseTimeMs: 250, browser: 'not-selected', source: 'sitemap', issues: index === 0 ? ['HTTP 500; inspect server logs'] : [] }));
       localStorage.setItem('smoke-test-history-v1', JSON.stringify([{ domain: 'example.com', runs: [{ id: 'fixture', checkedAt: '2026-09-16T00:00:00Z', result: 'fail', checked: 25, skipped: 2, requestedLimit: 30, browserChecked: 0, counts: { pass: 24, warning: 0, fail: 1 }, issueSamples: [], pages }] }]));
@@ -106,26 +126,98 @@ const assert = require('node:assert/strict');
     await page.getByRole('button', { name: 'Run smoke test', exact: true }).click();
     await page.getByRole('heading', { name: 'PASS WITH WARNINGS' }).waitFor();
     await page.screenshot({ path: '.impeccable/review/smoke-result-mobile.png', fullPage: true });
-    await page.goto(origin + '/website-audit');
-    await page.route('**/api/audits', route => route.fulfill({ json: { report: { finalUrl: 'https://example.com', checkedAt: new Date().toISOString(), page: { title: 'Synthetic audit result', rendering: 'unavailable', javascriptDependencyPercent: null }, links: { discovered: 1, checked: 1, unchecked: 0, broken: [], successful: [], inconclusive: [] }, seo: { score: 84, rating: 'Good', confidence: 'medium', findings: [] }, aiVisibility: { score: 91, rating: 'Excellent', confidence: 'medium', findings: [], crawlers: [] }, qualityReport: { severityCounts: { critical: 0, high: 0, medium: 0, low: 0 }, findings: [], firstActions: [], quickWins: [], retestChecklist: [], verified: ['HTTP response checked'], notVerified: [], exclusionsApplied: [], contextualAnalysis: 'unavailable' }, summary: 'Synthetic preview only; not a real website assessment.' } } }));
-    await page.getByLabel('Website URL', { exact: true }).fill('https://example.com');
-    await page.getByRole('button', { name: 'Check my website' }).click();
+    let assistantAuditCalls = 0;
+    await page.route('**/api/audits', route => { assistantAuditCalls++; return route.fulfill({ json: { report: { finalUrl: 'https://example.com', checkedAt: new Date().toISOString(), page: { title: 'Synthetic audit result', rendering: 'unavailable', javascriptDependencyPercent: null }, links: { discovered: 1, checked: 1, unchecked: 0, broken: [], successful: [], inconclusive: [] }, seo: { score: 84, rating: 'Good', confidence: 'medium', findings: [] }, aiVisibility: { score: 91, rating: 'Excellent', confidence: 'medium', findings: [], crawlers: [] }, qualityReport: { severityCounts: { critical: 0, high: 0, medium: 0, low: 0 }, findings: [], firstActions: [], quickWins: [], retestChecklist: [], verified: ['HTTP response checked'], notVerified: [], exclusionsApplied: [], contextualAnalysis: 'unavailable' }, summary: 'Synthetic preview only; not a real website assessment.' } } }); });
+    await page.getByRole('button', { name: 'Open CPA Tools assistant' }).click();
+    await page.getByLabel('Ask CPA Tools').fill('cpaaustralia.com.au');
+    await page.getByRole('button', { name: 'Send message' }).click();
+    const auditStartUrl = page.url();
+    const firstAuditLink = page.getByRole('link', { name: /View Website Audit report/ }).last();
+    await firstAuditLink.waitFor();
+    assert.equal(page.url(), auditStartUrl, 'completed audit should wait for the user to open its report');
+    assert.equal(await page.getByRole('dialog', { name: 'CPA Tools assistant' }).isVisible(), true, 'assistant should stay open when the report becomes ready');
+    assert.match(await firstAuditLink.getAttribute('href'), /^\/reports\/[0-9a-f-]+$/);
+    await page.screenshot({ path: '.impeccable/review/assistant-report-ready-mobile.png', fullPage: true });
+    await firstAuditLink.click();
+    await page.getByRole('heading', { name: 'Website Audit report', exact: true }).waitFor();
+    assert.match(page.url(), /\/reports\/[0-9a-f-]+$/);
     await page.getByRole('heading', { name: 'Synthetic audit result' }).waitFor();
+    assert.equal(assistantAuditCalls, 1, 'assistant should run the selected audit once');
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, 'audit report mobile overflow');
     await page.screenshot({ path: '.impeccable/review/audit-result-mobile.png', fullPage: true });
+    const firstReportUrl = page.url();
+    await page.reload();
+    await page.getByRole('heading', { name: 'Website Audit report', exact: true }).waitFor();
+    await page.getByRole('heading', { name: 'Synthetic audit result' }).waitFor();
+    assert.equal(page.url(), firstReportUrl, 'report route should survive reload in the same tab');
+    assert.equal(assistantAuditCalls, 1, 'reloading a report must not replay its audit');
     await page.setViewportSize({ width: 1440, height: 1000 });
     await page.screenshot({ path: '.impeccable/review/audit-result-desktop.png', fullPage: true });
-    await page.goto(origin + '/accessibility');
-    await page.route('**/api/accessibility-audits', route => route.fulfill({ json: { report: { finalUrl: 'https://example.com', checkedAt: new Date().toISOString(), page: { title: 'Synthetic accessibility result', status: 200, rendering: 'complete' }, estimate: { score: 86, rating: 'Good', confidence: 'high', findingsCount: 1, methodology: 'Synthetic estimate.' }, findings: [{ category: 'accessibility', severity: 'medium', confidence: 'high', element: 'Document language', evidence: 'The html element has no lang attribute.', impact: 'Screen readers may use the wrong pronunciation.', fix: 'Set lang on the html element.', owner: 'Engineering' }], severityCounts: { critical: 0, high: 0, medium: 1, low: 0 }, verified: ['Rendered DOM inspected.'], notVerified: ['Keyboard navigation and focus order.'] } } }));
-    await page.getByLabel('Website URL', { exact: true }).fill('https://example.com');
-    await page.getByRole('button', { name: 'Estimate accessibility', exact: true }).click();
+    await page.getByRole('button', { name: 'Open CPA Tools assistant' }).click();
+    await page.getByLabel('Ask CPA Tools').fill('example.org');
+    await page.getByRole('button', { name: 'Send message' }).click();
+    const secondAuditLink = page.getByRole('link', { name: /View Website Audit report/ }).last();
+    await secondAuditLink.waitFor();
+    assert.equal(page.url(), firstReportUrl, 'a second completed audit should also wait for its report link');
+    await secondAuditLink.click();
+    await page.waitForTimeout(800);
+    await page.getByRole('heading', { name: 'Website Audit report', exact: true }).waitFor();
+    assert.notEqual(page.url(), firstReportUrl, 'the second report should receive its own route');
+    await page.getByRole('heading', { name: 'Synthetic audit result' }).waitFor();
+    assert.equal(assistantAuditCalls, 2, 'same-page assistant audit should run without a reload');
+    let assistantAccessibilityCalls = 0;
+    await page.route('**/api/accessibility-audits', route => {
+      assistantAccessibilityCalls++;
+      return route.fulfill({ json: { report: {
+        finalUrl: 'https://www.nrma.com.au', checkedAt: new Date().toISOString(),
+        page: { title: 'Synthetic accessibility result', status: 200, rendering: 'blocked', renderingNote: 'The browser returned an “Access Denied” page. The estimate uses initial HTML only.' },
+        estimate: { score: 86, rating: 'Good', confidence: 'medium', findingsCount: 1, methodology: 'Synthetic estimate.' },
+        findings: [{ category: 'accessibility', severity: 'medium', confidence: 'high', element: 'Document language', evidence: 'The html element has no lang attribute.', impact: 'Screen readers may use the wrong pronunciation.', fix: 'Set lang on the html element.', owner: 'Engineering' }],
+        severityCounts: { critical: 0, high: 0, medium: 1, low: 0 }, verified: ['Initial HTML inspected.'], notVerified: ['JavaScript-rendered content was not assessed because browser automation was blocked.', 'Keyboard navigation and focus order.'],
+      } } });
+    });
+    let assistantSemanticCalls = 0;
+    await page.route('**/api/assistant/interpret', route => {
+      assistantSemanticCalls++;
+      return route.fulfill({ json: { source: 'openai', result: {
+        reply: 'I matched this to Accessibility Estimate.', nextIntent: null,
+        action: { type: 'run_accessibility_audit', url: 'https://www.nrma.com.au/', href: '/accessibility?url=https%3A%2F%2Fwww.nrma.com.au%2F' },
+      } } });
+    });
+    await page.getByRole('button', { name: 'Open CPA Tools assistant' }).click();
+    await page.getByLabel('Ask CPA Tools').fill('Could a keyboard-only visitor use https://www.nrma.com.au comfortably?');
+    await page.getByRole('button', { name: 'Send message' }).click();
+    const semanticStartUrl = page.url();
+    const semanticReportLink = page.getByRole('link', { name: /View Accessibility Estimate report/ }).last();
+    await semanticReportLink.waitFor();
+    assert.equal(page.url(), semanticStartUrl, 'semantic result should wait for the user to open its report');
+    await semanticReportLink.click();
+    await page.getByRole('heading', { name: 'Accessibility Estimate report', exact: true }).waitFor();
+    assert.notEqual(page.url(), semanticStartUrl, 'the semantic report link should navigate on click');
+    assert.equal(assistantSemanticCalls, 1, 'ambiguous natural language should use semantic classification once');
+    assert.equal(assistantAccessibilityCalls, 1, 'semantic accessibility intent should run the accessibility API');
+    const semanticReportUrl = page.url();
+    await page.getByRole('button', { name: 'Open CPA Tools assistant' }).click();
+    await page.getByLabel('Ask CPA Tools').fill('https://www.nrma.com.au check the accessility');
+    await page.getByRole('button', { name: 'Send message' }).click();
+    await page.waitForFunction(currentUrl => Array.from(document.querySelectorAll('a')).some(link => link.textContent?.includes('View Accessibility Estimate report') && link.href !== currentUrl), semanticReportUrl);
+    const localReportLink = page.getByRole('link', { name: /View Accessibility Estimate report/ }).last();
+    await localReportLink.waitFor();
+    assert.equal(page.url(), semanticReportUrl, 'local result should wait for the user to open its report');
+    await localReportLink.click();
+    await page.waitForTimeout(800);
+    await page.getByRole('heading', { name: 'Accessibility Estimate report', exact: true }).waitFor();
+    assert.notEqual(page.url(), semanticReportUrl, 'the local report link should navigate on click');
     await page.getByRole('heading', { name: 'Synthetic accessibility result' }).waitFor();
+    await page.getByRole('heading', { name: 'Partial estimate — browser rendering blocked' }).waitFor();
+    assert.equal(assistantSemanticCalls, 1, 'known accessibility spelling variants should stay on the local fast path');
+    assert.equal(assistantAccessibilityCalls, 2, 'both semantic and local accessibility intents should run once');
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, 'accessibility desktop overflow');
     await page.screenshot({ path: '.impeccable/review/accessibility-result-desktop.png', fullPage: true });
     await page.setViewportSize({ width: 390, height: 844 });
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, 'accessibility mobile overflow');
     await page.screenshot({ path: '.impeccable/review/accessibility-result-mobile.png', fullPage: true });
     assert.deepEqual(errors, []);
-    console.log(JSON.stringify({ passed: true, clientNavigationRequests: navigationRequests, captures: captures.length * 2 + 7, smokePaginationAndFilter: true, loadingAndError: true, mobileFocus: true, pageErrors: errors }));
+    console.log(JSON.stringify({ passed: true, clientNavigationRequests: navigationRequests, captures: captures.length * 2 + 10, smokePaginationAndFilter: true, loadingAndError: true, mobileFocus: true, assistantRouting: true, pageErrors: errors }));
   } finally { await browser?.close(); server.kill(); }
 })().catch(error => { console.error(error.message); process.exitCode = 1; });
