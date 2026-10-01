@@ -251,6 +251,8 @@ History search adds an 18px outlined search icon and 40px left input padding. Me
 
 Navy with white tool titles and light-slate supporting descriptions. Tool rows have a 56px minimum height, 12px horizontal padding, larger corners and a transparent border at rest. Hover uses white at 10%; active links use the cyan fill/border and `aria-current="page"`. Keyboard focus uses the cyan 2px offset outline. Groups are divided by translucent white rules and use native disclosure controls.
 
+The home link at the top of the sidebar and in the mobile top bar carries the Auditron identity: the illustrated avatar (`public/auditron.png`) at 44px desktop / 40px mobile with the shell's larger corner radius and a cyan hairline ring, beside the "Auditron / The Digital Watchdog" wordmark. It replaces the former cyan monitor-icon tile and "CPA Tools / Website Audit" wordmark. The avatar is decorative, so the link's accessible name supplies the destination.
+
 Desktop sidebar and mobile toolbox share the same tool content. The drawer contains keyboard focus, closes on Escape or navigation, restores trigger focus and locks background scrolling. Account and sign-out controls stay in the top shell rather than being duplicated inside tools.
 
 ### Daily brief

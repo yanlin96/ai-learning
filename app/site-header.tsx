@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import Image from "next/image";
 
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
@@ -12,7 +13,6 @@ import {
   LogIn,
   LogOut,
   Menu,
-  MonitorCheck,
   SearchCheck,
   TrainFront,
   X,
@@ -203,16 +203,16 @@ export function SiteHeader() {
   const routeLabel = pathname.startsWith("/smoke-test/history") ? "Smoke test history" : pathname.startsWith("/smoke-test") ? "Smoke testing" : pathname.startsWith("/accessibility") ? "Accessibility" : pathname.startsWith("/history") ? "Audit history" : pathname.startsWith("/disruptions") ? "Train line status" : "Website audit";
   return <header className="relative z-20 shrink-0 bg-[#071226] text-white [&_summary]:focus-visible:outline-2 [&_summary]:focus-visible:outline-offset-2 [&_summary]:focus-visible:outline-cyan-200 [&_button]:focus-visible:outline-2 [&_button]:focus-visible:outline-offset-2 [&_button]:focus-visible:outline-cyan-200">
     <aside className="fixed inset-y-0 left-0 z-40 hidden w-[252px] flex-col overflow-y-auto border-r border-white/15 bg-[#071226] px-4 py-5 text-white xl:flex" aria-label="Company tools">
-      <Link className="flex items-center gap-3 border-b border-white/15 px-2 pb-5 text-white no-underline" href="/website-audit" aria-label="CPA Tools home">
-        <span className="grid size-11 place-items-center rounded-xl bg-cyan-200 text-[#071226]"><MonitorCheck size={22}/></span>
-        <strong className="text-[15px] leading-tight font-extrabold">CPA Tools<br/>Website Audit</strong>
+      <Link className="flex items-center gap-3 border-b border-white/15 px-2 pb-5 text-white no-underline" href="/website-audit" aria-label="Auditron home">
+        <Image className="size-11 shrink-0 rounded-xl object-cover ring-1 ring-cyan-200/40" src="/auditron.png" alt="" width={88} height={88} priority/>
+        <strong className="text-[15px] leading-tight font-extrabold">Auditron<br/>The Digital Watchdog</strong>
       </Link>
       <ToolboxLinks pathname={pathname}/>
     </aside>
     <nav className="mx-auto flex h-16 w-[calc(100%_-_32px)] max-w-[1080px] items-center justify-between gap-5 sm:w-[calc(100%_-_48px)]" aria-label="Top navigation">
-      <Link href="/website-audit" aria-label="CPA Tools home" className="flex items-center gap-3 text-white no-underline xl:hidden">
-        <span className="grid size-10 place-items-center rounded-xl bg-cyan-200 text-[#071226]"><MonitorCheck size={20}/></span>
-        <strong className="max-[600px]:hidden">CPA Tools</strong>
+      <Link href="/website-audit" aria-label="Auditron home" className="flex items-center gap-3 text-white no-underline xl:hidden">
+        <Image className="size-10 shrink-0 rounded-xl object-cover ring-1 ring-cyan-200/40" src="/auditron.png" alt="" width={80} height={80} priority/>
+        <strong className="max-[600px]:hidden">Auditron</strong>
       </Link>
       <div className="hidden items-center gap-3 text-sm xl:flex">
         <span className="text-slate-300">Workspace</span><span className="text-slate-400" aria-hidden="true">/</span>
