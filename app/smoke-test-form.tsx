@@ -111,7 +111,7 @@ export function SmokeTestForm({ initialReport = null, reportOnly = false }: { in
           </div>
         </div>
       </form>}
-      {!reportOnly && assistantStarting && <p className="mt-4 rounded-xl border border-blue-100 bg-blue-50 p-4 text-sm font-bold text-[#00539d]" role="status">Assistant filled the URL. Starting the standard Smoke Test…</p>}
+      {!reportOnly && assistantStarting && <p className="mt-4 rounded-xl border border-blue-100 bg-blue-50 p-4 text-sm font-bold text-[#00539d]" role="status">Auditron filled the URL. Starting the standard Smoke Test…</p>}
       {!reportOnly && loading && <p className="mt-4 rounded-xl bg-blue-50 p-4 text-sm leading-6 text-[#00539d]" role="status">Checking priority URLs and sitemap pages. Browser checks follow; larger runs can take longer. Keep this page open for the results.</p>}
       {!reportOnly && error && <p className="mt-4 rounded-xl bg-red-50 p-4 text-sm leading-6 text-red-800" role="alert">{error} Check the website URL and try again.</p>}
       {!reportOnly && historyWarning && <p className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900" role="status">{historyWarning}</p>}

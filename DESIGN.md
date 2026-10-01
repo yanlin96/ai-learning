@@ -259,7 +259,7 @@ A flat white bordered panel with two compact icon-and-text summaries and weather
 
 ### Workspace assistant
 
-The assistant extends the established shell rather than introducing a separate identity: workspace navy header and launcher, white conversation surface, brand-blue user messages/actions and cyan icon tile. Suggested commands use compact bordered buttons; completed tool results open in a dedicated authenticated report page rather than expanding inside chat.
+The assistant is presented as Auditron, the Digital Watchdog, and extends the established shell rather than introducing a separate identity: workspace navy header and launcher, white conversation surface, brand-blue user messages/actions. Its illustrated avatar (`public/auditron.png`) replaces the former cyan icon tile in both the panel header and the launcher, rendered at 36px with rounded corners and a cyan hairline ring. The avatar is decorative: it carries empty alternative text, and the accessible names of the launcher and dialog carry the assistant's name. Suggested commands use compact bordered buttons; completed tool results open in a dedicated authenticated report page rather than expanding inside chat.
 
 While open, the panel is an accessible modal dialog with a backdrop, contained Tab order, Escape and explicit close actions, body scroll lock and focus restoration to the launcher. The launcher leaves the tab order until the dialog closes. The message log announces additions politely, and the composer retains the shared field/focus treatment.
 

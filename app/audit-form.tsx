@@ -113,7 +113,7 @@ export function AuditForm({ initialReport = null, reportOnly = false }: { initia
         </div>
         <p className="mt-2 mb-0 text-sm leading-6 text-slate-600" id="audit-scope">Checks one public page and up to 80 links. Nothing is changed on the website.</p>
       </form>}
-      {!reportOnly && assistantStarting && <p className="mt-4 rounded-xl border border-blue-100 bg-blue-50 p-4 text-sm font-bold text-[#00539d]" role="status">Assistant filled the URL. Starting Website Audit…</p>}
+      {!reportOnly && assistantStarting && <p className="mt-4 rounded-xl border border-blue-100 bg-blue-50 p-4 text-sm font-bold text-[#00539d]" role="status">Auditron filled the URL. Starting Website Audit…</p>}
       {!reportOnly && loading && (
         <div className="mt-4 rounded-xl border border-blue-100 bg-blue-50 p-5" role="status" aria-live="polite">
           <div className="flex items-center gap-3"><LoaderCircle className="animate-spin text-[#00539d]" size={20} /><div><strong className="block text-sm text-[#090d46]">Checking your page</strong><small className="text-xs text-slate-600">Fetching, checking links and metadata, rendering JavaScript, then preparing the report. Keep this tab open.</small></div></div>
