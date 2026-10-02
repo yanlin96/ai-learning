@@ -38,6 +38,8 @@ export type QualityFinding = {
   location?: string;
   /** Set when an exclusion rule downgraded rather than removed the finding. */
   note?: string;
+  /** WCAG criteria directly related to this observed accessibility finding. */
+  wcag?: Array<{ criterion: string; title: string; level: "A" | "AA" }>;
 };
 
 export const SEVERITY_ORDER: Severity[] = ["critical", "high", "medium", "low"];

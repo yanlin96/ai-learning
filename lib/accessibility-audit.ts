@@ -97,10 +97,11 @@ export function auditAccessibility($: CheerioAPI): QualityFinding[] {
       confidence: "high",
       element: "Images without an alt attribute",
       evidence: `${missingAlt.length} of ${images.length} images have no alt attribute: ${quoteExamples(missingAlt)}.`,
-      impact: "Screen-reader users receive no description, and the file path may be read aloud instead. This is a WCAG 2.1 A failure (1.1.1 Non-text Content).",
+      impact: "Screen-reader users receive no description, and the file path may be read aloud instead. This is a WCAG 2.0 Level A failure (1.1.1 Non-text Content).",
       fix: "Add meaningful alt text describing the purpose of each informative image. Use alt=\"\" only for purely decorative images.",
       owner: "Design/Accessibility",
       location: "img elements",
+      wcag: [{ criterion: "1.1.1", title: "Non-text Content", level: "A" }],
     });
   }
 
@@ -115,6 +116,11 @@ export function auditAccessibility($: CheerioAPI): QualityFinding[] {
       fix: "Give the image alt text describing the link destination, or add an aria-label to the link.",
       owner: "Design/Accessibility",
       location: "a > img[alt=\"\"]",
+      wcag: [
+        { criterion: "1.1.1", title: "Non-text Content", level: "A" },
+        { criterion: "2.4.4", title: "Link Purpose (In Context)", level: "A" },
+        { criterion: "4.1.2", title: "Name, Role, Value", level: "A" },
+      ],
     });
   }
 
@@ -129,6 +135,7 @@ export function auditAccessibility($: CheerioAPI): QualityFinding[] {
       fix: "Replace with text describing what the image communicates in this context.",
       owner: "Content",
       location: "img[alt]",
+      wcag: [{ criterion: "1.1.1", title: "Non-text Content", level: "A" }],
     });
   }
 
@@ -159,10 +166,14 @@ export function auditAccessibility($: CheerioAPI): QualityFinding[] {
       confidence: "high",
       element: "Links with no accessible name",
       evidence: `${namelessLinks.length} link${namelessLinks.length === 1 ? "" : "s"} expose no text, aria-label, or image alt: ${quoteExamples(namelessLinks)}.`,
-      impact: "Screen-reader and voice-control users cannot identify or activate these links. WCAG 2.1 A failure (2.4.4 Link Purpose).",
+      impact: "Screen-reader and voice-control users cannot identify or activate these links. WCAG 2.0 Level A failure (2.4.4 Link Purpose).",
       fix: "Add visible link text or an aria-label describing the destination.",
       owner: "Design/Accessibility",
       location: "a[href]",
+      wcag: [
+        { criterion: "2.4.4", title: "Link Purpose (In Context)", level: "A" },
+        { criterion: "4.1.2", title: "Name, Role, Value", level: "A" },
+      ],
     });
   }
 
@@ -177,6 +188,7 @@ export function auditAccessibility($: CheerioAPI): QualityFinding[] {
       fix: "Replace with descriptive text naming the destination, e.g. \"Learn more about CPA Congress 2026\" instead of \"Learn more\".",
       owner: "Content",
       location: "a[href]",
+      wcag: [{ criterion: "2.4.4", title: "Link Purpose (In Context)", level: "A" }],
     });
   }
 
@@ -195,6 +207,7 @@ export function auditAccessibility($: CheerioAPI): QualityFinding[] {
       fix: "Make each label unique to its destination, or distinguish them with aria-label.",
       owner: "Content",
       location: "a[href]",
+      wcag: [{ criterion: "2.4.4", title: "Link Purpose (In Context)", level: "A" }],
     });
   }
 
@@ -213,6 +226,10 @@ export function auditAccessibility($: CheerioAPI): QualityFinding[] {
       fix: "Use exactly one H1 naming the page subject, and demote the remaining headings to H2.",
       owner: "Design/Accessibility",
       location: "h1",
+      wcag: [
+        { criterion: "1.3.1", title: "Info and Relationships", level: "A" },
+        { criterion: "2.4.6", title: "Headings and Labels", level: "AA" },
+      ],
     });
   }
 
@@ -234,6 +251,10 @@ export function auditAccessibility($: CheerioAPI): QualityFinding[] {
       fix: "Step heading levels one at a time; use CSS rather than heading level to control visual size.",
       owner: "Design/Accessibility",
       location: "h1-h6",
+      wcag: [
+        { criterion: "1.3.1", title: "Info and Relationships", level: "A" },
+        { criterion: "2.4.6", title: "Headings and Labels", level: "AA" },
+      ],
     });
   }
 
@@ -260,10 +281,15 @@ export function auditAccessibility($: CheerioAPI): QualityFinding[] {
       confidence: "high",
       element: "Form fields without a programmatic label",
       evidence: `${unlabelled.length} field${unlabelled.length === 1 ? " has" : "s have"} no label, aria-label, or aria-labelledby: ${quoteExamples(unlabelled)}.`,
-      impact: "Screen-reader users cannot tell what to enter. Placeholder text alone is not an accessible label. WCAG 2.1 A failure (3.3.2 Labels or Instructions).",
+      impact: "Screen-reader users cannot tell what to enter. Placeholder text alone is not an accessible label. WCAG 2.0 Level A failure (3.3.2 Labels or Instructions).",
       fix: "Associate a visible <label for> with each field, or add aria-label where a visible label is not possible.",
       owner: "Engineering",
       location: "input, select, textarea",
+      wcag: [
+        { criterion: "1.3.1", title: "Info and Relationships", level: "A" },
+        { criterion: "3.3.2", title: "Labels or Instructions", level: "A" },
+        { criterion: "4.1.2", title: "Name, Role, Value", level: "A" },
+      ],
     });
   }
 
@@ -279,6 +305,7 @@ export function auditAccessibility($: CheerioAPI): QualityFinding[] {
       fix: "Add an aria-label describing the action, e.g. aria-label=\"Close dialog\".",
       owner: "Engineering",
       location: "button",
+      wcag: [{ criterion: "4.1.2", title: "Name, Role, Value", level: "A" }],
     });
   }
 
@@ -291,10 +318,11 @@ export function auditAccessibility($: CheerioAPI): QualityFinding[] {
       confidence: "high",
       element: "Document language",
       evidence: "The <html> element has no lang attribute.",
-      impact: "Screen readers may use the wrong pronunciation rules for the whole page. WCAG 2.1 A failure (3.1.1 Language of Page).",
+      impact: "Screen readers may use the wrong pronunciation rules for the whole page. WCAG 2.0 Level A failure (3.1.1 Language of Page).",
       fix: "Set lang on the html element, e.g. <html lang=\"en-AU\">.",
       owner: "Engineering",
       location: "html",
+      wcag: [{ criterion: "3.1.1", title: "Language of Page", level: "A" }],
     });
   }
 
@@ -310,6 +338,7 @@ export function auditAccessibility($: CheerioAPI): QualityFinding[] {
       fix: "Add a title attribute describing the embedded content.",
       owner: "Engineering",
       location: "iframe",
+      wcag: [{ criterion: "4.1.2", title: "Name, Role, Value", level: "A" }],
     });
   }
 

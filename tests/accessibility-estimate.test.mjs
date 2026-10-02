@@ -4,6 +4,7 @@ import * as cheerio from "cheerio";
 import { auditAccessibility } from "../lib/accessibility-audit.ts";
 import { scoreAccessibility } from "../lib/audit-scoring.ts";
 import { chooseAccessibilityMarkup, detectAutomatedAccessBlock } from "../lib/accessibility-page-state.ts";
+import { buildWcag20AutomatedChecks, WCAG20_COMPLEX_CHECKS } from "../lib/wcag20.ts";
 
 test("accessible-name overrides prevent generic-link false positives", () => {
   const $ = cheerio.load(`<!doctype html><html lang="en-AU"><body>
@@ -23,6 +24,17 @@ test("deterministic DOM findings feed the accessibility estimate", () => {
   assert.ok(findings.some((finding) => finding.element === "Images without an alt attribute"));
   assert.ok(findings.some((finding) => finding.element === "Buttons with no accessible name"));
   assert.ok(scoreAccessibility(findings, true).score < 75);
+  assert.ok(findings.find((finding) => finding.element === "Images without an alt attribute")?.wcag?.some((reference) => reference.criterion === "1.1.1"));
+  assert.ok(findings.find((finding) => finding.element === "Buttons with no accessible name")?.wcag?.some((reference) => reference.criterion === "4.1.2"));
+});
+
+test("WCAG 2.0 coverage separates automated evidence from complex interaction checks", () => {
+  const findings = auditAccessibility(cheerio.load("<!doctype html><html><body><button></button></body></html>"));
+  const checks = buildWcag20AutomatedChecks(findings);
+  assert.equal(checks.find((check) => check.criterion === "4.1.2")?.status, "issue-detected");
+  assert.equal(checks.find((check) => check.criterion === "1.1.1")?.status, "no-issue-detected");
+  assert.ok(WCAG20_COMPLEX_CHECKS.some((check) => check.criterion === "2.4.7" && /focus/i.test(check.test)));
+  assert.ok(WCAG20_COMPLEX_CHECKS.some((check) => check.criterion === "3.2.1 / 3.2.2" && /buttons, links/i.test(check.test)));
 });
 
 test("access-control responses are detected without treating ordinary page copy as a block", () => {

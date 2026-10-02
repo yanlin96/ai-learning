@@ -117,6 +117,6 @@ export function scoreAccessibility(findings: AccessibilityFinding[], renderingCo
     score: finalScore,
     rating: rating(finalScore),
     confidence: renderingComplete ? "high" : "medium",
-    methodology: "Estimated from automated DOM checks for text alternatives, accessible names, form labels, heading structure, document language and frame titles. It does not test colour contrast, keyboard use, focus order, zoom or assistive-technology usability and is not a WCAG compliance result.",
+    methodology: "WCAG 2.0 AA-aligned estimate from a documented subset of automated DOM checks. Complex criteria such as colour contrast, keyboard use, focus order and interaction outcomes remain guided checks; this is not a WCAG compliance result and does not establish conformance.",
   };
 }

@@ -4,6 +4,8 @@ Last updated: 2026-09-18
 
 ## Working now
 
+- Accessibility Estimate now targets WCAG 2.0 Level AA. Deterministic findings carry criterion/level references, criterion coverage uses honest issue/no-issue wording, and the report separates simple automated checks from complex guided checks for contrast, keyboard behavior, focus and button/link outcomes. It remains an estimate rather than a conformance result.
+
 - Accessibility Estimate detects access-denied and automated-access challenge documents before scoring. A blocked headless render falls back to real initial HTML as a visible reduced-confidence partial estimate; if both retrieval paths are blocked, the API returns unable to assess and creates no misleading report.
 
 - A shell-persistent assistant, presented as Auditron the Digital Watchdog, provides capability help and a constrained command path from every signed-in page. Explicit English/Chinese requests and tested common misspellings use a local fast path; unmatched natural language uses a login-protected OpenAI Structured Outputs classifier restricted to the fixed tool-intent enum. URLs and final actions remain application-owned. Given a supported check and user-supplied URL, it calls the existing protected API and stores the full result under a random current-tab ID. The conversation remains open and presents authenticated `/reports/[id]`; only the user's click navigates. The route reuses each tool's report renderer, survives reload in the creating tab and is intentionally not shareable across browsers/devices. The assistant has no arbitrary fetch authority and keeps OpenAI credentials server-side.
@@ -84,6 +86,8 @@ Last updated: 2026-09-18
 Develop in small user-requested increments. The next likely product milestone is scheduling, but `docs/BACKLOG.md` is not authorization to start it.
 
 ## Verification baseline
+
+2026-10-02 WCAG 2.0 AA coverage split: 60 unit tests, type checking and isolated production build pass. Tests cover criterion metadata, issue/no-issue aggregation and the complex focus/button outcome checklist. Fixture-session browser verification covers desktop and 390px reports, WCAG coverage rendering, keyboard focus/expansion of a complex check, no horizontal overflow and no client exceptions. External target sites were not crawled.
 
 2026-09-18 access-control-aware accessibility estimates: 59 unit tests, type checking and isolated production build pass. Focused tests cover challenge detection, browser-blocked initial-HTML fallback, recovery when rendering succeeds after an initial block, and no score when both paths are blocked. Fixture-session browser verification covers the visible partial state in authenticated assistant reports at desktop and 390px widths, with no overflow or client exceptions. No live target was crawled during verification.
 

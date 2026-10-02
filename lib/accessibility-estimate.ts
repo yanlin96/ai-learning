@@ -7,6 +7,7 @@ import { scoreAccessibility, type AuditScore } from "@/lib/audit-scoring";
 import { normalizePublicUrl, safePublicFetch } from "@/lib/public-web";
 import { renderPublicPage } from "@/lib/public-page-renderer";
 import { chooseAccessibilityMarkup, type AccessibilityRendering } from "@/lib/accessibility-page-state";
+import { buildWcag20AutomatedChecks, WCAG20_COMPLEX_CHECKS, type Wcag20AutomatedCheck, type Wcag20ComplexCheck } from "@/lib/wcag20";
 
 const MAX_HTML_LENGTH = 2_000_000;
 
@@ -17,6 +18,12 @@ export type AccessibilityEstimateReport = {
   estimate: AuditScore & { findingsCount: number };
   findings: QualityFinding[];
   severityCounts: SeverityCounts;
+  wcag?: {
+    version: "2.0";
+    targetLevel: "AA";
+    automated: Wcag20AutomatedCheck[];
+    complex: Wcag20ComplexCheck[];
+  };
   verified: string[];
   notVerified: string[];
 };
@@ -49,6 +56,12 @@ export async function estimateAccessibility(input: string): Promise<Accessibilit
     estimate: { ...score, findingsCount: findings.length },
     findings,
     severityCounts: countBySeverity(findings),
+    wcag: {
+      version: "2.0",
+      targetLevel: "AA",
+      automated: buildWcag20AutomatedChecks(findings),
+      complex: WCAG20_COMPLEX_CHECKS,
+    },
     verified: [
       `${$("img").length} images checked for text alternatives.`,
       `${$("a[href]").length} links and ${$("button").length} buttons checked for accessible names.`,

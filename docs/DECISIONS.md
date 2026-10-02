@@ -1,5 +1,9 @@
 # Decisions
 
+## 2026-10-02 — Target WCAG 2.0 AA without claiming automated conformance
+
+Accessibility Estimate uses WCAG 2.0 Level AA as its named target. Map each deterministic markup finding to the directly related WCAG success criteria and show criterion-level automated coverage as “issue detected” or “no issue detected,” never “passed.” Separate those simple checks from complex interaction checks for contrast, keyboard operation, keyboard traps, focus order, focus visibility and predictable focus/input outcomes. Complex checks remain explicitly unverified until a person operates and observes the rendered interface; buttons and links must not be activated automatically because they may submit data or trigger destructive actions. The score is prioritisation only. Full conformance still requires every applicable Level A and AA success criterion to pass.
+
 ## 2026-09-18 — Never score access-control challenge pages
 
 Accessibility Estimate must distinguish the requested page from WAF, bot-challenge and access-denied documents returned to automation. Prefer a successful rendered DOM. If browser rendering is blocked but the initial HTTP response contains the real page, inspect that initial HTML as a clearly labelled partial estimate with reduced confidence and an explicit dynamic-content gap. If both paths are blocked, return an unable-to-assess error and no score. Keep detection conservative and do not add stealth plugins, fingerprint spoofing, CAPTCHA bypass or proxy rotation; allowlisting or a future user-run browser extension is the appropriate path for sites that require stronger access.
